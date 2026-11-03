@@ -41,6 +41,14 @@ const LOGROS = {
   caldofran: { i: '♨', t: '¡Caldofran!' },
 };
 
+/* ---------- frases sueltas de cada uno ---------- */
+const IDLE_LINES = {
+  ramis: ['Habiendo haber podido…', 'Bajo el yugo opresor…', '¡Yo al menos podré decir que he vivido!', 'Nunca más… hasta el sábado.', '¿Eso es un 911? Ah, no, es una farola.'],
+  marc: ['Esa luz está fatal.', 'Esto me lo apunto para un dibujo.', 'Para un Manara, esta noche.', 'Letra de escribano… ningún contenido.'],
+  marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', 'Para esto necesito un D20.', '¿Alguien tiene agua?'],
+  angel: ['Lo noto… aquí hay algo.', 'Qué bonita está la noche.', 'Maje… no, no pienso en Maje.', 'La luna dice cosas.'],
+};
+
 /* ---------- pequeñas ayudas de guion ---------- */
 const P = (id, x, y) => [x, y];
 async function laugh(who) { try { AUDIO.laugh(who); } catch (e) {} const a = G.actors[who]; if (a) a.laughUntil = G.t + 1.8; }

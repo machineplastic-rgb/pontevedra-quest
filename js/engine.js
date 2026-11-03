@@ -323,6 +323,35 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${clamp(a, 0, 1)})`;
 }
 
+/* ---------------- frases sueltas cuando no pasa nada ---------------- */
+function updIdle(dt) {
+  if (!S || !G.started || G.busy || G.dlgOpen || G.mode || !G.scene || !G.scene.pos || typeof IDLE_LINES === 'undefined') { G.idleT = 8; return; }
+  if (G.bubble && G.t > G.bubble.until) G.bubble = null;
+  G.idleT = (G.idleT === undefined ? 8 : G.idleT) - dt;
+  if (G.idleT > 0) return;
+  G.idleT = rnd(10, 16);
+  const ids = PROTA.filter((p) => G.actors[p]); if (!ids.length) return;
+  const who = pick(ids);
+  let txt = pick(IDLE_LINES[who] || ['…']);
+  if (S.drunk[who] >= 3) txt += ' ¡hip!';
+  G.bubble = { who, txt, until: G.t + 3.4 };
+  hopA(who);
+  try { for (let i = 0; i < 3; i++) setTimeout(() => AUDIO.blip(who), i * 90); } catch (er) {}
+}
+function drawBubble(c) {
+  const b = G.bubble; if (!b) return;
+  const a = G.actors[b.who], bb = a && actorBox(a); if (!bb) return;
+  c.save(); c.font = "30px 'Patrick Hand', cursive";
+  const tw = Math.min(460, c.measureText(b.txt).width + 36), x = clamp(a.x, tw / 2 + 10, W - tw / 2 - 10), y = Math.max(150, bb.y - 30);
+  const k = Math.min(1, (b.until - G.t) * 3, (G.t - (b.until - 3.4)) * 6);
+  c.globalAlpha = clamp(k, 0, 1);
+  c.fillStyle = 'rgba(255,250,235,.96)'; c.strokeStyle = '#2a1a08'; c.lineWidth = 4;
+  c.beginPath(); c.roundRect(x - tw / 2, y - 58, tw, 52, 18); c.fill(); c.stroke();
+  c.beginPath(); c.moveTo(a.x - 12, y - 8); c.lineTo(a.x, y + 10); c.lineTo(a.x + 10, y - 8); c.closePath(); c.fill();
+  c.fillStyle = '#2a1a08'; c.textAlign = 'center'; c.fillText(b.txt, x, y - 22, tw - 24);
+  c.restore();
+}
+
 /* ---------------- dibujo de la escena ---------------- */
 function renderScene(c) {
   const sc = G.scene;
@@ -348,6 +377,7 @@ function renderScene(c) {
       c.beginPath(); c.moveTo(a.x - 16, y - 22); c.lineTo(a.x + 16, y - 22); c.lineTo(a.x, y); c.closePath(); c.stroke(); c.fill(); c.restore(); } }
     drawFx(c, sc.fx);
     if (sc.drawTop) sc.drawTop(c, G.t);
+    if (!G.busy && !G.dlgOpen) drawBubble(c);
   }
   drawParticles(c);
   // zonas a la vista (lupa)
@@ -383,7 +413,7 @@ function drawReveal(c) {
 
 function frame(ms) {
   const now = ms / 1000; G.dt = Math.min(0.05, now - (G.last || now)); G.last = now; G.t += G.dt;
-  updTweens(); updParticles(G.dt);
+  updTweens(); updParticles(G.dt); updIdle(G.dt);
   if (G.mode && G.mode.update) G.mode.update(G.dt);
   // pintar en el búfer
   bx.setTransform(1, 0, 0, 1, 0, 0);
@@ -655,7 +685,12 @@ async function say(who, text, mood, o) {
   if (isProta(who) && !o.noSlur) text = slur(text, lv);
   if (lv >= 3 && /hip|HIC/i.test(text)) sfx('hipo');
   const a = G.actors[who]; if (a) a.talking = true;
-  if (mood === 'risa') { try { AUDIO.laugh(who === 'gc1' || who === 'gc2' ? 'gc' : who); } catch (e) {} if (a) a.laughUntil = G.t + 1.6; }
+  if (mood === 'risa') {
+    // la risa suena como mucho cada pocos segundos, para que no canse
+    const now = performance.now();
+    if (!G.lastLaugh || now - G.lastLaugh > 5000) { G.lastLaugh = now; try { AUDIO.laugh(who === 'gc1' || who === 'gc2' ? 'gc' : who); } catch (er) {} }
+    if (a) a.laughUntil = G.t + 1.6;
+  }
   port.classList.add('talk');
   // máquina de escribir
   const html = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
