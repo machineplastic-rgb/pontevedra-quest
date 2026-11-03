@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Pontevedra Quest · Club de Caballeros</title>
+<meta name="description" content="Una noche legendaria del Club de Caballeros en Pontevedra.">
+<meta name="theme-color" content="#0b0f24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pontevedra Quest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Nunito:wght@600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="cv" width="1600" height="1000"></canvas>
+
+    <!-- capa de juego -->
+    <div id="hud" class="hidden">
+      <div id="obj"><b>OBJETIVO</b><span id="objtxt"></span></div>
+      <div id="topbtns">
+        <button id="bLupa" class="rb" title="Ver zonas">&#128269;</button>
+        <button id="bBolsa" class="rb" title="Bolsa">&#127890;<i id="bolsaN"></i></button>
+        <button id="bMenu" class="rb" title="Menú">&#9776;</button>
+      </div>
+      <div id="party"></div>
+      <div id="holding" class="hidden"><img alt=""><span></span><button>&#10005;</button></div>
+    </div>
+
+    <div id="label" class="hidden"></div>
+    <div id="verbs" class="hidden"></div>
+    <div id="bag" class="hidden"><div class="bagin"><h3>La bolsa del Club</h3><div id="bagitems"></div><p id="bagdesc">Toca un objeto para verlo. Pulsa «Usar» y luego toca dónde.</p><button id="bagClose" class="gold">Cerrar</button></div></div>
+
+    <div id="dlg" class="hidden">
+      <div id="dport"><img alt=""></div>
+      <div id="dbox"><div id="dname"></div><div id="dtext"></div><div id="dnext">&#9660;</div></div>
+    </div>
+    <div id="choices" class="hidden"></div>
+
+    <div id="card" class="hidden"><div class="cin"></div></div>
+    <div id="toast" class="hidden"></div>
+    <div id="mg" class="hidden"></div>
+
+    <div id="menu" class="hidden"><div class="mbox">
+      <h3>Menú</h3>
+      <button id="mSound" class="gold">Sonido: Sí</button>
+      <button id="mHelp" class="gold">Cómo se juega</button>
+      <button id="mTitle" class="gold">Volver a la portada</button>
+      <button id="mClose" class="gold">Seguir jugando</button>
+    </div></div>
+
+    <div id="title">
+      <div id="tsub">CLUB DE CABALLEROS</div>
+      <div id="tbtns">
+        <button id="tNew" class="gold big">Nueva partida</button>
+        <button id="tCont" class="gold big hidden">Continuar</button>
+      </div>
+      <div id="tfoot">Una noche en Pontevedra · Para mayores de 18 · Activa el sonido</div>
+    </div>
+
+    <div id="loading"><div class="lin"><div class="lt">Cargando Pontevedra…</div><div class="lbar"><i id="lprog"></i></div></div></div>
+  </div>
+  <div id="rotate" class="hidden"><div>&#8635;</div><p>Gira el móvil para jugar mejor</p><button class="gold" id="rotOk">Jugar así</button></div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/procedural.js"></script>
+<script src="js/minigames.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
