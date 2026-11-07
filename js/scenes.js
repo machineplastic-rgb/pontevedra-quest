@@ -341,13 +341,13 @@ SCENES.bodega = {
   tint: { c: '#ff9a4a', a: 0.1, d: 0.05 }, k: 0.64,
   pos: { ramis: [300, 995], marc: [520, 998], angel: [1160, 995], marcos: [1370, 992] },
   props: [
-    { img: 'candelabro', x: 940, y: 568, h: 112, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
+    { img: 'candelabro', x: 680, y: 557, h: 112, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
   ],
   fx: [
     { type: 'glow', x: 790, y: 175, r: 300, color: '#ffbe6a', a: 0.32, flicker: 0.1 },
     { type: 'glow', x: 1385, y: 300, r: 180, color: '#ffb050', a: 0.35, flicker: 0.4, seed: 3 },
     { type: 'glow', x: 752, y: 508, r: 150, color: '#ffb050', a: 0.35, flicker: 0.5, seed: 5 },
-    { type: 'candle', x: 940, y: 470, r: 110, color: '#ffb050', a: 0.4, cond: () => !has('candelabro') && !flag('candelabroCogido') },
+    { type: 'candle', x: 680, y: 459, r: 110, color: '#ffb050', a: 0.4, cond: () => !has('candelabro') && !flag('candelabroCogido') },
   ],
   emit: [{ kind: 'dust', rate: 4, x0: 400, x1: 1200, y0: 150, y1: 700, pre: 25 }],
   setup() {
