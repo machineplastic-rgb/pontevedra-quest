@@ -137,8 +137,8 @@ const SCENES = {};
 SCENES.estrella = {
   title: 'BAR ESTRELLA', sub: 'Zona vieja de Pontevedra · sábado noche', bg: 'estrella', music: 'estrella', ambient: 'estrella',
   tint: { c: '#ff9a4a', a: 0.08 }, k: 0.62,
-  pos: { ramis: [250, 990], marc: [455, 995], marcos: [680, 992], angel: [880, 995] },
-  npcs: [{ id: 'senora', x: 1130, y: 990, flip: true, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
+  pos: { ramis: [300, 990], marc: [515, 995], marcos: [725, 992], angel: [935, 995] },
+  npcs: [{ id: 'senora', x: 1165, y: 990, flip: true, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
   props: [
     { img: 'sal', x: 150, y: 720, h: 70, cond: () => !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': async () => { flag('salCogida', 1); give('sal'); await say(S.active, 'Sal gorda de la buena. Por si acaso.'); } } } },
     { img: 'postres', x: 120, y: 712, h: 120, cond: () => flag('senoraVuelta') && !flag('postresComidos') },
@@ -290,11 +290,11 @@ async function senoraVuelve(pillados) {
   if (!pillados) {
     await wait(700); sfx('door');
     actor('senora', { x: -200, y: 990, k: 0.62, flip: true });
-    await walk('senora', 1130, 1.6, { run: true });
+    await walk('senora', 1165, 1.6, { run: true });
     G.actors.senora.flip = true;
     await say('senora', '¡Ya estoy aquí, mis niños! ¡Fui corriendo a casa, que lo tenía todo en la nevera!', 'risa');
   } else {
-    actor('senora', { x: 1130, y: 990, k: 0.62, flip: true });
+    actor('senora', { x: 1165, y: 990, k: 0.62, flip: true });
     await say('senora', 'Pues eso, fisgones: me fui corriendo a casa, que lo tenía todo en la nevera.', 'risa');
   }
   await narr('Trae una bandeja: flan de huevo, tarta de Santiago, filloas con miel… y una copa de helado con barquillo «para el más flaquiño».');
@@ -323,15 +323,15 @@ let bodegaTimer = null;
 SCENES.bodega = {
   title: 'BODEGA SECRETA', sub: 'Bajo el Bar Estrella', bg: 'bodega', music: 'bodega', ambient: 'bodega',
   tint: { c: '#ff9a4a', a: 0.1, d: 0.05 }, k: 0.64,
-  pos: { ramis: [330, 995], marc: [520, 998], angel: [1140, 995], marcos: [1330, 992] },
+  pos: { ramis: [300, 995], marc: [520, 998], angel: [1160, 995], marcos: [1370, 992] },
   props: [
-    { img: 'candelabro', x: 100, y: 690, h: 150, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
+    { img: 'candelabro', x: 940, y: 568, h: 112, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
   ],
   fx: [
     { type: 'glow', x: 790, y: 175, r: 300, color: '#ffbe6a', a: 0.32, flicker: 0.1 },
     { type: 'glow', x: 1385, y: 300, r: 180, color: '#ffb050', a: 0.35, flicker: 0.4, seed: 3 },
     { type: 'glow', x: 752, y: 508, r: 150, color: '#ffb050', a: 0.35, flicker: 0.5, seed: 5 },
-    { type: 'candle', x: 100, y: 560, r: 110, color: '#ffb050', a: 0.4, cond: () => !has('candelabro') && !flag('candelabroCogido') },
+    { type: 'candle', x: 940, y: 470, r: 110, color: '#ffb050', a: 0.4, cond: () => !has('candelabro') && !flag('candelabroCogido') },
   ],
   emit: [{ kind: 'dust', rate: 4, x0: 400, x1: 1200, y0: 150, y1: 700, pre: 25 }],
   setup() {
@@ -414,7 +414,7 @@ async function pillados() {
 SCENES.plaza = {
   title: 'LA ZONA VIEJA', sub: 'Pontevedra de noche', bg: 'plaza', music: 'plaza', ambient: 'plaza',
   tint: { c: '#3a4aa0', a: 0.12, d: 0.05 }, k: 0.5,
-  pos: { ramis: [560, 978], marc: [720, 985], marcos: [900, 982], angel: [1060, 985] },
+  pos: { ramis: [500, 978], marc: [710, 985], marcos: [920, 982], angel: [1130, 985] },
   fx: [
     { type: 'stars', n: 60, x0: 0, x1: 1600, y0: 0, y1: 230 },
     { type: 'glow', x: 1470, y: 68, r: 140, color: '#fff2c0', a: 0.35 },
@@ -450,7 +450,7 @@ SCENES.plaza = {
 SCENES.calle = {
   title: 'RUTA DE BARES', sub: 'Calle de los soportales', bg: 'calle', music: 'calle', ambient: 'calle',
   tint: { c: '#ff9a4a', a: 0.08, d: 0.03 }, k: 0.56,
-  pos: { ramis: [560, 985], marc: [730, 990], marcos: [910, 985], angel: [1090, 990] },
+  pos: { ramis: [440, 985], marc: [645, 990], marcos: [850, 985], angel: [1050, 990] },
   fx: [
     ...[[612, 290], [392, 378], [255, 430], [1302, 365], [1160, 495], [1270, 520], [1240, 540]].map(([x, y], i) => ({ type: 'glow', x, y, r: 150, color: '#ffc26a', a: 0.33, flicker: 0.1, seed: i * 2 })),
     { type: 'shimmer', x: 900, y: 760, w: 600, color: '#ffc26a' },
@@ -479,8 +479,8 @@ SCENES.calle = {
 SCENES.bareto = {
   title: 'EL BARETO', sub: 'Primera parada de la ruta', bg: 'bareto', music: 'bareto', ambient: 'bareto',
   tint: { c: '#ff8a4a', a: 0.08 }, k: 0.6,
-  pos: { ramis: [170, 990], marc: [335, 995], marcos: [850, 990], angel: [1020, 995] },
-  npcs: [{ id: 'camarero', x: 595, y: 990 }, { id: 'gente', x: 1430, y: 992, flip: true }],
+  pos: { ramis: [160, 990], marc: [375, 995], marcos: [865, 990], angel: [1075, 995] },
+  npcs: [{ id: 'camarero', x: 615, y: 990 }, { id: 'gente', x: 1450, y: 992, flip: true }],
   fx: [
     { type: 'neon', x: 1108, y: 233, w: 210, h: 150, color: '#3f8cff', a: 0.35, period: 6 },
     { type: 'neon', x: 1123, y: 366, w: 120, h: 110, color: '#ff4fd8', a: 0.32, period: 9, seed: 3 },
@@ -601,8 +601,8 @@ async function parroquianoTalk() {
 SCENES.pub = {
   title: 'PUB OSCURO', sub: 'Al fondo de la ruta', bg: 'pub', music: 'pub', ambient: 'pub',
   tint: { c: '#4a5aff', a: 0.12, d: 0.12 }, k: 0.58,
-  pos: { ramis: [230, 990], marc: [400, 995], marcos: [580, 990], angel: [760, 995] },
-  npcs: [{ id: 'chica', x: 1250, y: 990, flip: true, cond: () => !flag('beso') }],
+  pos: { ramis: [190, 990], marc: [400, 995], marcos: [610, 990], angel: [820, 995] },
+  npcs: [{ id: 'chica', x: 1280, y: 990, flip: true, cond: () => !flag('beso') }],
   fx: [
     { type: 'neon', x: 427, y: 205, w: 150, h: 150, color: '#4aa3ff', a: 0.4, period: 6 },
     { type: 'neon', x: 1475, y: 258, w: 170, h: 90, color: '#3f7dff', a: 0.38, period: 8, seed: 2 },
@@ -692,7 +692,7 @@ async function chicaTalk() {
 SCENES.ruinas = {
   title: 'RUINAS DE SANTO DOMINGO', sub: 'Luna llena', bg: 'ruinas', music: 'ruinas', ambient: 'ruinas',
   tint: { c: '#4a62c0', a: 0.14, d: 0.08 }, k: 0.58,
-  pos: { ramis: [250, 990], marc: [420, 995], marcos: [1150, 990], angel: [1320, 995] },
+  pos: { ramis: [220, 990], marc: [435, 995], marcos: [1130, 990], angel: [1335, 995] },
   npcs: [{ id: 'fantasma', x: 830, y: 930, cond: () => flag('fantasmaVisto') }],
   fx: [
     { type: 'stars', n: 70, x0: 1100, x1: 1600, y0: 0, y1: 230 },
@@ -796,7 +796,7 @@ async function abrirCripta() {
 SCENES.cripta = {
   title: 'LA CRIPTA', sub: 'El descanso de Don Xesús', bg: 'cripta', music: 'cripta', ambient: 'cripta',
   tint: { c: '#ff9a4a', a: 0.1, d: 0.06 }, k: 0.56,
-  pos: { ramis: [300, 995], marc: [450, 1000], marcos: [600, 995], angel: [1480, 995] },
+  pos: { ramis: [250, 995], marc: [450, 1000], marcos: [650, 995], angel: [1490, 995] },
   npcs: [{ id: 'fantasma', x: 1020, y: 720, z: 1 }],
   fx: [
     ...[[256, 425], [310, 470], [366, 500], [543, 650], [572, 615], [612, 655], [662, 770], [700, 790], [1270, 515], [1303, 500], [1340, 488], [1368, 510],
@@ -873,7 +873,7 @@ async function abrirSarcofago() {
 SCENES.alameda = {
   title: 'LA ALAMEDA', sub: 'Noche de meigas', bg: 'alameda', music: 'alameda', ambient: 'alameda',
   tint: { c: '#3a4aa0', a: 0.12, d: 0.05 }, k: 0.5,
-  pos: { ramis: [880, 985], marc: [1040, 990], marcos: [1200, 985], angel: [1360, 990] },
+  pos: { ramis: [850, 985], marc: [1050, 990], marcos: [1250, 985], angel: [1450, 990] },
   npcs: [{ id: 'meiga', x: 560, y: 985 }],
   fx: [
     ...[[176, 170], [252, 150], [333, 170], [1010, 335], [812, 362], [1225, 362], [667, 482], [1393, 450], [1416, 448], [1000, 160], [870, 250], [1150, 250]].map(([x, y], i) => ({ type: 'glow', x, y, r: 150, color: '#ffcf7a', a: 0.3, flicker: 0.1, seed: i })),
@@ -973,7 +973,7 @@ async function meigallo() {
 SCENES.parking = {
   title: 'EL PARKING', sub: 'Ahí espera el Peugeot', bg: 'parking', music: 'parking', ambient: 'parking',
   tint: { c: '#ffd27a', a: 0.05, d: 0.05 }, k: 0.6,
-  pos: { ramis: [180, 990], marc: [340, 995], marcos: [520, 990], angel: [690, 995] },
+  pos: { ramis: [165, 990], marc: [375, 995], marcos: [580, 990], angel: [785, 995] },
   fx: [
     { type: 'tube', x: 1015, y: 155, w: 440, bad: false },
     { type: 'tube', x: 395, y: 318, w: 160, bad: true },
@@ -1014,7 +1014,7 @@ SCENES.control = {
     c.restore();
     MG.drawImgH(c, 'items/peugeot_lado', 760, 905, 290, { flip: true });
   }, music: 'control', ambient: 'control', noDrunk: true, noHud: true, k: 0.56,
-  npcs: [{ id: 'gc1', x: 1170, y: 985, flip: true }, { id: 'gc2', x: 1360, y: 990, flip: true }],
+  npcs: [{ id: 'gc1', x: 1160, y: 985, flip: true }, { id: 'gc2', x: 1380, y: 990, flip: true }],
   hs: [], exits: [],
 };
 SCENES.camino = {
@@ -1025,7 +1025,7 @@ SCENES.camino = {
 };
 SCENES.balneario = {
   title: 'BALNEARIO ACUÑA', sub: 'Caldas de Reis · amanecer', draw: (c) => c.drawImage(PROC.get('balneario'), 0, 0, W, H), music: 'balneario', ambient: 'balneario', noDrunk: true, noHud: true, k: 0.42,
-  pos: { ramis: [430, 862], marc: [560, 866], marcos: [1040, 862], angel: [1170, 866] },
+  pos: { ramis: [400, 862], marc: [565, 866], marcos: [1040, 862], angel: [1205, 866] },
   npcs: [{ id: 'recep', x: 800, y: 870 }],
   props: [{ img: 'peugeot_lado', x: 1430, y: 880, h: 190 }],
   emit: [{ kind: 'steam', rate: 3, x0: 300, x1: 1300, y0: 250, y1: 300, pre: 10 }, { kind: 'leaf', rate: 0.3, x0: 0, x1: 1600, y0: -20, y1: 0 }],
@@ -1143,22 +1143,60 @@ function rango() {
   pts -= S.stats.derrotas; pts -= Math.floor(S.stats.sustos / 3);
   return pts >= 9 ? 'CABALLERO LEGENDARIO' : pts >= 7 ? 'CABALLERO DE ORO' : pts >= 4 ? 'CABALLERO DE PLATA' : 'CABALLERO DE BARRO';
 }
+/* ---------------- PUNTUACIÓN Y MARCADOR ---------------- */
+const SCORE_KEY = 'pq_marcador_v1';
+function loadScores() { try { const l = JSON.parse(localStorage.getItem(SCORE_KEY)); return Array.isArray(l) ? l : []; } catch (e) { return []; } }
+function saveScores(l) { try { localStorage.setItem(SCORE_KEY, JSON.stringify(l.slice(0, 10))); } catch (e) {} }
+function puntuacion() {
+  const st = S.stats, min = Math.max(1, Math.round((Date.now() - S.startT) / 60000)), mf = S.drunk.marcos;
+  const seg = st.besoSeg || 0;
+  const parts = [
+    ['Logros', S.logros.length + ' de ' + Object.keys(LOGROS).length, S.logros.length * 100],
+    ['Chupitos a la maceta', String(st.chupitosTirados || 0), (st.chupitosTirados || 0) * 50],
+    ['El beso de Ángel', Math.floor(seg / 60) + ' min ' + (seg % 60) + ' s', Math.min(300, Math.round(seg / 2))],
+    ['Marcos al volante', LV[mf], [300, 150, 50, 0, 0, 0][mf] || 0],
+    ['Sustos en carretera', String(st.sustos || 0), -40 * (st.sustos || 0)],
+    ['Noches en el cuartelillo', String(st.derrotas || 0), -250 * (st.derrotas || 0)],
+    ['Rapidez', min + ' min', Math.max(0, 500 - min * 10)],
+  ];
+  return { parts, total: Math.max(0, parts.reduce((t, p) => t + p[2], 0)) };
+}
+function tablaMarcador(list, hi) {
+  if (!list.length) return '<p style="font-size:30px;margin:20px 0">Todavía no hay partidas apuntadas.</p>';
+  return '<table class="sct"><tr><th>#</th><th>Caballero</th><th>Puntos</th><th>Rango</th><th>Fecha</th></tr>' +
+    list.map((e, i) => `<tr class="${i === hi ? 'hi' : ''}"><td>${i + 1}</td><td>${e.name}</td><td>${e.pts}</td><td>${e.rango}</td><td>${e.fecha}</td></tr>`).join('') + '</table>';
+}
+function cardBox(html) {
+  const c = $('card');
+  c.innerHTML = `<div class="cin scbox">${html}</div>`;
+  c.classList.remove('hidden');
+  return c;
+}
+async function verMarcador(hi, boton) {
+  cardBox(`<h2 style="font-size:54px">MARCADOR DEL CLUB</h2>${tablaMarcador(loadScores(), hi)}<button class="gold big" id="scOk" style="margin-top:22px">${boton || 'Cerrar'}</button>`);
+  await new Promise((res) => { $('scOk').onclick = (e) => { e.stopPropagation(); sfx('click'); res(); }; });
+  $('card').classList.add('hidden');
+}
 async function resultados() {
   S.over = true; clearSave();
-  const r = rango(), st = S.stats, min = Math.round((Date.now() - S.startT) / 60000);
-  if (TEST) { (G.log = G.log || []).push('RANGO: ' + r + ' logros ' + S.logros.join(',')); return; }
+  const r = rango(), P = puntuacion();
+  if (TEST) { (G.log = G.log || []).push('RANGO: ' + r + ' · ' + P.total + ' puntos · logros ' + S.logros.join(',')); return; }
   music('creditos');
-  const c = $('card');
-  c.innerHTML = `<div class="cin" style="animation:none;opacity:1;background:rgba(8,6,16,.88);border:4px solid #e8b85a;border-radius:24px;padding:40px 60px;pointer-events:auto">
-    <h2 style="font-size:58px">${r}</h2>
-    <p style="font-size:30px;margin-top:12px">Copas: ${st.copas} · Cafés de Marcos: ${st.cafes} · Chupitos a la maceta: ${st.chupitosTirados}</p>
-    <p style="font-size:30px">El beso de Ángel: ${Math.floor(st.besoSeg / 60)} min ${st.besoSeg % 60} s · Sustos en carretera: ${st.sustos} · Noches en el cuartelillo: ${st.derrotas}</p>
-    <p style="font-size:30px">Logros: ${S.logros.length} de ${Object.keys(LOGROS).length} · Tiempo jugado: ${min} min</p>
-    <p style="font-size:44px;margin-top:10px">${S.logros.map((l) => LOGROS[l].i).join(' ')}</p>
-    <button class="gold big" id="toCred" style="margin-top:24px">Ver créditos</button></div>`;
-  c.classList.remove('hidden');
-  await new Promise((res) => { $('toCred').onclick = (e) => { e.stopPropagation(); sfx('click'); res(); }; });
-  c.classList.add('hidden');
+  const filas = P.parts.map((p) => `<tr><td>${p[0]}</td><td>${p[1]}</td><td class="${p[2] < 0 ? 'neg' : ''}">${p[2] > 0 ? '+' : ''}${p[2]}</td></tr>`).join('');
+  cardBox(`<h2 style="font-size:52px">${r}</h2>
+    <div class="scnum"><span id="scN">0</span> puntos</div>
+    <table class="sct det">${filas}</table>
+    <p style="font-size:40px;margin:6px 0 2px">${S.logros.map((l) => LOGROS[l].i).join(' ')}</p>
+    <p style="font-size:26px;margin-bottom:10px">¿Quién ha jugado esta partida?</p>
+    <div class="scwho">${PROTA.map((p) => `<button class="gold" data-n="${NAMES[p]}">${NAMES[p]}</button>`).join('')}<button class="gold" data-n="Invitado">Invitado</button></div>`);
+  // los puntos suben poco a poco
+  let k = 0; const tm = setInterval(() => { k = Math.min(1, k + 0.04); const el = $('scN'); if (el) el.textContent = Math.round(P.total * k); if (k >= 1) clearInterval(tm); else if (Math.random() < 0.3) sfx('tic'); }, 40);
+  const name = await new Promise((res) => { document.querySelectorAll('.scwho button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); sfx('logro'); res(b.dataset.n); }; }); });
+  clearInterval(tm);
+  const d = new Date(), entry = { name, pts: P.total, rango: r.replace('CABALLERO ', ''), fecha: d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() };
+  const list = loadScores(); list.push(entry); list.sort((x, y) => y.pts - x.pts);
+  saveScores(list);
+  await verMarcador(list.indexOf(entry), 'Ver créditos');
   await creditos();
 }
 

@@ -85,9 +85,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #dlg{position:absolute;left:30px;right:30px;bottom:22px;height:250px;display:flex;align-items:flex-end;gap:0}
 #dlg.right{flex-direction:row-reverse}
 #dport{width:250px;height:250px;flex:0 0 250px;position:relative;z-index:2}
-#dport img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);max-width:250px;max-height:262px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+#dport img{--sx:1;position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(var(--sx));max-width:250px;max-height:262px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
 #dport img.talk{animation:talk .28s infinite alternate ease-in-out}
-@keyframes talk{to{transform:translateX(-50%) translateY(-5px) scale(1.015)}}
+@keyframes talk{to{transform:translateX(-50%) translateY(-5px) scaleX(var(--sx)) scale(1.015)}}
+/* los que hablan desde la derecha miran hacia el texto */
+#dlg.right #dport img{--sx:-1}
 #dbox{flex:1;height:200px;margin:0 0 0 -26px;padding:22px 36px 18px 52px;border-radius:20px;background:var(--panel);border:3px solid var(--gold);
   position:relative;box-shadow:0 10px 30px rgba(0,0,0,.55)}
 #dlg.right #dbox{margin:0 -26px 0 0;padding:22px 52px 18px 36px}
@@ -172,3 +174,18 @@ body.small #choices{bottom:310px}
 body.small .mgbtn{font-size:36px}
 body.small .it p{font-size:22px}
 body.small #bagdesc{font-size:30px}
+
+/* puntuación y marcador */
+.scbox{animation:none!important;opacity:1;background:rgba(8,6,16,.94);border:4px solid #e8b85a;border-radius:24px;padding:30px 50px;pointer-events:auto;min-width:900px;max-height:960px;overflow:auto}
+.scnum{font-family:'Cinzel',serif;font-weight:800;font-size:40px;color:#fff;margin:6px 0 12px}
+.scnum span{font-size:84px;color:var(--gold2)}
+.sct{margin:0 auto;border-collapse:collapse;font-size:28px;min-width:760px}
+.sct th{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);padding:6px 14px;border-bottom:2px solid var(--line)}
+.sct td{padding:6px 14px;border-bottom:1px solid rgba(232,184,90,.18);text-align:left}
+.sct td:last-child,.sct th:last-child{text-align:right}
+.sct.det td:nth-child(2){color:var(--dim)}
+.sct td.neg{color:#ff8a8a}
+.sct tr.hi td{background:rgba(255,217,138,.18);color:#fff;font-weight:800}
+.scwho{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.scwho .gold{font-size:26px;padding:12px 22px}
+#tver{position:absolute;right:22px;bottom:16px;font-family:'Cinzel',serif;font-weight:800;font-size:22px;color:#e9dfc4;opacity:.8;text-shadow:0 2px 8px #000}

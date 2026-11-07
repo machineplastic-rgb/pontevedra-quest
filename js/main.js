@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v1';
+const VERSION = 'v4';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -57,6 +57,9 @@ async function startGame(fromSave) {
 function bindMenus() {
   $('tNew').onclick = (e) => { e.stopPropagation(); startGame(null); };
   $('tCont').onclick = (e) => { e.stopPropagation(); const s = loadSave(); startGame(s); };
+  $('tScore').onclick = async (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('click'); $('title').classList.add('hidden'); await verMarcador(-1, 'Cerrar'); $('title').classList.remove('hidden'); };
+  $('tver').textContent = 'Versión ' + VERSION.replace('v', '');
+  $('mver').textContent = 'Pontevedra Quest · versión ' + VERSION.replace('v', '');
   $('bMenu').onclick = (e) => { e.stopPropagation(); sfx('open'); $('menu').classList.remove('hidden'); updSoundBtn(); };
   $('mClose').onclick = (e) => { e.stopPropagation(); sfx('close'); $('menu').classList.add('hidden'); };
   $('mSound').onclick = (e) => { e.stopPropagation(); let m = false; try { m = !AUDIO.isMuted(); AUDIO.setMuted(m); AUDIO.init(); } catch (er) {} updSoundBtn(); sfx('click'); };

@@ -125,7 +125,9 @@ function actor(id, o) {
   G.actors[id] = a; return a;
 }
 function removeActor(id) { delete G.actors[id]; }
-function aScale(a) { return a.k * (isProta(a.id) ? 1 : 1.72); }
+// todos un 20 % más grandes que al principio (se veían pequeños frente a los fondos)
+const CHAR_SCALE = 1.2;
+function aScale(a) { return a.k * (isProta(a.id) ? 1 : 1.72) * CHAR_SCALE; }
 function actorBox(a) {
   const img = G.img[a.sprite]; if (!img) return null;
   const k = aScale(a); const w = img.width * k, h = img.height * k;
@@ -768,7 +770,7 @@ function clearSave() { try { localStorage.removeItem('pq_save_v1'); } catch (e) 
 async function goScene(id, o) {
   o = o || {};
   closeMenus(); setHolding(null);
-  await fadeTo(1, o.fast ? 0.3 : 0.6);
+  await fadeTo(1, o.fast ? 0.3 : 0.45);
   const sc = SCENES[id]; S.scene = id; G.sceneId = id; G.scene = sc;
   G.actors = {}; G.particles = []; G.props = sc.props ? sc.props.slice() : []; G.camZoom = 1;
   if (sc.setup) sc.setup();
@@ -779,17 +781,10 @@ async function goScene(id, o) {
   music(sc.music || null); ambient(sc.ambient || null);
   $('hud').classList.toggle('hidden', !!sc.noHud);
   updParty(); save();
-  // entrada andando desde un lado
-  const from = o.from || sc.enterFrom;
-  let walks = [];
-  if (from && sc.pos) PROTA.forEach((p, i) => {
-    const a = G.actors[p]; if (!a) return; const tx = a.x;
-    a.x = from === 'left' ? -150 - i * 90 : W + 150 + (3 - i) * 90;
-    walks.push(walk(p, tx, 1.3 + i * 0.12, { sound: i === 0 }));
-  });
+  // cambio de sitio: fundido a negro (sin andar, que no hay animación de caminar)
+  await wait(200);
   await fadeTo(0, 0.6);
   if (!S.seen[id] && sc.title) card(sc.title, sc.sub);
-  await Promise.all(walks);
   const first = !S.seen[id]; S.seen[id] = true;
   if (first && sc.enter) await sc.enter(); else if (!first && sc.reenter) await sc.reenter();
   save();
@@ -797,11 +792,8 @@ async function goScene(id, o) {
 async function exitTo(e) {
   if (e.check) { const ok = await e.check(); if (!ok) return; }
   if (e.fn) return e.fn();
-  // salen andando hacia la salida
-  const dir = e.walk || (e.r[0] + e.r[2] / 2 < W / 2 ? -1 : 1);
-  const ws = PROTA.map((p, i) => G.actors[p] && walk(p, G.actors[p].x + dir * 700, 1.0, { sound: i === 0, keepSide: true }));
-  await Promise.race([Promise.all(ws), wait(700)]);
-  await goScene(e.to, { from: e.from || (dir > 0 ? 'left' : 'right') });
+  sfx('pasos');
+  await goScene(e.to);
 }
 
 /* ---------------- pistas de los amigos ---------------- */
