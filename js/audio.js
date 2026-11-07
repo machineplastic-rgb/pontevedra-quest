@@ -1,6 +1,7 @@
 /* =====================================================================
    Pontevedra Quest — Club de Caballeros
-   Sistema de audio completo, todo sintetizado en vivo con Web Audio API.
+   Sistema de audio: efectos y risas sintetizados en vivo; música y
+   ambientes pregrabados en audio/ (con el sintetizador como respaldo).
    Script clásico (sin módulos). Expone window.AUDIO.
    Secciones: núcleo/buses · utilidades · muestras · instrumentos ·
               secuenciador · pistas · ambientes · efectos · risas · API
@@ -2725,6 +2726,7 @@
   function loop() {
     if (!ctx || ctx.state !== 'running') return;
     pump(ctx.currentTime + LOOK);
+    recTick(ctx.currentTime);
   }
   function running() { return !!(ctx && B && ctx.state === 'running'); }
   function unlock() {
@@ -2761,6 +2763,130 @@
   }
 
   // ---------------------------------------------------------------
+  // Música y ambientes PREGRABADOS (audio/music/*.mp3 y audio/amb/*.mp3)
+  // Tocarlo todo en directo pesaba demasiado y la música petardeaba.
+  // Ahora se reproducen grabaciones en bucle, con un fundido corto entre
+  // vueltas. Si no se pueden cargar (p. ej. abriendo el juego con doble
+  // clic desde el ZIP), se usa el sintetizador de siempre.
+  // ---------------------------------------------------------------
+  var REC_LOOP = {
+    music: { titulo: 80, estrella: 72, tension: 58.18181818181818, bodega: 82.28571428571429, plaza: 87.27272727272727, calle: 73.84615384615384,
+      bareto: 60, pub: 65.08474576271186, beso: 53.333333333333336, ruinas: 87.27272727272727, cripta: 64, alameda: 91.42857142857143,
+      meiga: 43.63636363636363, parking: 76.8, carretera: 54.857142857142854, control: 85.33333333333333, compana: 76.8,
+      balneario: 109.71428571428571, creditos: 71.11111111111111, minijuego: 54.857142857142854, derrota: 27.428571428571427 },
+    amb: { estrella: 40, bodega: 40, plaza: 40, calle: 40, bareto: 40, pub: 40, ruinas: 40, cripta: 40, alameda: 40, parking: 40, carretera: 40, control: 40, compana: 40, balneario: 40 }
+  };
+  var REC_XF = 1.2;  // fundido entre vueltas (s); cada archivo trae 3 s de cola
+  var REC_ON = !!(W.fetch && /^https?:$/.test(W.location.protocol)) && !W.__AUDIO_TEST__;
+  var recRaw = {}, recBuf = {}, recOrder = [], recs = [];
+  var recMusic = null, recAmb = null;
+
+  function recFetch(key) {
+    if (!recRaw[key]) {
+      recRaw[key] = fetch('audio/' + key + '.mp3').then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.arrayBuffer(); });
+      recRaw[key].catch(function () { delete recRaw[key]; });
+    }
+    return recRaw[key];
+  }
+  function recLoad(key) {
+    if (!recBuf[key]) {
+      recBuf[key] = recFetch(key).then(function (ab) {
+        return new Promise(function (res, rej) {
+          var p = ctx.decodeAudioData(ab.slice(0), res, rej);
+          if (p && p.then) p.then(res, rej);
+        });
+      });
+      recBuf[key].catch(function () { delete recBuf[key]; });
+    }
+    recOrder = recOrder.filter(function (k) { return k !== key; }); recOrder.push(key);
+    // solo se guardan descodificadas las 4 últimas (cada una ocupa bastante memoria)
+    while (recOrder.length > 4) {
+      var old = recOrder.shift();
+      if (!recs.some(function (r) { return r.key === old && !r.dead; })) delete recBuf[old];
+    }
+    return recBuf[key];
+  }
+  // precarga suave de los archivos (sin descodificar) para que cada escena empiece al momento
+  function recPrefetch() {
+    if (!REC_ON) return;
+    var list = [];
+    ['estrella', 'bodega', 'tension', 'minijuego', 'plaza', 'calle', 'bareto', 'pub', 'beso', 'ruinas', 'cripta', 'alameda', 'meiga', 'parking', 'carretera', 'control', 'compana', 'balneario', 'creditos', 'derrota', 'titulo']
+      .forEach(function (n) { list.push('music/' + n); if (REC_LOOP.amb[n]) list.push('amb/' + n); });
+    var i = 0;
+    (function next() { if (i >= list.length) return; recFetch(list[i++]).then(next, next); })();
+  }
+
+  function RecLoop(key, kind, len, fade, name) {
+    var self = this;
+    this.key = key; this.kind = kind; this.len = len; this.fade = fade; this.name = name;
+    this.dead = false; this.buf = null; this.next = 0; this.srcs = [];
+    this.out = G(0);
+    this.out.connect(kind === 'music' ? B.mus.dry.in : B.amb.dry);
+    recLoad(key).then(function (b) { if (!self.dead) { self.buf = b; self.begin(); } }, function () { self.fail(); });
+  }
+  RecLoop.prototype.begin = function () {
+    var t = now() + 0.05;
+    this.out.gain.setValueAtTime(0, t); this.out.gain.linearRampToValueAtTime(1, t + this.fade);
+    this.seg(t, true); this.next = t + this.len;
+  };
+  RecLoop.prototype.seg = function (t, first) {
+    var s = ctx.createBufferSource(), g = G(first ? 1 : 0), self = this;
+    s.buffer = this.buf; s.connect(g); g.connect(this.out);
+    if (!first) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + REC_XF); }
+    s.start(t);
+    // la vuelta anterior se apaga mientras entra la nueva
+    var prev = this.srcs[this.srcs.length - 1];
+    if (prev) {
+      prev.g.gain.setValueAtTime(1, t); prev.g.gain.linearRampToValueAtTime(0, t + REC_XF);
+      try { prev.s.stop(t + REC_XF + 0.05); } catch (e) {}
+    }
+    var rec = { s: s, g: g }; this.srcs.push(rec);
+    s.onended = function () {
+      try { s.disconnect(); g.disconnect(); } catch (e) {}
+      self.srcs = self.srcs.filter(function (x) { return x !== rec; });
+    };
+  };
+  // en cuanto empieza una vuelta se deja programada la siguiente: así el audio
+  // no depende de que el juego vaya fluido (margen de casi un bucle entero)
+  RecLoop.prototype.tick = function (tn) {
+    if (this.dead || !this.buf) return;
+    if (tn > this.next - this.len + 0.5) { var t = Math.max(this.next, tn + 0.05); this.seg(t, false); this.next = t + this.len; }
+  };
+  RecLoop.prototype.stop = function (fade) {
+    if (this.dead) return;
+    this.dead = true;
+    var self = this, t = now();
+    holdRamp(this.out.gain, t, 0, fade);
+    setTimeout(function () { self.kill(); }, (fade + 0.3) * 1000);
+  };
+  RecLoop.prototype.kill = function () {
+    this.dead = true;
+    this.srcs.forEach(function (x) { try { x.s.stop(); } catch (e) {} try { x.s.disconnect(); x.g.disconnect(); } catch (e) {} });
+    this.srcs = [];
+    try { this.out.disconnect(); } catch (e) {}
+  };
+  // si el archivo no carga, se vuelve al sintetizador para esa música o ambiente
+  RecLoop.prototype.fail = function () {
+    if (this.dead) return;
+    this.dead = true;
+    try {
+      if (this.kind === 'music' && recMusic === this && curName === this.name) {
+        recMusic = null; curTrack = new Track(this.name, T[this.name], 0.5); tracks.push(curTrack);
+      } else if (this.kind === 'amb' && recAmb === this && curBedName === this.name) {
+        recAmb = null; curBed = new Bed(this.name, AMB[this.name], 0.5); beds.push(curBed);
+      }
+    } catch (e) {}
+    this.kill();
+  };
+  function recTick(tn) {
+    for (var i = recs.length - 1; i >= 0; i--) {
+      var r = recs[i];
+      if (r.dead) { if (!r.srcs.length) recs.splice(i, 1); continue; }
+      try { r.tick(tn); } catch (e) {}
+    }
+  }
+
+  // ---------------------------------------------------------------
   // API pública
   // ---------------------------------------------------------------
   var API = {
@@ -2772,6 +2898,7 @@
           SR = ctx.sampleRate || 44100;
           try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
           initWaves(); buildBuses(); preload();
+          setTimeout(recPrefetch, 1500);
           timer = setInterval(function () { try { loop(); } catch (e) {} }, 25);
           try { document.addEventListener('visibilitychange', onVis, false); } catch (e) {}
         }
@@ -2810,8 +2937,13 @@
         name = name || null;
         if (name === curName) return;
         if (curTrack) curTrack.stop(fade);
+        if (recMusic) { recMusic.stop(fade); recMusic = null; }
         curTrack = null; curName = null;
-        if (name) { curTrack = new Track(name, T[name], fade); tracks.push(curTrack); curName = name; }
+        if (name) {
+          curName = name;
+          if (REC_ON && REC_LOOP.music[name]) { recMusic = new RecLoop('music/' + name, 'music', REC_LOOP.music[name], fade, name); recs.push(recMusic); }
+          else { curTrack = new Track(name, T[name], fade); tracks.push(curTrack); }
+        }
         while (tracks.length > 3) { try { tracks[0].kill(); } catch (e) {} tracks.shift(); }
       } catch (e) {}
     },
@@ -2823,8 +2955,13 @@
         name = name || null;
         if (name === curBedName) return;
         if (curBed) curBed.stopFade(fade);
+        if (recAmb) { recAmb.stop(fade); recAmb = null; }
         curBed = null; curBedName = null;
-        if (name) { curBed = new Bed(name, AMB[name], fade); beds.push(curBed); curBedName = name; }
+        if (name) {
+          curBedName = name;
+          if (REC_ON && REC_LOOP.amb[name]) { recAmb = new RecLoop('amb/' + name, 'amb', REC_LOOP.amb[name], fade, name); recs.push(recAmb); }
+          else { curBed = new Bed(name, AMB[name], fade); beds.push(curBed); }
+        }
         while (beds.length > 3) { try { beds[0].kill(); } catch (e) {} beds.shift(); }
       } catch (e) {}
     },
@@ -2850,6 +2987,9 @@
         lastBlip = t;
         blipAt(who, t + 0.005);
       } catch (e) {}
+    },
+    recInfo: function () {
+      return recs.map(function (r) { return { key: r.key, dead: r.dead, ready: !!r.buf, playing: r.srcs.length, next: +(r.next - now()).toFixed(2) }; });
     },
     drunk: function (level) {
       try { drunkT = clamp(fin(+level, 0), 0, 1); applyDrunk(); } catch (e) {}
