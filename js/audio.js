@@ -48,6 +48,8 @@
   function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
   function now() { return ctx ? ctx.currentTime : 0; }
   function fin(x, d) { return (typeof x === 'number' && isFinite(x)) ? x : d; }
+  // clave propia de una tabla (que 'constructor' y compañía no cuelen como personaje)
+  function own(o, k) { return typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k); }
 
   // Desconecta nodos al terminar una fuente
   function cleanup(src, nodes) {
@@ -413,7 +415,7 @@
   function preload() {
     var list = ['white', 'pink', 'brown', 'kick', 'snare', 'hat', 'ohat', 'pand', 'pandj', 'bombo', 'clap', 'rim', 'tick', 'brush', 'brushtap', 'shaker', 'kick2', 'crash', 'snap', 'wood', 'heart', 'drip', 'timp',
       'guitar_196', 'guitar_392', 'guitar_98', 'harp_392', 'harp_784', 'harp_196', 'pizz_196', 'pizz_392', 'pizz_98', 'celesta_523.3', 'celesta_1046.5', 'bell_523.3', 'bell_261.6', 'bell_1046.5',
-      'handbell_1046.5', 'church_130.8', 'clink0', 'clink1', 'clink2', 'clink3', 'cutl0', 'cutl1', 'plate', 'coin', 'step', 'stepw', 'harp_1568', 'guitar_784', 'harp_98', 'celesta_261.6', 'pizz_784', 'rain', 'crick', 'water'];
+      'handbell_1046.5', 'church_130.8', 'clink0', 'clink1', 'clink2', 'clink3', 'cutl0', 'cutl1', 'plate', 'coin', 'step', 'stepw', 'harp_1568', 'guitar_784', 'harp_98', 'celesta_261.6', 'pizz_784', 'rain', 'crick', 'water', 'aplauso'];
     var i = 0;
     function next() {
       if (!ctx) return;
@@ -539,6 +541,8 @@
     if (cfg.drive) {
       var ws = ctx.createWaveShaper(); ws.curve = driveCurve(cfg.drive); try { ws.oversample = '2x'; } catch (e) {}
       last.connect(ws); last = ws; ns.push(ws);
+      // ganancia tras la distorsión (para apretar mucho sin que se dispare el volumen)
+      if (cfg.post != null) { var pg = G(cfg.post); last.connect(pg); last = pg; ns.push(pg); }
     }
     if (cfg.fmt) {
       var sum = G(1); ns.push(sum);
@@ -784,6 +788,16 @@
     a.connect(g); g.connect(ch.in);
     var end = env(g.gain, t, 0.015, v * 0.4, 0.5, v * 0.36, t + d, 0.03);
     go([a], t, end, [g]);
+  };
+  // stab/pluck de club: sierra + cuadrada con un filtro que se cierra rápido
+  // (cfg.open alarga la cola del filtro: corto = stab, largo = melodía)
+  INST.stab = function (ch, t, m, d, v) {
+    var f = mtof(m), g = G(0), a = O('sawtooth', f), b = O('square', f), bg = G(0.35), lp = F('lowpass', f * 3, 2.2);
+    a.detune.value = -7; b.detune.value = 7;
+    a.connect(lp); b.connect(bg); bg.connect(lp); lp.connect(g); g.connect(ch.in);
+    lp.frequency.setValueAtTime(Math.min(f * (7 + 9 * v), 14000), t); lp.frequency.setTargetAtTime(f * 1.4, t, ch.cfg.open || 0.06);
+    var end = env(g.gain, t, 0.003, v * 0.34, 0.15, v * 0.12, t + d, 0.05);
+    go([a, b], t, end, [g, bg, lp]);
   };
 
   // ---------------------------------------------------------------
@@ -1884,6 +1898,168 @@
     }
   };
 
+  // --- Disco: house elegante (mármol, luz morada, bola de espejos) ---
+  // gancho del lead (4+4 compases sobre Am9 Fmaj7 Cmaj7 G6)
+  var DSC_H1 = 'r:.5 E5:.5 A5:.5 C6:.5 r:.25 B5:.25 A5:.5 G5:.5 E5:.5 | r:.5 E5:.5 A5:.5 C6:.5 r:.25 D6:.25 C6:.5 A5:1 | r:.5 G5:.5 C6:.5 E6:.5 r:.25 D6:.25 C6:.5 B5:.5 G5:.5 | B5:.75 A5:.75 G5:.5 E5:2';
+  var DSC_H2 = 'r:.5 E5:.5 A5:.5 C6:.5 r:.25 B5:.25 A5:.5 G5:.5 E5:.5 | r:.5 E5:.5 A5:.5 C6:.5 r:.25 D6:.25 C6:.5 A5:1 | r:.5 G5:.5 C6:.5 E6:.5 r:.25 G6:.25 E6:.5 D6:.5 C6:.5 | D6:.75 C6:.75 B5:.5 G5:.5 A5:1.5';
+  // la gracia: un riff de gaita en el break (Dm7 Am9 Fmaj7 E7)
+  var DSC_GA = 'D6:.5 E6:.5 F6:.5 E6:.5 D6:.5 C6:.5 A5:1 | E6:.75 D6:.25 C6:.5 A5:.5 C6:1 A5:1 | F5:.5 A5:.5 C6:.5 F6:.5 E6:1 C6:1 | B5:.5 C6:.5 B5:.5 G#5:.5 E5:2';
+  // bajo con groove: [pulso, intervalo, duración, vel]
+  var DSC_B1 = [[0.5, 0, 0.4, 0.85], [1.5, 0, 0.4, 0.8], [1.75, 12, 0.2, 0.6], [2.5, 0, 0.4, 0.85], [3.25, 12, 0.2, 0.55], [3.5, 7, 0.4, 0.75]];
+  var DSC_B2 = [[0, 0, 0.2, 0.7], [0.5, 0, 0.35, 0.85], [0.75, 12, 0.2, 0.6], [1.5, 0, 0.35, 0.8], [2, 12, 0.2, 0.55], [2.5, 0, 0.35, 0.85], [3, 7, 0.2, 0.6], [3.5, 12, 0.35, 0.75], [3.75, 7, 0.2, 0.55]];
+  var DSC_ST = [0, 0.75, 1.5, 2.5, 3.25]; // stabs de acorde (3-3-2 y respuesta)
+  T.disco = {
+    bpm: 124, gain: 1.35, bars: 32,
+    ch: {
+      kick: { inst: 'smp', s: 'kick', g: 0.5 },
+      clap: { inst: 'smp', s: 'clap', g: 0.14, rev: 0.22 },
+      hat: { inst: 'smp', s: 'hat', g: 0.06, pan: 0.25 },
+      ohat: { inst: 'smp', s: 'ohat', g: 0.085, pan: -0.15 },
+      crash: { inst: 'smp', s: 'crash', g: 0.08, pan: -0.2, rev: 0.15 },
+      rim: { inst: 'smp', s: 'rim', r: 1.15, g: 0.06, pan: 0.35, echo: 0.1 },
+      bass: { inst: 'synbass', g: 0.32, f: [['lowpass', 1400, 0.7]] },
+      pad: { inst: 'pad', g: 0.12, att: 0.16, rel: 0.15, f: [['lowpass', 2600, 0.8, [0.06, 1000]]], rev: 0.25 },
+      stab: { inst: 'stab', g: 0.14, open: 0.05, rev: 0.2, echo: 0.15, pan: 0.2 },
+      lead: { inst: 'stab', g: 0.2, open: 0.14, rev: 0.22, echo: 0.22, pan: -0.1 },
+      gaita: { mono: { lvl: 0.5 }, g: 0.24, f: GF, rev: 0.25, echo: 0.12, pan: 0.15 }
+    },
+    build: function (E, n) {
+      var PA = prog('Am9:4 Fmaj7:4 Cmaj7:4 G6:4 Am9:4 Fmaj7:4 Cmaj7:4 G6:4'), PB = prog('Dm7:4 Am9:4 Fmaj7:4 G6:4 Dm7:4 Am9:4 Fmaj7:4 E7:4');
+      [PA, PA, PB, PA].forEach(function (P, s) {
+        var b0 = s * 32;
+        P.forEach(function (p) {
+          var vs = voicing(p.c, 66), sv = voicing(p.c, 72), r = near(p.c.bs, 40), b = b0 + p.b, j;
+          // pad que "bombea": un acorde por negra que entra suave tras cada bombo
+          for (j = 0; j < p.d; j++) E.push({ b: b + j, d: 0.85, c: 'pad', n: vs, v: 0.55 });
+          // bajo (fuera en los 4 primeros compases del break)
+          if (!(s === 2 && p.b < 16)) (s === 3 || (s === 1 && p.b >= 16) ? DSC_B2 : DSC_B1).forEach(function (q) { E.push({ b: b + q[0], d: q[2], c: 'bass', n: r + q[1], v: q[3] }); });
+          // stabs de acorde donde no está el gancho (y flojitos debajo en el final)
+          if (s !== 1) DSC_ST.forEach(function (x) { E.push({ b: b + x, d: 0.22, c: 'stab', n: sv, v: s === 3 ? 0.42 : 0.6 }); });
+        });
+      });
+      mel(E, 'lead', 32, DSC_H1 + ' ' + DSC_H2, { v: 0.72 });
+      mel(E, 'lead', 96, DSC_H1 + ' ' + DSC_H2, { v: 0.78 });
+      mel(E, 'gaita', 80, DSC_GA, { mono: true, v: 0.72 });
+      for (var i = 0; i < 32; i++) {
+        var bb = i * 4, s = i >> 3, bi = i & 7, brk = s === 2 && bi < 4;
+        // four-on-the-floor; en el último compás del break se para un pulso antes de entrar
+        pat(E, 'kick', bb, brk && bi === 3 ? 'x...x...x.......' : 'x...x...x...x...', 0.25, 0.85);
+        pat(E, 'ohat', bb, '..x...x...x...x.', 0.25, brk ? 0.4 : 0.6);
+        pat(E, 'hat', bb, 'xo.oxo.oxo.oxo.o', 0.25, 0.5);
+        if (brk) { if (bi === 3) pat(E, 'clap', bb, 'o...o...x.x.xxXX', 0.25, 0.6); }
+        else pat(E, 'clap', bb, s === 3 && bi === 7 ? '....x.......x.xx' : '....x.......x...', 0.25, 0.75);
+        if (s === 1 || s === 3) pat(E, 'rim', bb, '...x..x....x..x.', 0.25, 0.5);
+      }
+      [0, 32, 80, 96].forEach(function (b) { E.push({ b: b, d: 2, c: 'crash', v: 0.75 }); });
+    }
+  };
+
+  // --- Antro: electro-punk / EBM sucio (neón y carteles de PUNK ROCK) ---
+  var ANT_SEQ = [0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 12, 7, 12]; // bajo a semicorcheas
+  T.antro = {
+    bpm: 136, gain: 0.9, bars: 32,
+    ch: {
+      kick: { inst: 'smp', s: 'kick', g: 0.4, drive: 3, post: 0.5, f: [['lowpass', 5000, 0.7]] },
+      snare: { inst: 'smp', s: 'snare', g: 0.3, drive: 2, post: 0.5, rev: 0.15 },
+      clap: { inst: 'smp', s: 'clap', g: 0.1, rev: 0.2, pan: 0.1 },
+      hat: { inst: 'smp', s: 'hat', g: 0.08, pan: 0.3 },
+      crash: { inst: 'smp', s: 'crash', g: 0.09, pan: -0.25, rev: 0.1 },
+      bass: { inst: 'synbass', g: 0.45, drive: 5, post: 0.3, f: [['highpass', 35, 0.7], ['peaking', 900, 1, 4], ['lowpass', 2600, 0.7]] },
+      arp: { inst: 'stab', g: 0.6, drive: 4, post: 0.28, open: 0.03, f: [['highpass', 300, 0.7], ['lowpass', 3800, 0.8, [0.07, 1500]]], echo: 0.18, rev: 0.1, pan: 0.3 },
+      stab: { inst: 'stab', g: 0.5, drive: 2.5, post: 0.3, open: 0.08, f: [['lowpass', 2400, 0.8]], rev: 0.25, pan: -0.25 },
+      g1: { inst: 'power', g: 0.09, drive: 5, f: EGF, pan: -0.45 },
+      g2: { inst: 'power', g: 0.08, drive: 5, f: EGF, pan: 0.45, hum: 0.01 }
+    },
+    build: function (E, n) {
+      var PA = prog('Em:8 C:4 D:4 Em:8 C:4 B:4'), PP = prog('Em:4 G:4 A:4 C:2 B:2 Em:4 G:4 A:4 B:4');
+      [PA, PA, PP, PA].forEach(function (P, s) {
+        var b0 = s * 32;
+        P.forEach(function (p) {
+          var r = near(p.c.bs, 40), gr = near(p.c.bs, 45), b = b0 + p.b, j, q;
+          if (s === 2) {
+            // tramo punk: bajo a corcheas y guitarras a púa abajo
+            for (j = 0; j < p.d; j += 0.5) {
+              E.push({ b: b + j, d: 0.4, c: 'bass', n: r, v: j % 1 ? 0.6 : 0.75 });
+              E.push({ b: b + j, d: 0.4, c: 'g1', n: gr, v: 0.6 }, { b: b + j, d: 0.4, c: 'g2', n: gr, v: 0.5 });
+            }
+          } else {
+            // EBM: secuencia de semicorcheas que no para
+            for (j = 0; j < p.d; j += 4) for (q = 0; q < 16 && j + q * 0.25 < p.d; q++) {
+              E.push({ b: b + j + q * 0.25, d: 0.2, c: 'bass', n: r + ANT_SEQ[q], v: q % 4 === 0 ? 0.85 : (ANT_SEQ[q] ? 0.65 : 0.5) });
+            }
+            if (s === 3) for (j = 0; j < p.d; j += 2) E.push({ b: b + j, d: 1.8, c: 'g1', n: gr, v: 0.55 }, { b: b + j + 0.01, d: 1.8, c: 'g2', n: gr, v: 0.5 });
+            if (s >= 1) { var vs = voicing(p.c, 60); for (j = 0; j < p.d; j += 4) [1.5, 2.75, 3.5].forEach(function (x, k) { E.push({ b: b + j + x, d: 0.3, c: 'stab', n: vs, v: k === 1 ? 0.45 : 0.6 }); }); }
+          }
+        });
+        if (s === 0) arpP(E, 'arp', P, b0, [1, -1, 3, -1, 2, -1, 4, -1], 0.25, 64, 0.55, 0.2);
+        else if (s !== 2) arpP(E, 'arp', P, b0, [1, 3, 2, 4, 3, 5, 4, 6], 0.25, 64, 0.6, 0.2);
+      });
+      for (var i = 0; i < 32; i++) {
+        var bb = i * 4, s = i >> 3, bi = i & 7, last = bi === 7;
+        if (s === 2) {
+          pat(E, 'kick', bb, 'x...x.x.', 0.5, 0.85);
+          pat(E, 'snare', bb, last ? '..x.xxXX' : '..x...x.', 0.5, 0.85);
+          pat(E, 'hat', bb, 'XxXxXxXx', 0.5, 0.6);
+          if (bi % 2 === 0) E.push({ b: bb, d: 2, c: 'crash', v: 0.55 });
+        } else {
+          pat(E, 'kick', bb, bi % 2 ? 'x...x...x...x..x' : 'x...x...x...x...', 0.25, 0.85);
+          pat(E, 'snare', bb, last ? '....x.......xxXX' : '....x.......x...', 0.25, 0.8);
+          pat(E, 'clap', bb, '....x.......x...', 0.25, 0.7);
+          pat(E, 'hat', bb, s === 0 ? '..x...x...x...x.' : 'xoXoxoXoxoXoxoXo', 0.25, 0.55);
+        }
+      }
+      [0, 32, 64, 96].forEach(function (b) { E.push({ b: b, d: 2, c: 'crash', v: 0.8 }); });
+    }
+  };
+
+  // --- Concierto: punk a 160 para el minijuego de ritmo ---
+  // OJO: el pulso 1 del compás 1 cae justo en t=0 del bucle (sin anacrusa):
+  // el minijuego coloca las notas sobre esta rejilla. 16 compases = 24 s.
+  T.concierto = {
+    bpm: 160, gain: 1, bars: 16,
+    ch: {
+      kick: { inst: 'smp', s: 'kick', g: 0.48 },
+      snare: { inst: 'smp', s: 'snare', g: 0.3, rev: 0.12 },
+      hat: { inst: 'smp', s: 'hat', g: 0.08, pan: 0.25 },
+      crash: { inst: 'smp', s: 'crash', g: 0.11, pan: -0.2, rev: 0.1 },
+      bass: { inst: 'bass', g: 0.36 },
+      g1: { inst: 'power', g: 0.1, drive: 5, f: EGF, pan: -0.45 },
+      g2: { inst: 'power', g: 0.09, drive: 5, f: EGF, pan: 0.45, hum: 0.008 },
+      hey: { inst: 'choir', g: 0.12, fmt: VO, att: 0.02, rel: 0.12, rev: 0.3 }
+    },
+    build: function (E, n) {
+      var PV = prog('E5:4 E5:4 G5:4 A5:4 E5:4 E5:4 C5:4 D5:4'), PC = prog('C5:4 D5:4 E5:4 A5:4 C5:4 D5:4 E5:2 G5:2 A5:2 B5:2');
+      [[PV, 0], [PC, 32]].forEach(function (s, k) {
+        bassP(E, 'bass', s[0], s[1], 'eighth', 40, 0.66);
+        // guitarras: corcheas a púa abajo (estrofa con la mano apagando salvo el 1)
+        s[0].forEach(function (p) {
+          var r = near(p.c.bs, 45);
+          for (var j = 0; j < p.d; j += 0.5) {
+            var on = (p.b + j) % 4 === 0, pm = k === 0 && p.b < 16 && !on;
+            E.push({ b: s[1] + p.b + j, d: 0.42, c: 'g1', n: r, v: on ? 0.68 : 0.58, pm: pm }, { b: s[1] + p.b + j, d: 0.42, c: 'g2', n: r, v: on ? 0.6 : 0.5, pm: pm });
+          }
+        });
+        for (var i = 0; i < 8; i++) {
+          var bb = s[1] + i * 4, last = i === 7;
+          if (k === 0) {
+            // estrofa: bombo 1 y 3, caja 2 y 4, charles a corcheas
+            pat(E, 'kick', bb, 'x...x.x.', 0.5, 0.85);
+            pat(E, 'snare', bb, last ? '..x.xxXX' : (i === 3 ? '..x...xx' : '..x...x.'), 0.5, 0.8);
+            pat(E, 'hat', bb, 'XxXxXxXx', 0.5, 0.6);
+            if (i % 4 === 0) E.push({ b: bb, d: 2, c: 'crash', v: 0.8 });
+          } else {
+            // estribillo: bombo y caja alternando a corcheas, crash en cada compás
+            if (last) { pat(E, 'kick', bb, 'x.x.', 0.5, 0.85); pat(E, 'snare', bb, '.x.x', 0.5, 0.75); pat(E, 'snare', bb + 2, 'oxxxxxXX', 0.25, 0.75); }
+            else { pat(E, 'kick', bb, 'x.x.x.x.', 0.5, 0.85); pat(E, 'snare', bb, '.x.x.x.x', 0.5, 0.72); }
+            E.push({ b: bb, d: 2, c: 'crash', v: i === 0 ? 0.85 : 0.6 });
+          }
+        }
+      });
+      // "¡oh!" de la peña en el estribillo
+      [39, 55].forEach(function (b) { E.push({ b: b, d: 0.35, c: 'hey', n: [52, 59, 64], v: 0.75 }); });
+    }
+  };
+
   // ---------------------------------------------------------------
   // Generadores de sonido compartidos (ambientes y efectos)
   // ---------------------------------------------------------------
@@ -2096,6 +2272,65 @@
     nhit(dest, t + 0.02, { type: 'lowpass', f: 400, d: 0.25, lvl: lvl * 1.5, pan: pan, wet: wet, buf: 'brown' });
     thump(dest, t + 0.02, 70, lvl * 1.4, 0.07, pan, wet);
   }
+  // alguien hablando a gritos para que le oigan (más agudo y brillante que el murmullo)
+  function shout(dest, t, o) {
+    o = o || {};
+    var fem = o.fem != null ? o.fem : chance(0.5), f0 = fem ? rnd(260, 360) : rnd(150, 210), n = irnd(o.min || 2, o.max || 5), syl = [];
+    for (var i = 0; i < n; i++) {
+      var lst = i === n - 1;
+      syl.push({ v: pick(['a', 'e', 'o', 'a', 'i']), d: rnd(0.1, 0.18) * (lst ? 2.2 : 1), p: rnd(0.95, 1.2) * (lst ? 1.08 : 1), pe: lst ? 0.85 : 0.94, a: rnd(0.7, 1), fr: chance(0.35) ? rnd(3000, 6000) : 0, fd: 0.05, fl: 0.3 });
+    }
+    return say(dest, t, syl, { f0: f0, k: fem ? 1.18 : 1.04, lvl: o.lvl || 0.06, lp: o.lp || 3200, pan: o.pan != null ? o.pan : rnd(-0.8, 0.8), wet: o.wet || 0.25 });
+  }
+  // "¡uuuh!" de fiesta: una o varias voces subiendo a la vez
+  function whoo(dest, t, o) {
+    o = o || {};
+    var n = irnd(o.min || 1, o.max || 3), pan = rnd(-0.7, 0.7);
+    for (var i = 0; i < n; i++) {
+      var fem = chance(0.55), f0 = fem ? rnd(300, 420) : rnd(170, 240);
+      say(dest, t + i * rnd(0.03, 0.15), [{ v: 'u', d: rnd(0.5, 0.9), p: 0.9, pe: rnd(1.25, 1.5), a: 1 }],
+        { f0: f0, k: fem ? 1.15 : 1, lvl: (o.lvl || 0.06) * rnd(0.7, 1), lp: 3000, pan: clamp(pan + rnd(-0.3, 0.3), -1, 1), wet: o.wet || 0.3 });
+    }
+  }
+  // silbido con los dedos: "fiu-fiuuu" o uno largo
+  function whistleA(dest, t, o) {
+    o = o || {};
+    var lvl = o.lvl || 0.03, pan = o.pan != null ? o.pan : rnd(-0.8, 0.8), f = rnd(2300, 3000), wet = o.wet || 0.3;
+    if (chance(0.5)) {
+      tn(dest, t, { f: f * 0.8, f2: f * 1.25, ft: 0.12, a: 0.01, hold: 0.06, r: 0.03, lvl: lvl, pan: pan, wet: wet });
+      tn(dest, t + 0.25, { f: f * 0.75, f2: f * 1.3, ft: 0.15, f3: f * 0.9, ft3: 0.35, a: 0.01, hold: 0.4, r: 0.05, lvl: lvl, pan: pan, wet: wet });
+    } else tn(dest, t, { f: f, f2: f * 1.12, ft: 0.08, a: 0.02, hold: 0.6, r: 0.06, lvl: lvl, pan: pan, wet: wet, vib: [6, 25, 0.15] });
+  }
+  // jaleo: varias voces a la vez "¡eeeh!" (y unas palmas si no se dice lo contrario)
+  function cheer(dest, t, o) {
+    o = o || {};
+    var n = irnd(o.min || 3, o.max || 6), lvl = o.lvl || 0.06, pan = rnd(-0.6, 0.6), i;
+    for (i = 0; i < n; i++) {
+      var fem = chance(0.4), f0 = fem ? rnd(270, 360) : rnd(140, 210);
+      say(dest, t + rnd(0, 0.2), [{ v: pick(['e', 'e', 'a', 'o']), d: rnd(0.6, 1.1), p: 1, pe: rnd(1.05, 1.2), a: 1 }],
+        { f0: f0, k: fem ? 1.15 : 1, lvl: lvl * rnd(0.6, 1), lp: 3200, pan: clamp(pan + rnd(-0.4, 0.4), -1, 1), wet: o.wet || 0.25 });
+    }
+    if (!o.noClap) for (i = 0; i < irnd(4, 9); i++) shit(dest, 'clap', t + 0.1 + i * rnd(0.12, 0.2), rnd(0.9, 1.15), lvl * 0.8, clamp(pan + rnd(-0.5, 0.5), -1, 1), 0.2, 6000);
+  }
+  // botellines: choque de vidrio gordo o botella plantada en la barra
+  function bottleA(dest, t, lvl) {
+    lvl = lvl || 0.06; var p = rnd(-0.8, 0.8);
+    if (chance(0.6)) {
+      shit(dest, pick(['clink0', 'clink3']), t, rnd(0.5, 0.7), lvl, p, 0.25, 4500);
+      if (chance(0.5)) shit(dest, pick(['clink1', 'clink3']), t + rnd(0.04, 0.09), rnd(0.55, 0.75), lvl * 0.6, p, 0.25, 4500);
+    } else {
+      shit(dest, 'wood', t, rnd(0.5, 0.65), lvl * 1.2, p, 0.2, 3000);
+      shit(dest, 'clink3', t + 0.005, rnd(0.6, 0.8), lvl * 0.5, p, 0.2, 4000);
+    }
+  }
+  // cuadra un golpe con el pulso de la música que suena, si va a ese tempo
+  // (así el bombo que se cuela por el suelo no se pelea con la pista)
+  function onBeat(t, bpm) {
+    var m = null; try { m = musicNow(); } catch (e) {}
+    if (!m || Math.abs(m.bpm - bpm) > 0.5) return t;
+    var sp = 60 / m.bpm, ph = (m.t + (t - now())) % sp; if (ph < 0) ph += sp;
+    return t + (sp - ph) % sp;
+  }
 
   // ---------------------------------------------------------------
   // AMBIENTES
@@ -2262,6 +2497,35 @@
     gens: [
       [1.5, 5, function (b, t) { bird(b.dest, t, { lvl: 0.03 }); }],
       [8, 18, function (b, t) { nhit(b.dest, t, { type: 'highpass', f: 3500, d: 2.5, a: 1, lvl: 0.03, wet: 0.3 }); }]
+    ]
+  };
+  // discoteca fina: mucha gente hablando a voces, "¡uuuh!", silbidos, copas y el bombo por el suelo
+  AMB.disco = { gain: 0.65,
+    init: function (bed) {
+      crowdWash(bed, 0.1, 2600);
+      layer(bed, 'pink', [['bandpass', 1500, 0.8, [0.11, 400]], ['lowpass', 3200, 0.7]], 0.1, { am: [0.27, 0.35], wet: 0.25 });
+      layer(bed, 'brown', [['lowpass', 160, 0.7]], 0.1);
+    },
+    gens: [
+      [0.08, 0.25, function (b, t) { babble(b.dest, t, { lvl: rnd(0.06, 0.12), lp: 2600, wet: 0.3 }); }],
+      [0.5, 1.6, function (b, t) { shout(b.dest, t, { lvl: rnd(0.04, 0.08) }); }],
+      [5, 14, function (b, t) { whoo(b.dest, t, { lvl: rnd(0.05, 0.08) }); }],
+      [9, 22, function (b, t) { whistleA(b.dest, t, { lvl: rnd(0.02, 0.035) }); }],
+      [0.7, 2.2, function (b, t) { clinkA(b, t, rnd(0.04, 0.08)); }],
+      [6, 14, function (b, t) { laughAt(pick(['gente', 'gente2']), b.dest, t, { lvl: rnd(0.25, 0.4), lp: 2800, pan: rnd(-0.8, 0.8) }); }],
+      [60 / 124, 60 / 124, function (b, t) { shit(b.dest, 'kick2', onBeat(t, 124), 0.85, 0.12, 0, 0.05, 120); }]
+    ]
+  };
+  // antro punk: menos gente pero más bruta, botellines y jaleo
+  AMB.antro = { gain: 0.7,
+    init: function (bed) { crowdWash(bed, 0.06, 2200); layer(bed, 'brown', [['lowpass', 220, 0.7]], 0.1); },
+    gens: [
+      [0.12, 0.45, function (b, t) { babble(b.dest, t, { lvl: rnd(0.07, 0.14), lp: 2600, wet: 0.2 }); }],
+      [1, 3.5, function (b, t) { shout(b.dest, t, { lvl: rnd(0.05, 0.09), lp: 3000, wet: 0.2 }); }],
+      [0.9, 3, function (b, t) { bottleA(b.dest, t, rnd(0.05, 0.09)); }],
+      [7, 16, function (b, t) { cheer(b.dest, t, { lvl: rnd(0.05, 0.08) }); }],
+      [5, 12, function (b, t) { laughAt(pick(['gente', 'gente2']), b.dest, t, { lvl: rnd(0.3, 0.45), lp: 2600, pan: rnd(-0.8, 0.8) }); }],
+      [14, 30, function (b, t) { whistleA(b.dest, t, { lvl: rnd(0.02, 0.03), wet: 0.2 }); }]
     ]
   };
 
@@ -2498,6 +2762,9 @@
     nhit(d, t, { type: 'bandpass', f: 3000, q: 2, d: 0.02, lvl: 0.35 });
     tn(d, t + 0.01, { type: 'sawtooth', f: 300, f2: 500, ft: 0.06, a: 0.003, hold: 0.04, r: 0.01, lvl: 0.03, bp: 2000 });
     nhit(d, t + 0.08, { type: 'bandpass', f: 2200, q: 2, d: 0.03, lvl: 0.3 });
+    // "pop" chiquito del flash
+    tn(d, t + 0.005, { f: 900, f2: 180, ft: 0.03, a: 0.001, r: 0.02, lvl: 0.1 });
+    nhit(d, t + 0.005, { type: 'highpass', f: 6500, d: 0.05, lvl: 0.05, wet: 0.15 });
   };
   FX.pagina = function (d, t) {
     nhit(d, t, { type: 'bandpass', f: 1500, f2: 4500, q: 0.9, d: 0.3, a: 0.09, lvl: 0.35 });
@@ -2573,6 +2840,73 @@
     nhit(d, t + 1.25, { type: 'highpass', f: 2000, d: 0.8, a: 0.2, lvl: 0.06 });
     tn(d, t + 1.3, { f: 1300, f2: 1550, ft: 0.6, a: 0.15, hold: 0.4, r: 0.08, lvl: 0.035 });
   };
+  // --- concierto ---
+  // power chord eléctrico con distorsión; opts.n = carril 0..3 (Mi5, Sol5, La5, Do5)
+  var ACORDE = [40, 43, 45, 48];
+  FX.acorde = function (d, t, o) {
+    var n = clamp(Math.floor(fin(o && +o.n, 0)), 0, 3), m = ACORDE[n], os = [];
+    var pre = G(0), ws = ctx.createWaveShaper(), hp = F('highpass', 90, 0.7), pk = F('peaking', 1800, 1, 4), lp = F('lowpass', 4200, 0.8), out = G(0.2), p = P(-0.3 + n * 0.2);
+    ws.curve = driveCurve(6); try { ws.oversample = '2x'; } catch (e) {}
+    [0, 7, 12].forEach(function (iv, k) { var x = O('sawtooth', mtof(m + iv)); x.detune.value = (k - 1) * 7; x.connect(pre); os.push(x); });
+    var sq = O('square', mtof(m - 12)), sg = G(0.4); sq.connect(sg); sg.connect(pre); os.push(sq);
+    pre.connect(ws); ws.connect(hp); hp.connect(pk); pk.connect(lp); lp.connect(out); out.connect(p);
+    // púa fuerte que cae a un sostenido corto (la distorsión lo aplana) y se apaga a los ~0,6 s
+    var end = env(pre.gain, t, 0.003, 0.9, 0.15, 0.3, t + 0.42, 0.035);
+    out.gain.setValueAtTime(0.2, t + 0.45); out.gain.linearRampToValueAtTime(0, t + 0.62);
+    var ns = [sg, pre, ws, hp, pk, lp, out, p].concat(route(p, d, 0.12, 0));
+    go(os, t, Math.min(end, t + 0.65), ns);
+    nhit(d, t, { type: 'bandpass', f: 2500, q: 1.2, d: 0.03, lvl: 0.06, pan: -0.3 + n * 0.2 });
+  };
+  // aplausos renderizados una vez (estéreo, ~2,6 s): muchas palmas sueltas que se van apagando
+  SMP.aplauso = function () {
+    var sec = 2.6, b = mkBuf(sec, 2), n = b.length, c, k, i, mx = 0;
+    for (c = 0; c < 2; c++) {
+      var d = b.getChannelData(c);
+      for (k = 0; k < 230; k++) {
+        var u = Math.pow(Math.random(), 1.6), st = Math.floor((0.03 + u * (sec - 0.3)) * SR), amp = rnd(0.3, 1) * (1 - 0.75 * u) * Math.min(1, u * 12 + 0.25);
+        var dec = rnd(0.004, 0.012) * SR, len = Math.min(Math.floor(dec * 6), n - st), br = rnd(0.3, 0.9), y = 0, e = amp, dk = Math.exp(-1 / dec);
+        for (i = 0; i < len; i++) { y += br * (wn() - y); d[st + i] += y * e; e *= dk; }
+      }
+      biq(d, 'bp', 1600, 0.6); biq(d, 'pk', 3000, 1, 3); biq(d, 'hp', 300, 0.7);
+      fadeEnds(d, 0.01, 0.5);
+      for (i = 0; i < n; i++) { var a = Math.abs(d[i]); if (a > mx) mx = a; }
+    }
+    if (mx > 0) for (c = 0; c < 2; c++) { var dd = b.getChannelData(c); for (i = 0; i < n; i++) dd[i] *= 0.85 / mx; }
+    return { b: b, f: 0 };
+  };
+  // ovación: aplausos + rugido + "¡eeeh!" + algún silbido (~2,5 s)
+  FX.ovacion = function (d, t) {
+    var r = getS('aplauso');
+    if (r) { var s = src(r.b, rnd(0.97, 1.03)), g = G(0.5); s.connect(g); var ns = [g].concat(route(g, d, 0.3, 0)); s.start(t); cleanup(s, ns); }
+    nhit(d, t, { type: 'bandpass', f: 700, f2: 1100, ft: 0.6, q: 0.8, d: 2.4, a: 0.25, hold: 0.9, lvl: 0.12, buf: 'pink', wet: 0.3 });
+    cheer(d, t + 0.05, { min: 5, max: 7, lvl: 0.07, noClap: true, wet: 0.3 });
+    whistleA(d, t + rnd(0.2, 0.5), { lvl: 0.035 });
+    if (chance(0.6)) whistleA(d, t + rnd(0.9, 1.4), { lvl: 0.03 });
+  };
+  // abucheo de buen rollo: "oooh..." que cae (~1,2 s)
+  FX.abucheo = function (d, t) {
+    for (var i = 0; i < 7; i++) {
+      var fem = i % 3 === 0, f0 = fem ? rnd(210, 270) : rnd(100, 145);
+      say(d, t + rnd(0, 0.12), [{ v: 'o', d: rnd(0.15, 0.25), p: 1.08, pe: 1, a: 0.8 }, { v: 'u', d: rnd(0.65, 0.85), p: 1.02, pe: 0.78, a: 1 }],
+        { f0: f0, k: fem ? 1.15 : 1, lvl: 0.045, lp: 2000, pan: rnd(-0.7, 0.7), wet: 0.3 });
+    }
+    nhit(d, t, { type: 'bandpass', f: 450, q: 0.8, d: 1.1, a: 0.15, hold: 0.5, lvl: 0.06, buf: 'pink', wet: 0.3 });
+  };
+  // acople de guitarra (nota fallada): pitido que sube con vibrato (~0,4 s, flojito)
+  FX.feedback = function (d, t) {
+    var f = pick([1318.5, 1568, 1975.5]), pan = rnd(-0.2, 0.2);
+    var a = O('sine', f), b = O('triangle', f * 2), bg = G(0.25), g = G(0), lp = F('lowpass', 5000, 0.7), p = P(pan);
+    a.connect(g); b.connect(bg); bg.connect(g); g.connect(lp); lp.connect(p);
+    a.frequency.setValueAtTime(f * 0.985, t); a.frequency.exponentialRampToValueAtTime(f * 1.03, t + 0.35);
+    b.frequency.setValueAtTime(f * 1.97, t); b.frequency.exponentialRampToValueAtTime(f * 2.06, t + 0.35);
+    var vv = vib([a, b], t, 9, 18, 0.1, t + 0.45);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.08, t + 0.22); g.gain.setValueAtTime(0.08, t + 0.32); g.gain.linearRampToValueAtTime(0, t + 0.4);
+    var ns = [g, bg, lp, p, b, vv[0], vv[1]].concat(route(p, d, 0.15, 0));
+    a.start(t); b.start(t); a.stop(t + 0.45); b.stop(t + 0.45); cleanup(a, ns);
+    // púa que roza la cuerda y zumbido del ampli
+    nhit(d, t, { type: 'bandpass', f: 1800, q: 1.5, d: 0.08, lvl: 0.05, pan: pan });
+    tn(d, t, { type: 'sawtooth', f: 82, a: 0.003, hold: 0.05, r: 0.04, lvl: 0.04, lp: 700, pan: pan });
+  };
 
   // ---------------------------------------------------------------
   // RISAS: síntesis formante "ja-ja-ja" con voz propia por personaje
@@ -2590,7 +2924,23 @@
     camarero: { f0: 135, rise: 1.18, fall: 0.97, rate: 5.8, syl: [4, 7], ph: [1, 2], vow: ['a', 'e', 'a'], br: 0.3, vd: 0.55, gap: [0.3, 0.4], inh: 0.5, lvl: 0.34, wet: 0.12, k: 1, rough: 0.03 },
     recep: { f0: 240, rise: 1.15, fall: 0.975, rate: 6, syl: [3, 5], ph: [1, 1], vow: ['i', 'e', 'i'], br: 0.45, vd: 0.45, gap: [0.25, 0.35], inh: 0.3, lvl: 0.16, wet: 0.15, k: 1.18 },
     gente: { f0: 0, rise: 1.2, fall: 0.97, rate: 6, syl: [4, 7], ph: [1, 2], vow: ['a', 'e', 'a'], br: 0.35, vd: 0.55, gap: [0.3, 0.4], inh: 0.4, lvl: 0.3, wet: 0.2, k: 1 },
-    gente2: { f0: 0, rise: 1.3, fall: 0.96, rate: 6.5, syl: [5, 9], ph: [2, 3], vow: ['a', 'a', 'o'], br: 0.35, vd: 0.55, gap: [0.25, 0.4], inh: 0.6, lvl: 0.3, wet: 0.2, k: 1 }
+    gente2: { f0: 0, rise: 1.3, fall: 0.96, rate: 6.5, syl: [5, 9], ph: [2, 3], vow: ['a', 'a', 'o'], br: 0.35, vd: 0.55, gap: [0.25, 0.4], inh: 0.6, lvl: 0.3, wet: 0.2, k: 1 },
+    // secundarios de la discoteca, el antro y el concierto
+    uxia: { f0: 300, rise: 1.25, fall: 0.97, rate: 9, syl: [6, 9], ph: [2, 3], vow: ['i', 'i', 'e'], br: 0.4, vd: 0.4, gap: [0.15, 0.25], inh: 0.4, lvl: 0.18, wet: 0.15, k: 1.22 },              // risita nerviosa rapidísima
+    noa: { f0: 280, rise: 1.2, fall: 0.97, rate: 8, syl: [5, 8], ph: [2, 2], vow: ['i', 'e', 'i'], br: 0.45, vd: 0.45, gap: [0.2, 0.3], inh: 0.3, snort: 0.6, lvl: 0.2, wet: 0.15, k: 1.2 },    // risita con ronquidito
+    sabela: { f0: 235, rise: 1.2, fall: 0.97, rate: 6, syl: [5, 7], ph: [1, 2], vow: ['a', 'a', 'e'], br: 0.35, vd: 0.55, gap: [0.3, 0.4], inh: 0.5, lvl: 0.34, wet: 0.15, k: 1.15 },           // risa abierta y cálida
+    vera: { f0: 210, rise: 1.15, fall: 0.975, rate: 5.5, syl: [4, 7], ph: [1, 2], vow: ['a', 'e', 'a'], br: 0.6, vd: 0.5, gap: [0.3, 0.45], inh: 0.6, lvl: 0.37, wet: 0.12, k: 1.1, rough: 0.08 }, // punki, ronca
+    antia: { f0: 255, rise: 1.12, fall: 0.975, rate: 6.5, syl: [3, 5], ph: [1, 1], vow: ['e', 'i', 'e'], br: 0.4, vd: 0.45, gap: [0.25, 0.35], inh: 0.2, lvl: 0.29, wet: 0.15, k: 1.18 },        // corta y educada
+    lua: { f0: 265, rise: 1.18, fall: 0.97, rate: 5, syl: [4, 6], ph: [1, 2], vow: ['a', 'o', 'a'], br: 0.55, vd: 0.6, gap: [0.35, 0.5], inh: 0.5, lvl: 0.3, wet: 0.35, k: 1.17, vibD: 35, vibR: 6 }, // soñadora, con aire
+    carla: { f0: 330, rise: 1.25, fall: 0.965, rate: 7.5, syl: [5, 8], ph: [1, 2], vow: ['a', 'a', 'i'], br: 0.35, vd: 0.5, gap: [0.2, 0.3], inh: 0.3, lvl: 0.15, wet: 0.15, k: 1.25, nasal: true, endHigh: true }, // influencer: brillante y "¡ay!"
+    xurxo: { f0: 128, rise: 1.2, fall: 0.97, rate: 5.4, syl: [5, 8], ph: [1, 2], vow: ['a', 'a', 'o'], br: 0.3, vd: 0.6, gap: [0.3, 0.45], inh: 0.5, lvl: 0.55, wet: 0.12, k: 1, rough: 0.03 },      // carcajada de aldea
+    dj: { f0: 140, rise: 1.08, fall: 0.98, rate: 4.8, syl: [3, 4], ph: [1, 1], vow: ['e', 'e', 'a'], br: 0.6, vd: 0.35, gap: [0.3, 0.4], inh: 0.2, lvl: 0.5, wet: 0.25, echo: 0.2, k: 1 },       // "je, je" de sobrado, con eco
+    iago: { f0: 200, rise: 1.2, fall: 0.97, rate: 7.5, syl: [5, 8], ph: [2, 2], vow: ['i', 'e', 'i'], br: 0.3, vd: 0.45, gap: [0.2, 0.3], inh: 0.8, wheeze: true, nasal: true, lvl: 0.36, wet: 0.12, k: 1.08 }, // friki: nasal y pitando al coger aire
+    peregrino: { f0: 112, rise: 1.12, fall: 0.975, rate: 4.2, syl: [4, 6], ph: [1, 2], vow: ['o', 'o', 'a'], br: 0.3, vd: 0.6, gap: [0.35, 0.5], inh: 0.5, lvl: 0.44, wet: 0.2, k: 0.97, belly: true }, // "jo, jo" tranquilo
+    guiri: { f0: 132, rise: 1.35, fall: 0.96, rate: 5.2, syl: [5, 8], ph: [2, 2], vow: ['a', 'a', 'o'], br: 0.35, vd: 0.65, gap: [0.25, 0.4], inh: 0.9, lvl: 0.5, wet: 0.15, k: 1, belly: true, rough: 0.025 }, // HA HA HA a pleno pulmón
+    nando: { f0: 150, rise: 1.15, fall: 0.97, rate: 6, syl: [4, 6], ph: [1, 2], vow: ['e', 'a', 'e'], br: 0.3, vd: 0.5, gap: [0.3, 0.4], inh: 0.4, lvl: 0.45, wet: 0.12, k: 1.02 },
+    portero: { f0: 80, rise: 1.1, fall: 0.98, rate: 3.6, syl: [3, 5], ph: [1, 1], vow: ['o', 'o', 'u'], br: 0.25, vd: 0.6, gap: [0.4, 0.5], inh: 0.2, lvl: 0.55, wet: 0.12, k: 0.88, belly: true, rough: 0.03 }, // grave, pocas sílabas
+    tino: { f0: 98, rise: 1.18, fall: 0.97, rate: 4.6, syl: [4, 6], ph: [2, 2], vow: ['a', 'e', 'a'], br: 0.5, vd: 0.55, gap: [0.3, 0.45], inh: 0.7, wheeze: true, lvl: 0.45, wet: 0.12, k: 0.95, rough: 0.12 } // rockero viejo: grava y pitido de fumador
   };
   LAUGH.gc1 = LAUGH.gc; LAUGH.gc2 = LAUGH.gc;
 
@@ -2690,19 +3040,32 @@
     angel: [175, 'triangle', 1200, 0.11], senora: [440, 'sine', 3000, 0.09], chica: [620, 'sine', 3500, 0.08],
     fantasma: [150, 'sine', 900, 0.11], gc: [160, 'square', 900, 0.07], meiga: [600, 'sawtooth', 1800, 0.06],
     narrador: [300, 'sine', 2000, 0.08], recep: [500, 'triangle', 2500, 0.08], camarero: [260, 'triangle', 1800, 0.09],
-    gente: [350, 'triangle', 2000, 0.08]
+    gente: [350, 'triangle', 2000, 0.08],
+    // secundarios nuevos; 5º campo opcional: { up: entonación hacia arriba, dur: largo,
+    // rng: saltos de tono, q: resonancia (nasal), gr: grava, nz: ronquera, wet, echo }
+    uxia: [580, 'triangle', 3200, 0.085, { up: 1 }], noa: [610, 'sine', 3400, 0.085, { up: 1, dur: 0.8 }],
+    sabela: [460, 'triangle', 2300, 0.09], vera: [390, 'sawtooth', 1500, 0.15, { nz: 0.035 }],
+    antia: [500, 'sine', 2700, 0.085], lua: [530, 'sine', 2200, 0.07, { dur: 1.4, wet: 0.25 }],
+    carla: [690, 'triangle', 4500, 0.08, { up: 1, rng: 1.4 }],
+    xurxo: [225, 'triangle', 1700, 0.1], dj: [245, 'square', 1300, 0.15, { dur: 1.2, echo: 0.2 }],
+    iago: [370, 'square', 2300, 0.2, { q: 2.5 }], peregrino: [190, 'triangle', 1300, 0.095, { dur: 1.3 }],
+    guiri: [270, 'triangle', 2400, 0.12, { rng: 1.6 }], nando: [240, 'triangle', 1900, 0.095],
+    portero: [118, 'triangle', 900, 0.1, { dur: 1.4 }], tino: [140, 'sawtooth', 1000, 0.22, { gr: 0.1, nz: 0.025, dur: 1.2 }]
   };
   BLIP.gc1 = BLIP.gc; BLIP.gc2 = BLIP.gc; BLIP.grupo = BLIP.gente;
   var BSTEP = [-2, 0, 0, 2, 4, 2, -1];
   function blipAt(who, t) {
-    var b = BLIP[who] || BLIP.narrador, f = b[0] * Math.pow(2, (pick(BSTEP) + rnd(-0.25, 0.25)) / 12);
-    var osc = O(b[1], f), lp = F(b[1] === 'square' || b[1] === 'sawtooth' ? 'bandpass' : 'lowpass', b[2], b[1] === 'sine' ? 0.7 : 1.2), g = G(0), p = P(0);
+    var b = own(BLIP, who) ? BLIP[who] : BLIP.narrador, x = b[4] || {}, k = x.dur || 1;
+    var f = b[0] * Math.pow(2, (pick(BSTEP) * (x.rng || 1) + rnd(-0.25, 0.25)) / 12);
+    var osc = O(b[1], f), lp = F(b[1] === 'square' || b[1] === 'sawtooth' ? 'bandpass' : 'lowpass', b[2], x.q || (b[1] === 'sine' ? 0.7 : 1.2)), g = G(0), p = P(0), ns = [lp, g, p];
     osc.connect(lp); lp.connect(g); g.connect(p);
-    osc.frequency.setValueAtTime(f * 1.03, t); osc.frequency.exponentialRampToValueAtTime(f * 0.94, t + 0.045);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(b[3], t + 0.004); g.gain.setTargetAtTime(0, t + 0.012, 0.012);
-    var wet = who === 'fantasma' ? 0.6 : (who === 'meiga' ? 0.25 : 0.05);
-    var ns = [lp, g, p].concat(route(p, B.sfx, wet, 0));
-    osc.start(t); osc.stop(t + 0.09); cleanup(osc, ns);
+    osc.frequency.setValueAtTime(f * (x.up ? 0.97 : 1.03), t); osc.frequency.exponentialRampToValueAtTime(f * (x.up ? 1.06 : 0.94), t + 0.045 * k);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(b[3], t + 0.004); g.gain.setTargetAtTime(0, t + 0.012 * k, 0.012 * k);
+    if (x.gr) { var lo = O('square', rnd(28, 36)), lg = G(f * x.gr); lo.connect(lg); lg.connect(osc.frequency); lo.start(t); lo.stop(t + 0.09 * k); ns.push(lo, lg); }
+    if (x.nz) nhit(B.sfx, t, { type: 'bandpass', f: b[2] * 1.6, q: 1.2, d: 0.05 * k, a: 0.003, lvl: x.nz });
+    var wet = x.wet != null ? x.wet : (who === 'fantasma' ? 0.6 : (who === 'meiga' ? 0.25 : 0.05));
+    ns = ns.concat(route(p, B.sfx, wet, x.echo || 0));
+    osc.start(t); osc.stop(t + 0.09 * k); cleanup(osc, ns);
   }
 
   // ---------------------------------------------------------------
@@ -2773,8 +3136,10 @@
     music: { titulo: 80, estrella: 72, tension: 58.18181818181818, bodega: 82.28571428571429, plaza: 87.27272727272727, calle: 73.84615384615384,
       bareto: 60, pub: 65.08474576271186, beso: 53.333333333333336, ruinas: 87.27272727272727, cripta: 64, alameda: 91.42857142857143,
       meiga: 43.63636363636363, parking: 76.8, carretera: 54.857142857142854, control: 85.33333333333333, compana: 76.8,
-      balneario: 109.71428571428571, creditos: 71.11111111111111, minijuego: 54.857142857142854, derrota: 27.428571428571427 },
-    amb: { estrella: 40, bodega: 40, plaza: 40, calle: 40, bareto: 40, pub: 40, ruinas: 40, cripta: 40, alameda: 40, parking: 40, carretera: 40, control: 40, compana: 40, balneario: 40 }
+      balneario: 109.71428571428571, creditos: 71.11111111111111, minijuego: 54.857142857142854, derrota: 27.428571428571427,
+      disco: 61.935483870967744, antro: 56.470588235294116, concierto: 24, intro: 72 },
+    amb: { estrella: 40, bodega: 40, plaza: 40, calle: 40, bareto: 40, pub: 40, ruinas: 40, cripta: 40, alameda: 40, parking: 40, carretera: 40, control: 40, compana: 40, balneario: 40,
+      disco: 40, antro: 40 }
   };
   var REC_XF = 1.2;  // fundido entre vueltas (s); cada archivo trae 3 s de cola
   var REC_ON = !!(W.fetch && /^https?:$/.test(W.location.protocol)) && !W.__AUDIO_TEST__;
@@ -2810,7 +3175,8 @@
   function recPrefetch() {
     if (!REC_ON) return;
     var list = [];
-    ['estrella', 'bodega', 'tension', 'minijuego', 'plaza', 'calle', 'bareto', 'pub', 'beso', 'ruinas', 'cripta', 'alameda', 'meiga', 'parking', 'carretera', 'control', 'compana', 'balneario', 'creditos', 'derrota', 'titulo']
+    ['estrella', 'bodega', 'tension', 'minijuego', 'plaza', 'calle', 'bareto', 'pub', 'beso', 'ruinas', 'cripta', 'alameda', 'meiga', 'parking', 'carretera', 'control', 'compana', 'balneario', 'creditos', 'derrota', 'titulo',
+      'disco', 'antro', 'concierto', 'intro']
       .forEach(function (n) { list.push('music/' + n); if (REC_LOOP.amb[n]) list.push('amb/' + n); });
     var i = 0;
     (function next() { if (i >= list.length) return; recFetch(list[i++]).then(next, next); })();
@@ -2840,7 +3206,7 @@
       prev.g.gain.setValueAtTime(1, t); prev.g.gain.linearRampToValueAtTime(0, t + REC_XF);
       try { prev.s.stop(t + REC_XF + 0.05); } catch (e) {}
     }
-    var rec = { s: s, g: g }; this.srcs.push(rec);
+    var rec = { s: s, g: g, t: t }; this.srcs.push(rec); // t: inicio de esta vuelta (para musicTime)
     s.onended = function () {
       try { s.disconnect(); g.disconnect(); } catch (e) {}
       self.srcs = self.srcs.filter(function (x) { return x !== rec; });
@@ -2884,6 +3250,35 @@
       if (r.dead) { if (!r.srcs.length) recs.splice(i, 1); continue; }
       try { r.tick(tn); } catch (e) {}
     }
+  }
+
+  // Reloj de la música que suena (para minijuegos de ritmo):
+  // { name, t, bpm, len, src, lat } o null si todavía no se oye nada.
+  // t = segundos desde el pulso 1 de la vuelta actual (0 ≤ t < len), ya descontado
+  // el retardo fijo de la cadena de música (wob, 30 ms), o sea, lo que sale del
+  // juego ahora. lat = latencia de salida del aparato (no se resta: cosa del minijuego).
+  // Con el sintetizador, t va en "segundos de partitura" (pulsos * 60/bpm), así que
+  // pulso = t * bpm / 60 vale aunque el efecto borracho estire un poco el tempo.
+  function musicNow() {
+    if (!ctx || !B || !curName || !own(T, curName)) return null;
+    var def = T[curName], bpm = def.bpm, lenB = def.bars * (def.bpb || 4), len = lenB * 60 / bpm;
+    var tn = ctx.currentTime - fin(B.mus.dry.wob.delayTime.value, 0.03), t, kind;
+    if (recMusic && recMusic.name === curName && !recMusic.dead) {
+      // grabación: cada vuelta empieza justo en el pulso 1; vale la última que ya arrancó
+      if (!recMusic.buf) return null;
+      var st = -1;
+      recMusic.srcs.forEach(function (x) { if (x.t != null && x.t <= tn && x.t > st) st = x.t; });
+      if (st < 0) return null;
+      len = recMusic.len; t = tn - st; kind = 'rec';
+    } else if (curTrack && curTrack.name === curName && !curTrack.dying) {
+      // sintetizador: refT/refB = hora y pulso absoluto del último evento programado
+      var tr = curTrack, spb = 60 / bpm * (1 + 0.08 * drunkC), ab = tr.refB + (tn - tr.refT) / spb;
+      if (!isFinite(ab) || ab < 0) return null;
+      t = (ab % lenB) * 60 / bpm; kind = 'synth';
+    } else return null;
+    t = t % len; if (t < 0) t += len;
+    var lat = fin(ctx.baseLatency, 0) + fin(ctx.outputLatency, 0);
+    return { name: curName, t: t, bpm: bpm, len: len, src: kind, lat: lat };
   }
 
   // ---------------------------------------------------------------
@@ -2976,7 +3371,8 @@
         if (!running() || muted || voices > MAXV + 40) return;
         var d = dest(opts), t = now() + 0.02;
         if (who === 'grupo') groupLaugh(d, t, 1);
-        else if (LAUGH[who]) laughAt(who, d, t, { pan: opts && opts.pan });
+        else if (own(LAUGH, who)) laughAt(who, d, t, { pan: opts && opts.pan });
+        else if (who !== 'narrador') laughAt('gente', d, t, { pan: opts && opts.pan }); // desconocido: risa genérica
       } catch (e) {}
     },
     blip: function (who) {
@@ -2987,6 +3383,10 @@
         lastBlip = t;
         blipAt(who, t + 0.005);
       } catch (e) {}
+    },
+    // posición de la música en su bucle: { name, t, bpm, len, src, lat } o null (ver musicNow)
+    musicTime: function () {
+      try { return musicNow(); } catch (e) { return null; }
     },
     recInfo: function () {
       return recs.map(function (r) { return { key: r.key, dead: r.dead, ready: !!r.buf, playing: r.srcs.length, next: +(r.next - now()).toFixed(2) }; });

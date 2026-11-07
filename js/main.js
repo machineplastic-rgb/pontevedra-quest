@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -45,6 +45,8 @@ async function startGame(fromSave) {
   } else {
     clearSave(); S = newState();
     G.bodegaLeft = 75;
+    // la intro con la viñeta: por qué se ven en Pontevedra
+    await introSeq();
   }
   G.mode = null; G.started = true;
   buildParty();
@@ -73,6 +75,7 @@ function bindMenus() {
       <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b> es el friki que resuelve acertijos y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
       <p>• ¿Atascado? Toca a uno de tus amigos y háblale: siempre tiene una idea.</p>
+      <p>• La noche está llena de gente: habla con todos. En la discoteca Lume y en O Furado hay logros extra (y un concierto).</p>
       <p>• La barrita de colores es la borrachera. <b>Marcos conduce</b>: que no pase de «Achispado». El café ayuda.</p>
       <button class="gold" id="mBack">Entendido</button>`;
     $('mBack').onclick = (ev) => { ev.stopPropagation(); b.innerHTML = old; bindMenus(); updSoundBtn(); };

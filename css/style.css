@@ -100,6 +100,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #dtext em{color:var(--gold2);font-style:normal}
 #dnext{position:absolute;right:18px;bottom:10px;color:var(--gold);font-size:22px;animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.2}}
+/* discoteca y antro: el cuadro vibra con el bajo */
+#dlg.loud #dbox{animation:bass .484s infinite}
+#dlg.loud #dname::after{content:" 🔊";font-size:18px}
+@keyframes bass{0%{transform:none}8%{transform:translate(2px,-2px) scale(1.006)}22%{transform:none}}
 #dlg.narr #dport{display:none}
 #dlg.narr #dbox{margin:0;padding:24px 40px;background:rgba(8,6,16,.92)}
 #dlg.narr #dtext{font-family:'Patrick Hand',cursive;font-size:36px;color:#f6ecd0}

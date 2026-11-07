@@ -14,9 +14,16 @@ const NAMES = {
   ramis: 'Ramis', marc: 'Marc', marcos: 'Marcos', angel: 'Ángel', senora: 'Doña Maruxa', chica: 'La chica del pub',
   fantasma: 'Don Xesús', gc1: 'Guardia Civil', gc2: 'Sargento Seoane', meiga: 'A meiga Pura', camarero: 'Brais, el camarero',
   gente: 'Parroquiano', recep: 'Recepcionista', narrador: '',
+  // la gente de la noche (v5)
+  uxia: 'Uxía', noa: 'Noa', sabela: 'Sabela', xurxo: 'Xurxo', nando: 'Nando', dj: 'DJ Raxo', vera: 'Vera', iago: 'Iago',
+  peregrino: 'Toño, el peregrino', antia: 'Antía, la camarera', guiri: 'Gary, el guiri', lua: 'Lúa', portero: 'Rubén, el portero',
+  tino: 'Tino', carla: 'Carla (@carlaviral)',
 };
 const SECOND = ['senora', 'chica', 'fantasma', 'gc1', 'gc2', 'meiga', 'camarero', 'gente', 'recep'];
+// gente de la calle: vienen de una sola hoja, dibujados más pequeños que los protas
+const CROWD_IDS = ['uxia', 'noa', 'sabela', 'xurxo', 'nando', 'dj', 'vera', 'iago', 'peregrino', 'antia', 'guiri', 'lua', 'portero', 'tino', 'carla'];
 const isProta = (id) => PROTA.includes(id);
+const isCrowd = (id) => CROWD_IDS.includes(id);
 
 const G = {
   img: {}, t: 0, dt: 0, last: 0, scene: null, sceneId: null, actors: {}, props: [], busy: 0, mode: null,
@@ -57,9 +64,10 @@ function loadImages(list, onProg) {
   })));
 }
 function assetList() {
-  const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo'];
-  PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
+  const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo', 'bg/disco', 'bg/antro', 'bg/intro'];
+  PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); BODY.forEach((v) => l.push('chars/' + p + v)); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
   SECOND.forEach((s) => { l.push('chars/' + s, 'chars/' + s + '_risa', 'faces/' + s + '_normal', 'faces/' + s + '_risa'); });
+  CROWD_IDS.forEach((s) => l.push('chars/' + s, 'faces/' + s + '_normal'));
   Object.keys(ITEMS).forEach((k) => l.push('items/' + ITEMS[k].img));
   ['peugeot_lado', 'peugeot_atras', 'vaca', 'compana', 'cruceiro', 'estrella', 'b1906', 'chupitos', 'vino'].forEach((k) => l.push('items/' + k));
   return [...new Set(l)];
@@ -127,7 +135,13 @@ function actor(id, o) {
 function removeActor(id) { delete G.actors[id]; }
 // todos un 20 % más grandes que al principio (se veían pequeños frente a los fondos)
 const CHAR_SCALE = 1.2;
-function aScale(a) { return a.k * (isProta(a.id) ? 1 : 1.72) * CHAR_SCALE; }
+function aScale(a) { return a.k * (isProta(a.id) ? 1 : (a.ks || (isCrowd(a.id) ? 1.85 : 1.72))) * CHAR_SCALE; }
+// pose de cuerpo según la borrachera: alegre (1), piripi (2-3) y mamado (4-5)
+const BODY = ['_alegre', '_piripi', '_mamado'];
+function bodySprite(id) {
+  const lv = S ? S.drunk[id] : 0, v = lv >= 4 ? '_mamado' : lv >= 2 ? '_piripi' : lv === 1 ? '_alegre' : '';
+  return v && G.img['chars/' + id + v] ? 'chars/' + id + v : 'chars/' + id;
+}
 function actorBox(a) {
   const img = G.img[a.sprite]; if (!img) return null;
   const k = aScale(a); const w = img.width * k, h = img.height * k;
@@ -137,17 +151,20 @@ function drawActor(c, a) {
   if (!a.visible || a.alpha <= 0) return;
   let sprite = a.sprite;
   if (a.laughUntil > G.t && G.img['chars/' + a.id + '_risa'] && !isProta(a.id)) sprite = 'chars/' + a.id + '_risa';
+  const body = isProta(a.id) && a.sprite === 'chars/' + a.id && !a.noBody;
+  if (body) sprite = bodySprite(a.id);
   const img = tinted(sprite, G.scene && G.scene.tint && !a.ghost ? G.scene.tint : null);
   if (!img) return;
   const t = G.t, lvl = isProta(a.id) ? S.drunk[a.id] : (a.drunkLvl || 0);
   let k = aScale(a);
-  // si el sprite de risa viene de otra hoja, se iguala la altura
-  if (sprite !== a.sprite && G.img[a.sprite]) k = k * G.img[a.sprite].height / G.img[sprite].height;
+  // si el sprite de risa viene de otra hoja, se iguala la altura (las poses de borrachera ya vienen a escala)
+  if (!body && sprite !== a.sprite && G.img[a.sprite]) k = k * G.img[a.sprite].height / G.img[sprite].height;
   const w = img.width * k, h = img.height * k;
   const breathe = 1 + Math.sin(t * 2.2 + a.phase) * 0.008;
   const sway = lvl * 0.011 * Math.sin(t * (0.9 + lvl * 0.18) + a.phase) + (lvl >= 4 ? 0.012 * Math.sin(t * 2.7 + a.phase) : 0);
   const talk = a.talking ? Math.abs(Math.sin(t * 11 + a.phase)) * 7 : 0;
-  const walk = a.walking ? Math.abs(Math.sin(t * 8.5 + a.phase)) * 12 : 0;
+  // los que bailan botan al ritmo (bpm de la escena)
+  const walk = (a.walking ? Math.abs(Math.sin(t * 8.5 + a.phase)) * 12 : 0) + (a.dance ? Math.abs(Math.sin(t * Math.PI * (G.scene && G.scene.bpm || 124) / 60 + a.phase * 0.2)) * 14 * h / 500 : 0);
   const ghostF = a.ghost ? Math.sin(t * 1.6 + a.phase) * 12 - 18 : 0;
   const hop = a.hop > 0 ? Math.sin(a.hop * Math.PI) * 40 : 0;
   // sombra en el suelo
@@ -159,7 +176,7 @@ function drawActor(c, a) {
   }
   c.save();
   c.translate(a.x, a.y - talk - walk - hop + ghostF);
-  c.rotate(sway + (a.walking ? Math.sin(t * 8.5 + a.phase) * 0.025 : 0));
+  c.rotate(sway + (a.walking ? Math.sin(t * 8.5 + a.phase) * 0.025 : 0) + (a.dance ? Math.sin(t * Math.PI * (G.scene && G.scene.bpm || 124) / 120 + a.phase) * 0.05 : 0));
   c.scale(a.flip ? -1 : 1, breathe);
   c.globalAlpha = a.alpha * (a.ghost ? 0.78 + Math.sin(t * 2.3) * 0.08 : 1);
   if (a.ghost) { c.shadowColor = 'rgba(150,220,255,0.9)'; c.shadowBlur = 40; }
@@ -331,11 +348,15 @@ function updIdle(dt) {
   if (G.bubble && G.t > G.bubble.until) G.bubble = null;
   G.idleT = (G.idleT === undefined ? 8 : G.idleT) - dt;
   if (G.idleT > 0) return;
-  G.idleT = rnd(10, 16);
+  const crowd = Object.keys(G.actors).filter((id) => isCrowd(id) && typeof crowdIdle === 'function' && crowdIdle(id).length);
+  G.idleT = crowd.length ? rnd(6, 10) : rnd(10, 16);
   const ids = PROTA.filter((p) => G.actors[p]); if (!ids.length) return;
-  const who = pick(ids);
-  let txt = pick(IDLE_LINES[who] || ['…']);
-  if (S.drunk[who] >= 3) txt += ' ¡hip!';
+  // a veces habla alguien de la gente de la noche
+  const who = crowd.length && Math.random() < 0.55 ? pick(crowd) : pick(ids);
+  let txt = isCrowd(who) ? pick(crowdIdle(who)) : pick(IDLE_LINES[who] || ['…']);
+  // en los sitios con la música a tope no se oye nada
+  if (G.scene.loud && isProta(who) && Math.random() < 0.5) txt = pick(['¿¡QUÉ!?', '¡NO TE OIGO!', '¿¡CÓMO DICES!?', '¡QUE SÍ, QUE VALE!', '¿HAS DICHO PULPO?', '¡ESTA CANCIÓN ES UN TEMAZO!']);
+  if (isProta(who) && S.drunk[who] >= 3) txt += ' ¡hip!';
   G.bubble = { who, txt, until: G.t + 3.4 };
   hopA(who);
   try { for (let i = 0; i < 3; i++) setTimeout(() => AUDIO.blip(who), i * 90); } catch (er) {}
@@ -520,7 +541,7 @@ function actorMenu(p, a) {
     opts.push({ v: 'Hablar', label: a.id === S.active ? 'Pensar en voz alta' : 'Hablar con ' + NAMES[a.id], fn: async () => hintTalk(a.id) });
     if (S.inv.length) opts.push({ v: 'Usar', label: 'Darle un objeto…', fn: async () => openBag(true, { actor: a.id }) });
   }
-  const def = sc && sc.npc && sc.npc[a.id];
+  const def = (sc && sc.npc && sc.npc[a.id]) || (isCrowd(a.id) && typeof crowdDef === 'function' ? crowdDef(a.id) : null);
   if (def) for (const k in def) if (k !== 'name') opts.push({ v: k.split('|')[0], label: k.split('|')[1] || k.split('|')[0], fn: def[k] });
   if (S.inv.length && !isProta(a.id)) opts.push({ v: 'Usar', label: 'Dar / usar objeto…', fn: async () => openBag(true, { actor: a.id }) });
   if (!opts.length) return;
@@ -613,6 +634,7 @@ function buildParty() {
   updParty();
 }
 function face(id, mood) {
+  if (isCrowd(id)) return 'img/faces/' + id + '_normal.webp';
   if (!isProta(id)) return 'img/faces/' + id + '_' + (mood === 'risa' ? 'risa' : 'normal') + '.webp';
   if (!mood || mood === 'auto') mood = S.drunk[id] >= 3 ? 'borracho' : 'normal';
   return 'img/faces/' + id + '_' + mood + '.webp';
@@ -648,6 +670,9 @@ function drink(id, n, quiet) {
   S.drunk[id] = clamp(before + n, 0, 5);
   if (n > 0) { S.stats.copas += n; if (id === 'marcos') S.stats.marcosCopas = (S.stats.marcosCopas || 0) + n; if (!quiet) sfx('trago'); }
   if (n < 0 && id === 'marcos') S.stats.cafes++;
+  // si cambia de pose (alegre, piripi, mamado), saltito para que se note
+  const band = (l) => (l >= 4 ? 3 : l >= 2 ? 2 : l);
+  if (band(before) !== band(S.drunk[id])) hopA(id);
   updParty();
   if (S.drunk.ramis >= 5) logro('vivido');
   return S.drunk[id];
@@ -677,6 +702,8 @@ async function say(who, text, mood, o) {
   const dlg = $('dlg'), port = $('dport').querySelector('img'), nm = $('dname'), tx = $('dtext');
   G.dlgOpen = true; closeMenus();
   dlg.classList.remove('hidden', 'narr', 'right');
+  // con la música a tope el cuadro tiembla al ritmo
+  dlg.classList.toggle('loud', !!(G.scene && G.scene.loud && !G.mode && who !== 'narrador'));
   if (who === 'narrador') dlg.classList.add('narr');
   else {
     port.src = face(who, mood);

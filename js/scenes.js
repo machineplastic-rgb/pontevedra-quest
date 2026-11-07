@@ -22,7 +22,7 @@ const ITEMS = {
   jarra: { name: 'Jarra de vino', img: 'jarra', desc: 'Vino de la barrica secreta del Estrella. Ramis la ha llenado con pulso de cirujano.' },
   candelabro: { name: 'Candelabro', img: 'candelabro', desc: 'Tres velas encendidas. Sirve para criptas oscuras o cenas románticas.' },
   calzoncillos: { name: 'Calzoncillos de Ramis', img: 'calzoncillos', desc: 'De rayas. Todavía calentitos. Ramis prefiere no hablar del tema.' },
-  gafas: { name: 'Gafas de cerca de Ramis', img: 'gafas', desc: 'Las gafas de vista cansada de Ramis. La edad, caballeros, la edad.' },
+  gafas: { name: 'Gafas de cerca de Ángel', img: 'gafas', desc: 'Las gafas de vista cansada de Ángel. Para leer partituras, letras de canciones y cuentas de bar. La edad, caballeros, la edad.' },
 };
 
 const LOGROS = {
@@ -39,14 +39,23 @@ const LOGROS = {
   muuu: { i: '🐄', t: 'Muuu' },
   sereno: { i: '⚖', t: 'Sereno como un juez' },
   caldofran: { i: '♨', t: '¡Caldofran!' },
+  // v5: la movida
+  joven: { i: '🪪', t: 'DNI, por favor: Marcos aparenta diecisiete' },
+  pillaria: { i: '😏', t: 'Ramis, yo te pillaría y…' },
+  porche: { i: '🏡', t: 'Un Porsche, no un porche' },
+  ligon: { i: '✏', t: 'Marc es un ligón' },
+  pista: { i: '🪩', t: 'Reyes de la pista' },
+  canero: { i: '🎸', t: '¡Ángel, qué papá más cañero!' },
+  apostol: { i: '🎲', t: 'Nike Apóstol tiene fans' },
+  camino: { i: '🐚', t: '¡Buen Camino!' },
 };
 
 /* ---------- frases sueltas de cada uno ---------- */
 const IDLE_LINES = {
   ramis: ['Habiendo haber podido…', 'Bajo el yugo opresor…', '¡Yo al menos podré decir que he vivido!', 'Nunca más… hasta el sábado.', '¿Eso es un 911? Ah, no, es una farola.'],
   marc: ['Esa luz está fatal.', 'Esto me lo apunto para un dibujo.', 'Para un Manara, esta noche.', 'Letra de escribano… ningún contenido.'],
-  marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', 'Para esto necesito un D20.', '¿Alguien tiene agua?'],
-  angel: ['Lo noto… aquí hay algo.', 'Qué bonita está la noche.', 'Maje… no, no pienso en Maje.', 'La luna dice cosas.'],
+  marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', 'Para esto necesito un D20.', '¿Alguien tiene agua?', 'Que no, que no aparento menos. Bueno, un poco.'],
+  angel: ['Lo noto… aquí hay algo.', 'Qué bonita está la noche.', 'Maje… no, no pienso en Maje.', 'La luna dice cosas.', '(Ángel tararea un riff de guitarra)', 'Esta noche tiene ritmo. Lo noto en las cuerdas.'],
 };
 
 /* ---------- pequeñas ayudas de guion ---------- */
@@ -75,6 +84,10 @@ function updObj() {
   if (f.llavesConfiscadas && !f.carteraLlena) l.push(f.fantasmaVisto ? (f.criptaAbierta ? 'Descubrir el tesoro de la cripta' : 'Ganarse a Don Xesús: vino y un retrato') : 'Conseguir dinero (dicen que en Santo Domingo hay un caballero muy rico… y muy muerto)');
   if (f.meigaPide && !f.meigallo) l.push('La meiga quiere algo dulce y una prenda íntima de un caballero valiente');
   if (f.llavesDevueltas) l.push('Al parking: ¡rumbo a Caldofran!' + (f.meigallo ? '' : ' (la meiga de la Alameda podría daros suerte)'));
+  // la movida, si queda hueco
+  if (l.length < 2 && !S.seen.disco) l.push('Extra: la discoteca Lume, en los soportales');
+  else if (l.length < 2 && !S.seen.antro) l.push('Extra: O Furado, el antro punk de la plaza');
+  else if (l.length < 2 && S.seen.antro && !f.concierto) l.push('Extra: Tino, el del antro, busca cantante');
   setObj(l.slice(0, 2).join(' · '));
 }
 
@@ -95,7 +108,7 @@ function nextStep() {
     if (!f.retrato) return 'Don Xesús quiere un retrato digno. Eso es cosa de Marc: que hable él con el fantasma.';
     if (!f.criptaAbierta) return 'La puertecita de la derecha de las ruinas… ¿y la llave antigua de la bodega?';
     if (!f.luzCripta) return 'La inscripción del sarcófago está en sombra. El candelabro de la bodega iría bien.';
-    if (!f.gafasPuestas) return has('gafas') ? 'Usa las gafas de cerca de Ramis en la inscripción.' : 'Letra diminuta: hacen falta las gafas de cerca de Ramis. ¿No las llevaba alguien en el pub?';
+    if (!f.gafasPuestas) return has('gafas') ? 'Usa las gafas de cerca de Ángel en la inscripción.' : 'Letra diminuta: hacen falta las gafas de cerca de Ángel. ¿No las llevaba colgadas la chica del pub?';
     if (!f.acertijo) return 'El acertijo es de rol puro. Que lo lea Marcos.';
     return 'Abre el sarcófago.';
   }
@@ -113,6 +126,9 @@ function HINT(id) {
     marcos: ['Según mi hoja de personaje: ', 'Siguiente misión: ', ''],
     angel: ['Lo presiento: ', 'Algo me dice que… ', ''],
   }[id] || [''];
+  // de vez en cuando proponen algo de la movida (opcional)
+  const extra = typeof extraStep === 'function' && Math.random() < 0.4 ? extraStep(id) : null;
+  if (extra) return extra;
   if (id === S.active) return pick(['Pienso… ', 'A ver… ']) + n.charAt(0).toLowerCase() + n.slice(1);
   return pick(pre) + n;
 }
@@ -124,7 +140,7 @@ function GIVE_PROTA(item, id) {
       await say(id, id === 'marcos' ? 'Café solo. Ya veo una sola carretera. Bueno, una y media.' : 'Gracias. Ya no veo doble… veo uno y medio.');
     })();
   }
-  if (item === 'gafas' && id === 'ramis') return say('ramis', 'Mis gafas de cerca. Ahora mismo no tengo nada que leer… guárdalas tú en la bolsa.');
+  if (item === 'gafas' && id === 'angel') return say('angel', 'Mis gafas de cerca. Ahora mismo no tengo nada que leer… guárdalas tú en la bolsa, que yo las pierdo.');
   return null;
 }
 
@@ -209,15 +225,15 @@ SCENES.estrella = {
     await narr('Habéis cenado como reyes: tortilla, pimientos de Padrón, pulpo, calamares y una empanada que todavía se resiste.');
     await say('ramis', '¡Señora! Esto no es una cena. Esto es una misa.', 'risa');
     await say('senora', '¡Ay, mis niños! Comed, comed, que estáis en los huesos.', 'risa');
-    await say('marc', 'Ángel lleva toda la cena empujando un calamar con el tenedor.');
-    await say('angel', 'Estoy bien… Es que hace un mes estaba casado. Y hoy estoy en Pontevedra con vosotros tres.');
-    await say('marcos', 'Eso es un ascenso, Ángel.', 'risa');
+    await say('marc', 'Ángel lleva toda la cena tamborileando en la mesa con el tenedor.');
+    await say('angel', 'Es que esta noche tiene ritmo. Lo noto. Pontevedra suena a punk.');
+    await say('marcos', 'Ángel, eso es la cafetera.', 'risa');
     await say('angel', 'Ya… Ojalá estuviera Chus para llamar a todo esto «¡lupanar!».');
-    await say('ramis', '¡Esta noche se te olvida todo! ¡Palabra de caballero!');
+    await say('ramis', '¡Esta noche es nuestra, caballeros! ¡Palabra de caballero!');
     await say('marcos', 'Y yo no bebo, que luego conduzco hasta Caldofran. Palabra de caballero también.');
     await say('marc', 'Eso mismo dijiste en Coruña. Y acabaste cantando «Rianxeira» en un karaoke.', 'risa');
     await narr('Toca a la gente y las cosas para mirar, hablar o usar. Abajo eliges con quién juegas: cada uno de los cuatro tiene su don. ¿Atascado? Habla con tus amigos.');
-    setObj('Animar a Ángel · Hablar con la señora');
+    setObj('Disfrutar de la cena · Hablar con la señora');
   },
   async reenter() {
     if (S.flags.bodegaVista && !S.flags.senoraVuelta) await senoraVuelve(flag('pillada'));
@@ -262,8 +278,8 @@ async function senoraTalk() {
   } else if (v === 'bodega') {
     await say('senora', 'La bodega de mi abuelo. Dicen que hay un túnel que llega hasta Santo Domingo. Yo no bajo, que hay arañas.');
   } else if (v === 'vida') {
-    await say('senora', 'Media vida detrás de esta barra. He visto de todo: bodas, divorcios, reconciliaciones… y a un fraile bailando la muiñeira.');
-    if (S.active === 'angel') await say('senora', 'Y tú, el de la barba, tienes cara de divorcio reciente. Pero eso se cura, ¡ya verás!');
+    await say('senora', 'Media vida detrás de esta barra. He visto de todo: bodas, bautizos, reconciliaciones… y a un fraile bailando la muiñeira.');
+    if (S.active === 'angel') { await say('senora', 'Y tú, el de la barba, tienes cara de músico. ¿A que sí?'); await say('angel', 'Canto en un par de grupos… y toco algo la guitarra.', 'sorpresa'); await say('senora', '¡Lo sabía! Manos de guitarrista y ojos de bolero. ¡Ay, si yo tuviera treinta años menos!', 'risa'); }
   } else if (v === 'nada') {
     await say('senora', 'Si necesitáis algo, me silbáis. ¡Silbar sabéis, ¿no?!', 'risa');
   }
@@ -299,11 +315,11 @@ async function senoraVuelve(pillados) {
   }
   await narr('Trae una bandeja: flan de huevo, tarta de Santiago, filloas con miel… y una copa de helado con barquillo «para el más flaquiño».');
   await say('ramis', 'Señora… ¿se ha ido a su casa a por postres? ¿Por nosotros?', 'sorpresa');
-  await say('senora', 'Es que me habéis caído en gracia. Y ese de la barba está muy tristón. ¡Come, hombre!');
+  await say('senora', 'Es que me habéis caído en gracia. Y ese de la barba está en los huesos de tanto cantar. ¡Come, hombre!');
   sfx('trago');
   await say('angel', '…Está buenísimo. Señora, creo que la quiero.', 'risa');
   await say('senora', '¡Ay, calla, que me pongo colorada!', 'risa');
-  await say('marc', 'Ángel se ha reído. Primera vez en toda la noche. Esto hay que apuntarlo en el acta del Club.');
+  await say('marc', 'Ángel le acaba de decir «te quiero» a una señora a la que conoce hace dos horas. Esto hay que apuntarlo en el acta del Club.');
   groupLaugh(); logro('postre');
   await say('senora', 'Tomad, os pongo un táper para el camino. Y llevad sal gorda, que de noche en Galicia nunca se sabe.');
   give('postres'); if (!has('sal')) { flag('salCogida', 1); give('sal'); }
@@ -431,6 +447,7 @@ SCENES.plaza = {
   ],
   exits: [
     { name: 'Calle de los soportales (ruta de bares)', r: [560, 430, 150, 170], arrow: 'up', to: 'calle', from: 'left' },
+    { name: 'O Furado (antro punk)', r: [180, 345, 85, 235], arrow: 'up', to: 'antro', from: 'left' },
     { name: 'Ruinas de Santo Domingo', r: [0, 330, 120, 380], arrow: 'left', to: 'ruinas', from: 'right' },
     { name: 'La Alameda', r: [1480, 330, 120, 380], arrow: 'right', to: 'alameda', from: 'right' },
     { name: 'Parking (el Peugeot)', r: [1330, 880, 270, 120], arrow: 'down', to: 'parking', from: 'left' },
@@ -466,12 +483,13 @@ SCENES.calle = {
   exits: [
     { name: 'Entrar en el bareto', r: [120, 330, 210, 290], arrow: 'up', to: 'bareto', from: 'left' },
     { name: 'Pub oscuro (al fondo)', r: [1160, 520, 115, 165], arrow: 'up', to: 'pub', from: 'left' },
+    { name: 'Discoteca Lume', r: [1345, 470, 95, 290], arrow: 'right', to: 'disco', from: 'left', check: () => (typeof porteroCheck === 'function' ? porteroCheck() : true) },
     { name: 'Volver a la plaza', r: [1330, 880, 270, 120], arrow: 'down', to: 'plaza', from: 'left' },
   ],
   async enter() {
     await narr('Los soportales de la zona vieja. Cae un orballo finito, de esos que mojan sin que te enteres.');
     await say('ramis', 'Hasta el cartel nos invita: «Ruta de bares». Sería de mala educación no hacerle caso.', 'risa');
-    await say('marc', 'Dos opciones: el bareto del neón… o el pub oscuro del fondo.');
+    await say('marc', 'Tres opciones: el bareto, el pub oscuro del fondo… o esa discoteca con portero, la Lume.');
   },
 };
 
@@ -498,7 +516,7 @@ SCENES.bareto = {
   exits: [{ name: 'Salir a la calle', r: [0, 880, 220, 120], arrow: 'down', to: 'calle', from: 'right' }],
   npc: {
     camarero: { name: 'Brais, el camarero', 'Hablar': () => braisTalk(), 'Mirar': () => say(S.active, 'Brais: delantal granate, sonrisa de pillo y un llavero en el bolsillo que es nuestro.') },
-    gente: { name: 'Parroquiano', 'Hablar': () => parroquianoTalk(), 'Mirar': () => say(S.active, 'Un parroquiano con camisa de cuadros y una caña eterna. Lleva aquí desde 1998.') },
+    gente: { name: 'Parroquiano', 'Hablar': () => parroquianoTalk(), 'Mirar': () => say(S.active, 'Un parroquiano con camisa de cuadros y una caña eterna. Lleva aquí desde que abrieron el bar. O desde antes.') },
   },
   give: {
     camarero: { cartera: () => pagarBrais(), '*': () => say('camarero', 'Eso no es dinero, rapaz.') },
@@ -626,7 +644,7 @@ SCENES.pub = {
   ],
   exits: [{ name: 'Volver a la calle', r: [0, 880, 220, 120], arrow: 'down', to: 'calle', from: 'right' }],
   npc: {
-    chica: { name: 'La chica del pub', 'Hablar': () => chicaTalk(), 'Mirar': () => say(S.active, 'Melena morena, vestido negro cortito y aros dorados. Lleva unas gafas de cerca colgadas del escote… ¡son las gafas de Ramis!') },
+    chica: { name: 'La chica del pub', 'Hablar': () => chicaTalk(), 'Mirar': () => say(S.active, 'Melena morena, vestido negro cortito y aros dorados. Lleva unas gafas de cerca colgadas del escote… ¡son las gafas de Ángel!') },
   },
   give: { chica: { '*': () => say('chica', 'Qué detalle… pero no, gracias, guapo.') } },
   async enter() {
@@ -634,9 +652,10 @@ SCENES.pub = {
     await say('marc', 'Caballeros, aquí huele a ligue.');
     await say('ramis', 'Huele a gin-tonic.');
     await say('marc', 'Es lo mismo.');
-    await say('angel', 'Yo me quedo en la barra. No estoy para nada.');
-    await say('ramis', '¡Eh! ¡Esa chica lleva mis gafas de cerca colgadas del escote! ¿Cómo han llegado ahí?', 'sorpresa');
-    await say('marcos', 'Pregunta mejor cómo vas a recuperarlas sin que te echen.');
+    await say('angel', 'Yo me quedo en la barra. No he venido a ligar.');
+    await say('angel', '…¡Eh! ¡Esa chica lleva mis gafas de cerca colgadas del escote! Me las he dejado en la barra leyendo la pizarra de tapas.', 'sorpresa');
+    await say('ramis', 'Pues ya tienes excusa para hablarle, Ángel.', 'risa');
+    await say('marcos', 'Pregunta mejor cómo vas a recuperarlas sin ponerte rojo.');
   },
 };
 async function chicaTalk() {
@@ -648,8 +667,8 @@ async function chicaTalk() {
     return;
   }
   if (id === 'ramis') {
-    await say('ramis', 'Perdona… ¿te gustan los Porsche? Y otra cosa: esas gafas son mías.');
-    await say('chica', 'Me gustan los hombres que no hablan de coches. Y las gafas me quedan monas. ¿A que sí?', 'risa');
+    await say('ramis', 'Perdona… ¿te gustan los Porsche? Y otra cosa: esas gafas son de mi amigo.');
+    await say('chica', 'Me gustan los hombres que no hablan de coches. Y las gafas me las quedo hasta que venga a por ellas el de la barba.', 'risa');
     await say('ramis', 'Habiendo haber podido…');
     return;
   }
@@ -659,13 +678,13 @@ async function chicaTalk() {
     return;
   }
   // Ángel
-  await say('angel', '(Ángel respira hondo. Hace un mes estaba casado. Hoy está en un pub oscuro de Pontevedra.)');
+  await say('angel', '(Ángel respira hondo. Él solo venía a por sus gafas.)');
   const v = await choose([
-    { t: '«Hola. Me llamo Ángel y… me acabo de divorciar»', v: 1 },
-    { t: '«Esas gafas son de mi amigo, el de los bolsillos»', v: 2 },
+    { t: '«Hola. Me llamo Ángel y… canto en un grupo de rock»', v: 1 },
+    { t: '«Perdona, esas gafas son mías»', v: 2 },
     { t: '«¿Te puedo invitar a algo?»', v: 3 },
   ]);
-  if (v === 1) await say('chica', 'Me encantan los hombres con barba y tristeza en los ojos.');
+  if (v === 1) await say('chica', 'Me encantan los hombres con barba y voz de concierto.');
   if (v === 2) await say('chica', '¿Ah, sí? Pues ven a por ellas, barbas.', 'risa');
   if (v === 3) await say('chica', 'A algo me vas a invitar, sí…', 'risa');
   await narr('No pasa ni un minuto. Ni uno. La chica agarra a Ángel de la camisa de cuadros y…');
@@ -675,7 +694,7 @@ async function chicaTalk() {
   sfx('beso');
   const mm = Math.floor(r.seg / 60);
   await narr(`…Y se besan. Y se besan. Y se siguen besando. ${mm >= 2 ? mm + ' minutos' : 'Un buen rato'} sin parar. El pub entero aplaude.`);
-  await say('chica', 'Ha sido un placer, barbas. Toma, las gafas de tu amigo. Estaban en la barra.', 'risa');
+  await say('chica', 'Ha sido un placer, barbas. Toma tus gafas. Te quedan mejor a ti… bueno, no.', 'risa');
   give('gafas');
   await walk('chica', 1750, 1.6, { flip: false });
   removeActor('chica'); flag('beso', 1);
@@ -683,7 +702,7 @@ async function chicaTalk() {
   await say('angel', '…¿Qué acaba de pasar?', 'sorpresa');
   await say('ramis', '¡ÁNGEL!', 'risa'); await say('marc', '¡ÁNGEL!', 'risa'); await say('marcos', '¡ÁNGEL!', 'risa');
   groupLaugh(); logro('minuto');
-  await say('angel', 'Caballeros… creo que ya no estoy de bajona.', 'risa');
+  await say('angel', 'Caballeros… yo solo venía a por mis gafas.', 'risa');
   await say('marc', 'Veinte años leyendo a Manara, y Ángel me lo resuelve en un minuto. Me retiro.');
   music('pub'); updObj();
 }
@@ -811,7 +830,7 @@ SCENES.cripta = {
       gafas: async () => {
         if (!flag('luzCripta')) return say(S.active, 'Con esta oscuridad no se ve ni con gafas. Hace falta luz.');
         flag('gafasPuestas', 1); takeItem('gafas'); sfx('pagina');
-        await say('ramis', 'Mis gafas de cerca. Ya era hora de que sirvieran para algo más que para leer la cuenta.');
+        await say('angel', 'Mis gafas de cerca. Ya era hora de que sirvieran para algo más que para leer letras de canciones.');
         await leerInscripcion();
       },
     } },
@@ -834,7 +853,7 @@ SCENES.cripta = {
 };
 async function leerInscripcion() {
   if (!flag('luzCripta')) return say(S.active, 'Está en sombra. Hace falta más luz… ¿algo con velas?');
-  if (!flag('gafasPuestas')) return say(S.active, pick(['La letra es diminuta. Ninguno de los cuatro ve de cerca. La edad, caballeros, la edad.', 'Hace falta vista de cerca. Ramis tenía gafas… si las encontramos.']));
+  if (!flag('gafasPuestas')) return say(S.active, pick(['La letra es diminuta. Ninguno de los cuatro ve de cerca. La edad, caballeros, la edad.', 'Hace falta vista de cerca. Ángel tenía unas gafas… si las recuperamos.']));
   if (flag('acertijo')) return say(S.active, '«Veinte caras tengo…». Resuelto. Ahora, el sarcófago.');
   await narr('«VEINTE CARAS TENGO Y EN UNA SOLA ESTÁ TU DESTINO. NÓMBRAME Y EL CABALLERO TE DARÁ SU TESORO.»');
   if (S.active !== 'marcos') { await say(S.active, '¿Veinte caras? Esto es cosa de friki. Que lo responda Marcos.'); return; }
@@ -858,7 +877,7 @@ async function abrirSarcofago() {
   sfx('sarcofago'); shake(0.7); flag('sarcofago', 1);
   await narr('La tapa se desliza con un rugido de piedra. Dentro, sobre un cojín de terciopelo: una bolsa de reales de plata… y un billete de cincuenta euros.');
   await say('ramis', '¿Un billete de cincuenta? ¿En 1714?', 'sorpresa');
-  await say('fantasma', 'Se lo gané al mus a un turista en 1998. Mal perdedor, por cierto.', 'risa');
+  await say('fantasma', 'Se lo gané anoche al mus a un turista inglés en chanclas. Mal perdedor, por cierto.', 'risa');
   flag('carteraLlena', 1); sfx('moneda');
   toast('💶', 'La cartera de Ramis', '¡vuelve a tener dinero!');
   await say('fantasma', 'Arrodillaos.');
@@ -914,7 +933,7 @@ async function meigaTalk() {
   if (S.active === 'ramis' && f.meigaPide && !has('calzoncillos') && !f.meigaCalzon) return ramisCalzon();
   if (f.meigallo) return say('meiga', 'Ide tranquilos. Esta noite a sorte vai convosco. E lembrade: se vedes á Compaña, círculo de sal.');
   if (!f.meigaPide) {
-    await say('meiga', 'Ola, meu rei. Ti tes o don, xa o sei. ' + (f.beso ? 'E hoxe xa bicaches, eh? Xa se che nota na cara.' : 'E tes o corazón partido… e aínda pensas nunha tal Maje.'), 'risa');
+    await say('meiga', 'Ola, meu rei. Ti tes o don, xa o sei. ' + (f.beso ? 'E hoxe xa bicaches, eh? Xa se che nota na cara.' : 'E tes voz de cantante… e aínda pensas nunha tal Maje.'), 'risa');
     await say('angel', '¿Cómo sabe usted eso?', 'sorpresa');
     await say('meiga', 'As meigas sabémolo todo. Que queredes, rapaces?');
     await choose([{ t: '«Nos vendría bien un poco de suerte esta noche»', v: 1 }, { t: '«Que Marcos llegue sereno a Caldas… o que lo parezca»', v: 2 }]);
@@ -1125,11 +1144,20 @@ async function finale() {
   await say('recep', 'Buenos días… ¿Señores…? ¿Caballeros? Tienen reserva para… una persona.');
   await say('marcos', 'Somos cuatro. Pero ocupamos como uno.');
   await say('recep', 'Pasen, pasen. La piscina termal abre a las ocho. Son las ocho menos un minuto.', 'risa');
+  // el peregrino de la plaza llega justo detrás (si le indicasteis bien)
+  if (flag('peregrinoOk')) {
+    actor('peregrino', { x: 1750, y: 868, k: 0.42, flip: true });
+    await walk('peregrino', 1330, 1.4, { flip: true });
+    await say('peregrino', '¡Caballeros! ¡Etapa Pontevedra–Caldas de Reis, hecha! Siguiendo las flechas amarillas, como me dijisteis.', 'risa');
+    await say('ramis', '¿Has venido andando toda la noche?', 'sorpresa');
+    await say('peregrino', 'Y vosotros en coche, y casi llegamos a la vez. Ese Peugeot va más lento que un peregrino con ampollas. ¡Buen Camino!');
+    logro('camino');
+  }
   logro('caldofran'); if (S.drunk.marcos === 0) logro('sereno');
   await goScene('piscina');
   await narr('Y así, con el agua caliente hasta el cuello, el Club de Caballeros cerró una noche que ninguno va a olvidar.');
   await say('ramis', 'Caballeros… yo al menos podré decir que he vivido.', 'risa');
-  await say('angel', 'Y yo, que he vuelto a vivir.', 'risa');
+  await say('angel', 'Y yo, que he besado en un minuto' + (flag('concierto') ? ' y he cantado punk en un antro.' : '. Por unas gafas.'), 'risa');
   await say('marc', 'Esto lo dibujo. Estilo Manara. Sin medias de liga. O con.', 'risa');
   await say('marcos', S.stats.marcosCopas ? 'He bebido poco y he conducido mucho. Brais, Don Xesús, la meiga… Ahora sí: ¡que alguien me traiga un Albariño!' : 'Toda la noche sin beber una gota. Ahora sí: ¡que alguien me traiga un Albariño!', 'risa');
   await say('ramis', 'Nunca más… ¡hasta el sábado!', 'risa');
@@ -1139,9 +1167,11 @@ async function finale() {
 
 function rango() {
   const f = S.flags; let pts = 0;
-  ['postre', 'minuto', 'caballero', 'meigallo', 'compana', 'calzon', 'maceta', 'lupanar', 'sereno', 'muuu'].forEach((l) => { if (S.logros.includes(l)) pts++; });
+  // los de la historia valen 1; los de la movida (opcionales) también suman
+  ['postre', 'minuto', 'caballero', 'meigallo', 'compana', 'calzon', 'maceta', 'lupanar', 'sereno', 'muuu',
+    'joven', 'pillaria', 'porche', 'ligon', 'pista', 'canero', 'apostol', 'camino'].forEach((l) => { if (S.logros.includes(l)) pts++; });
   pts -= S.stats.derrotas; pts -= Math.floor(S.stats.sustos / 3);
-  return pts >= 9 ? 'CABALLERO LEGENDARIO' : pts >= 7 ? 'CABALLERO DE ORO' : pts >= 4 ? 'CABALLERO DE PLATA' : 'CABALLERO DE BARRO';
+  return pts >= 15 ? 'CABALLERO LEGENDARIO' : pts >= 10 ? 'CABALLERO DE ORO' : pts >= 6 ? 'CABALLERO DE PLATA' : 'CABALLERO DE BARRO';
 }
 /* ---------------- PUNTUACIÓN Y MARCADOR ---------------- */
 const SCORE_KEY = 'pq_marcador_v1';
@@ -1154,6 +1184,7 @@ function puntuacion() {
     ['Logros', S.logros.length + ' de ' + Object.keys(LOGROS).length, S.logros.length * 100],
     ['Chupitos a la maceta', String(st.chupitosTirados || 0), (st.chupitosTirados || 0) * 50],
     ['El beso de Ángel', Math.floor(seg / 60) + ' min ' + (seg % 60) + ' s', Math.min(300, Math.round(seg / 2))],
+    ['Concierto en O Furado', st.concierto ? Math.round(st.concierto * 100) + ' %' : 'no subió', Math.round((st.concierto || 0) * 300)],
     ['Marcos al volante', LV[mf], [300, 150, 50, 0, 0, 0][mf] || 0],
     ['Sustos en carretera', String(st.sustos || 0), -40 * (st.sustos || 0)],
     ['Noches en el cuartelillo', String(st.derrotas || 0), -250 * (st.derrotas || 0)],
@@ -1202,22 +1233,41 @@ async function resultados() {
 
 /* ---------------- CRÉDITOS ---------------- */
 async function creditos() {
+  // créditos de película, con todo el morro
   const lines = [
-    ['t', 'PONTEVEDRA QUEST'], ['s', 'Club de Caballeros'], ['', ''],
-    ['h', 'Protagonistas'], ['', 'Ramis · Marc · Marcos · Ángel'], ['', ''],
-    ['h', 'Con la participación especial de'], ['', 'La señora del Bar Estrella y sus postres'], ['', 'La chica del pub (1 minuto)'], ['', 'Don Xesús de Santo Domingo, caballero ilustrado'],
-    ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Un parroquiano con un Seat 127'], ['', 'La Guardia Civil de la N-550'], ['', 'La Santa Compaña'], ['', 'La vaca de Ramiro'], ['', 'La recepcionista del Balneario Acuña'], ['', ''],
+    ['s', 'Club de Caballeros Films'], ['', 'en asociación con el Bar Estrella y la Diputación del Orujo'], ['s', 'presenta'], ['', ''],
+    ['t', 'PONTEVEDRA QUEST'], ['', 'Basado en hechos reales. Más o menos.'], ['', ''],
+    ['h', 'Dirigida por'], ['', 'JRAR'], ['', ''],
+    ['h', 'Guion'], ['', 'JRAR y la memoria selectiva del Club'], ['', ''],
+    ['h', 'Reparto, por orden de borrachera'], ['', 'Ramis · Marc · Ángel'], ['', 'y Marcos (al volante, casi sereno)'], ['', ''],
+    ['h', 'Con la participación especial de'], ['', 'Doña Maruxa y su táper infinito'], ['', 'La chica del pub (1 minuto en pantalla)'], ['', 'Don Xesús de Santo Domingo, fantasma ilustrado'],
+    ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Las de Vigo: Uxía, Noa y Sabela'], ['', 'Rubén, el portero que pide el DNI'], ['', 'DJ Raxo y su gaita house'],
+    ['', 'Antía, la camarera que no oye nada'], ['', 'Lúa, de Bellas Artes'], ['', 'Gary, de Mánchester, en chanclas'], ['', 'Tino y Vera, de O Furado'], ['', 'Xurxo y Nando, los de la peña'],
+    ['', 'Iago, fan número uno de Nike Apóstol'], ['', 'Toño, el peregrino perdido'], ['', 'Carla (@carlaviral), que lo grabó todo'], ['', 'La Guardia Civil de la N-550'], ['', 'La Santa Compaña'], ['', 'La vaca de Ramiro'], ['', ''],
+    ['h', 'Dirección de fotografía'], ['', 'Marc («la luz está fatal»)'], ['', ''],
+    ['h', 'Coordinación de intimidad'], ['', 'Nadie. No dio tiempo: fue un minuto.'], ['', ''],
+    ['h', 'Especialista en escenas de riesgo'], ['', 'Los calzoncillos de rayas de Ramis'], ['', ''],
+    ['h', 'Asesor técnico de Porsche'], ['', 'Ramis (no ha tenido ninguno)'], ['', ''],
+    ['h', 'Conductor designado'], ['', 'Marcos, el Señor de los Volantes'], ['', ''],
+    ['h', 'Catering'], ['', 'Doña Maruxa · Postres caseros desde siempre'], ['', ''],
+    ['h', 'Efectos especiales'], ['', 'Las meigas (haberlas, haylas)'], ['', ''],
+    ['h', 'Vestuario'], ['', 'La camisa de cuadros de Ángel, que va sola'], ['', ''],
+    ['h', 'Maquillaje y peluquería'], ['', 'El orballo'], ['', ''],
+    ['h', 'Departamento legal'], ['', 'Sargento Seoane'], ['', ''],
+    ['h', 'Banda sonora original'], ['', 'DJ Raxo · Ángel y los de O Furado'], ['', 'Gaita, bombo y licor café'], ['', ''],
     ['h', 'Idea, historia e ilustraciones'], ['', 'JRAR'], ['', ''],
     ['h', 'Programación, música y sonido'], ['', 'Claude'], ['', ''],
-    ['h', 'Dedicado a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
-    ['', 'Ningún caballero fue multado durante este juego.'], ['', 'Si bebes, no conduzcas. Marcos no bebió… casi.'], ['', ''],
-    ['s', 'Nunca más… ¡hasta el sábado!'],
+    ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['', ''],
+    ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
+    ['', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['', 'La maceta del Estrella se recupera favorablemente.'],
+    ['', 'Ningún Porsche participó en esta producción.'], ['', 'Ningún caballero fue multado. Por los pelos.'], ['', 'Si bebes, no conduzcas. Marcos no bebió… casi.'], ['', ''],
+    ['s', 'Nunca más… ¡hasta el sábado!'], ['', ''], ['', '(no os vayáis, que hay escena post-créditos)'],
   ];
   const m = { drunk: 0, y: H + 40, t: 0 };
-  const parade = [...PROTA, 'senora', 'chica', 'fantasma', 'camarero', 'meiga', 'gc1', 'gc2', 'gente', 'recep'];
+  const parade = [...PROTA, 'senora', 'noa', 'chica', 'fantasma', 'guiri', 'camarero', 'vera', 'meiga', 'tino', 'gc1', 'gc2', 'peregrino', 'gente', 'carla', 'recep'];
   let endY = 0;
   await new Promise((res) => {
-    m.update = (dt) => { m.t += dt; m.y -= dt * 62; if (m.y + endY < 200) { m.done2 = (m.done2 || 0) + dt; if (m.done2 > 3) res(); } };
+    m.update = (dt) => { m.t += dt; m.y -= dt * 78; if (m.y + endY < 200) { m.done2 = (m.done2 || 0) + dt; if (m.done2 > 3) res(); } };
     m.down = () => { m.y -= 200; };
     m.draw = (c, t) => {
       c.fillStyle = PROC.lin(c, 0, 0, 0, H, [[0, '#05060f'], [1, '#141a3a']]); c.fillRect(0, 0, W, H);
@@ -1244,6 +1294,7 @@ async function creditos() {
     };
     G.mode = m; $('hud').classList.add('hidden');
   });
+  if (typeof postCreditos === 'function') { await fadeTo(1, 0.8); await postCreditos(); }
   G.mode = null;
   await fadeTo(1, 1);
   showTitle();

@@ -361,7 +361,7 @@ const MG = (() => {
         gg.addColorStop(0, 'rgba(140,200,255,.5)'); gg.addColorStop(1, 'rgba(140,200,255,0)'); c.fillStyle = gg; c.fillRect(x - 200, y - 500 * p, 400, 400 * p); c.restore();
       }
       // los cuatro, acojonados
-      PROTA.forEach((id, i) => drawImgH(c, 'chars/' + id, G4[i][0], G4[i][1], 300, { rot: Math.sin(t * 12 + i) * 0.015 }));
+      PROTA.forEach((id, i) => { const sp = bodySprite(id); drawImgH(c, sp, G4[i][0], G4[i][1], 300 * G.img[sp].height / G.img['chars/' + id].height, { rot: Math.sin(t * 12 + i) * 0.015 }); });
       // rastro de sal
       if (path.length > 1) { c.save(); c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = result === 'ok' ? '#e8fbff' : 'rgba(255,255,255,.9)'; c.lineWidth = 12;
         if (result === 'ok') { c.shadowColor = '#bfe8ff'; c.shadowBlur = 30; }
@@ -380,5 +380,5 @@ const MG = (() => {
     return ins;
   }
 
-  return { chupitos, beso, pulso, carretera, circulo, bigText, drawImgH };
+  return { chupitos, beso, pulso, carretera, circulo, bigText, drawImgH, begin, bar, btn, bg, wrapText };
 })();
