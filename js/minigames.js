@@ -109,7 +109,7 @@ const MG = (() => {
       if (flyT >= 0 && flyT < 0.7) { const k = flyT / 0.7; drawImgH(c, 'items/chupitos', X.marcos + (130 - X.marcos) * k, 760 - Math.sin(k * Math.PI) * 300, 90, { rot: k * 6 }); }
       // la señora
       const sx = 1370, alert = !look && nextTurn < 0.45;
-      drawImgH(c, look ? 'chars/senora' : 'chars/senora_risa', sx, 800, 520, { flip: !look });
+      drawImgH(c, look ? 'chars/senora' : 'chars/senora_risa', sx, 800, 520, { flip: look });
       c.save(); c.font = "800 36px 'Nunito'"; c.textAlign = 'center';
       if (look) { c.fillStyle = '#ff7b7b'; c.fillText('👁 TE ESTÁ MIRANDO', sx, 250); }
       else { c.fillStyle = alert ? '#ffd23a' : '#9dffb0'; c.fillText(alert ? '⚠ ¡SE VA A GIRAR!' : '♪ Distraída', sx, 250); if (Math.random() < 0.05) emit('note', sx + 40, 330, 1); }

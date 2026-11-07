@@ -138,7 +138,7 @@ SCENES.estrella = {
   title: 'BAR ESTRELLA', sub: 'Zona vieja de Pontevedra · sábado noche', bg: 'estrella', music: 'estrella', ambient: 'estrella',
   tint: { c: '#ff9a4a', a: 0.08 }, k: 0.62,
   pos: { ramis: [250, 990], marc: [455, 995], marcos: [680, 992], angel: [880, 995] },
-  npcs: [{ id: 'senora', x: 1130, y: 990, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
+  npcs: [{ id: 'senora', x: 1130, y: 990, flip: true, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
   props: [
     { img: 'sal', x: 150, y: 720, h: 70, cond: () => !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': async () => { flag('salCogida', 1); give('sal'); await say(S.active, 'Sal gorda de la buena. Por si acaso.'); } } } },
     { img: 'postres', x: 120, y: 712, h: 120, cond: () => flag('senoraVuelta') && !flag('postresComidos') },
@@ -289,11 +289,12 @@ async function senoraVuelve(pillados) {
   flag('senoraVuelta', 1);
   if (!pillados) {
     await wait(700); sfx('door');
-    actor('senora', { x: -200, y: 990, k: 0.62 });
+    actor('senora', { x: -200, y: 990, k: 0.62, flip: true });
     await walk('senora', 1130, 1.6, { run: true });
+    G.actors.senora.flip = true;
     await say('senora', '¡Ya estoy aquí, mis niños! ¡Fui corriendo a casa, que lo tenía todo en la nevera!', 'risa');
   } else {
-    actor('senora', { x: 1130, y: 990, k: 0.62 });
+    actor('senora', { x: 1130, y: 990, k: 0.62, flip: true });
     await say('senora', 'Pues eso, fisgones: me fui corriendo a casa, que lo tenía todo en la nevera.', 'risa');
   }
   await narr('Trae una bandeja: flan de huevo, tarta de Santiago, filloas con miel… y una copa de helado con barquillo «para el más flaquiño».');
@@ -1013,7 +1014,7 @@ SCENES.control = {
     c.restore();
     MG.drawImgH(c, 'items/peugeot_lado', 760, 905, 290, { flip: true });
   }, music: 'control', ambient: 'control', noDrunk: true, noHud: true, k: 0.56,
-  npcs: [{ id: 'gc1', x: 1170, y: 985 }, { id: 'gc2', x: 1360, y: 990 }],
+  npcs: [{ id: 'gc1', x: 1170, y: 985, flip: true }, { id: 'gc2', x: 1360, y: 990, flip: true }],
   hs: [], exits: [],
 };
 SCENES.camino = {
@@ -1208,89 +1209,4 @@ async function creditos() {
   G.mode = null;
   await fadeTo(1, 1);
   showTitle();
-}
-
-/* ---------------- INTRODUCCIÓN ---------------- */
-async function intro() {
-  const m = { drunk: 0, slide: 'mallorca', t0: 0 };
-  const tag = {
-    ramis: ['RAMIS', 'Loco por los coches. Sobre todo, por los Porsche.'],
-    marc: ['MARC', 'Dibuja señoritas como Manara. Y las persigue.'],
-    marcos: ['MARCOS', 'Rol, Warhammer y videojuegos. De joven, con melena: «Nike Apóstol». O «el Señor».'],
-    angel: ['ÁNGEL', 'El místico. Friki de corazón. Enamorado en secreto de la profe Maje.'],
-  };
-  m.update = (dt) => { m.t0 += dt; };
-  m.draw = (c, t) => {
-    const s = m.slide, k = clamp(m.t0 * 1.5, 0, 1);
-    if (s === 'mallorca') {
-      c.fillStyle = PROC.lin(c, 0, 0, 0, H, [[0, '#1d2a6a'], [0.55, '#e0826a'], [0.75, '#ffc98a'], [0.76, '#1d6a8a'], [1, '#0e3a5a']]); c.fillRect(0, 0, W, H);
-      const g = c.createRadialGradient(800, 740, 10, 800, 740, 320); g.addColorStop(0, 'rgba(255,230,160,.9)'); g.addColorStop(1, 'rgba(255,200,120,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      for (let i = 0; i < 18; i++) { c.fillStyle = 'rgba(255,230,180,.25)'; c.fillRect(800 - 200 + Math.sin(t + i) * 30, 770 + i * 12, 400 - i * 18, 3); }
-      c.globalAlpha = k; MG.bigText(c, 'MALLORCA · AÑOS 90', 220, '#ffe9c0', 78);
-      c.font = "40px 'Patrick Hand'"; c.textAlign = 'center'; c.fillStyle = '#fff'; c.fillText('Instituto Josep Maria Llompart · Bachillerato artístico', 800, 290);
-      PROTA.forEach((id, i) => MG.drawImgH(c, 'chars/' + id, 470 + i * 220, 1000 + (1 - k) * 200, 470));
-      c.globalAlpha = 1;
-    } else if (tag[s]) {
-      c.fillStyle = PROC.lin(c, 0, 0, W, H, [[0, '#0b0f24'], [1, '#2a1f45']]); c.fillRect(0, 0, W, H);
-      const gl = c.createRadialGradient(480, 520, 10, 480, 520, 460); gl.addColorStop(0, 'rgba(255,200,120,.25)'); gl.addColorStop(1, 'rgba(255,200,120,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
-      MG.drawImgH(c, 'chars/' + s, 480 - (1 - k) * 300, 990, 860, { alpha: k });
-      MG.drawImgH(c, 'faces/' + s + '_risa', 1180, 470, 330 * k);
-      c.globalAlpha = k; c.font = "800 96px 'Cinzel'"; c.textAlign = 'center'; c.fillStyle = '#ffd98a'; c.fillText(tag[s][0], 1180, 600);
-      c.font = "38px 'Patrick Hand'"; c.fillStyle = '#fff'; wrap(c, tag[s][1], 1180, 670, 620, 46); c.globalAlpha = 1;
-    } else if (s === 'chus') {
-      c.fillStyle = '#1a1208'; c.fillRect(0, 0, W, H);
-      c.save(); c.translate(800, 500); c.rotate(-0.01);
-      c.fillStyle = PROC.lin(c, 0, -330, 0, 330, [[0, '#f3e2b8'], [1, '#d9c08a']]); c.beginPath(); c.roundRect(-560, -340, 1120, 680, 30); c.fill(); PROC.ink(c, 6);
-      c.fillStyle = '#4a2a10'; c.textAlign = 'center'; c.font = "800 52px 'Cinzel'"; c.fillText('EL PROFESOR CHUS', 0, -230);
-      c.font = "44px 'Patrick Hand'"; c.fillText('Hablaba como un caballero ilustrado.', 0, -150);
-      c.font = "800 70px 'Cinzel'"; c.fillStyle = '#8a1d1d'; c.globalAlpha = k; c.fillText('«¡SERRALLO! ¡LUPANAR!»', 0, -30);
-      c.font = "46px 'Patrick Hand'"; c.fillStyle = '#3a2208'; c.fillText('«¡Maaarc, tienes letra de escribano', 0, 90); c.fillText('pero ningún contenido!»', 0, 145);
-      c.restore();
-    } else if (s === 'club') {
-      c.fillStyle = PROC.lin(c, 0, 0, 0, H, [[0, '#0b0f24'], [1, '#1d1630']]); c.fillRect(0, 0, W, H);
-      escudo(c, 800, 440, 1 * (0.8 + k * 0.2), t);
-      c.globalAlpha = k; MG.bigText(c, 'CLUB DE CABALLEROS', 860, '#ffd98a', 80); c.globalAlpha = 1;
-    } else if (s === 'pontevedra') {
-      const im = G.img['bg/titulo']; if (im) c.drawImage(im, 0, 0, W, H);
-      c.fillStyle = `rgba(0,0,0,${0.35 - k * 0.2})`; c.fillRect(0, 0, W, H);
-    }
-  };
-  G.mode = m; $('hud').classList.add('hidden');
-  const show = async (s) => { m.slide = s; m.t0 = 0; };
-  music('intro');
-  await fadeTo(0, 0.8);
-  await show('mallorca');
-  await narr('Mallorca, años 90. En el instituto Josep Maria Llompart, cuatro chavales de bachillerato artístico se hacen amigos. Para siempre.');
-  const nar = {
-    ramis: 'Ramis: se sabe de memoria el 0 a 100 de cada Porsche. Y es el que siempre jura «nunca más»… hasta el sábado.',
-    marc: 'Marc: dibuja como los ángeles, sobre todo a señoritas. Chus decía que tenía letra de escribano.',
-    marcos: 'Marcos: rol, Warhammer y videojuegos. Con melena era «Nike Apóstol». Hoy vive en Coruña… y es el que conduce.',
-    angel: 'Ángel: el místico del grupo. Ve cosas que los demás no ven. Y suspiraba por la profe Maje.',
-  };
-  for (const id of PROTA) { await show(id); sfx('whoosh'); await narr(nar[id]); }
-  await show('chus'); sfx('pagina');
-  await narr('Y un profesor que les marcó: Chus. Hablaba como un caballero del siglo XVIII y lo llamaba todo «lupanar».');
-  await show('club'); sfx('logro');
-  await narr('Así nació el CLUB DE CABALLEROS. Inseparables desde entonces, aunque la vida los haya repartido.');
-  await show('pontevedra'); music('plaza');
-  await narr('Hoy, muchos años después. Marcos vive en Coruña. Los demás vuelan para pasar tres días juntos… en Pontevedra.');
-  await narr('Ángel se acaba de divorciar y va un poco de bajona. Y Marcos tiene que conducir de vuelta a su hotel: el Balneario Acuña de Caldas de Reis. Ellos lo llaman «Caldofran».');
-  await narr('Objetivo: que la noche sea legendaria… y que Marcos llegue lo bastante sereno para conducir.');
-  await fadeTo(1, 0.8);
-  G.mode = null; $('hud').classList.remove('hidden');
-}
-function wrap(c, t, x, y, maxW, lh) {
-  const words = t.split(' '); let line = '', yy = y;
-  for (const w of words) { const test = line ? line + ' ' + w : w; if (c.measureText(test).width > maxW && line) { c.fillText(line, x, yy); line = w; yy += lh; } else line = test; }
-  c.fillText(line, x, yy);
-}
-function escudo(c, x, y, s, t) {
-  c.save(); c.translate(x, y); c.scale(s, s);
-  // espadas cruzadas
-  [-1, 1].forEach((d) => { c.save(); c.rotate(d * 0.7); c.fillStyle = '#d8dde8'; c.fillRect(-10, -300, 20, 480); PROC.ink(c, 4); c.fillStyle = '#c9963a'; c.fillRect(-60, 150, 120, 24); c.fillRect(-12, 174, 24, 70); c.restore(); });
-  c.beginPath(); c.moveTo(-200, -220); c.lineTo(200, -220); c.lineTo(200, 0); c.quadraticCurveTo(200, 180, 0, 270); c.quadraticCurveTo(-200, 180, -200, 0); c.closePath();
-  c.fillStyle = PROC.lin(c, 0, -220, 0, 270, [[0, '#7a1d2a'], [1, '#3a0d16']]); c.fill(); c.lineWidth = 16; c.strokeStyle = '#e8b85a'; c.stroke();
-  c.fillStyle = '#ffd98a'; c.font = "800 190px 'Cinzel'"; c.textAlign = 'center'; c.fillText('CC', 0, 80);
-  c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.3 + 0.2 * Math.sin(t * 2); c.fillStyle = '#fff'; c.fillRect(-200 + ((t * 200) % 600) - 100, -220, 30, 490);
-  c.restore();
 }

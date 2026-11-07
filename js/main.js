@@ -45,7 +45,6 @@ async function startGame(fromSave) {
   } else {
     clearSave(); S = newState();
     G.bodegaLeft = 75;
-    await intro();
   }
   G.mode = null; G.started = true;
   buildParty();
