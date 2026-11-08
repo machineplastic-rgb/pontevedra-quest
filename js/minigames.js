@@ -42,7 +42,9 @@ const MG = (() => {
   /* ---------------- CHUPITOS: que Marcos no beba ---------------- */
   function chupitos() {
     const m = { drunk: 0, name: 'chupitos' };
-    const X = { ramis: 300, marc: 560, marcos: 820, angel: 1080 };
+    // v25: de cuerpo entero, delante de la barra; el jarrón de flores del dibujo queda a la izquierda
+    const X = { ramis: 560, marc: 790, marcos: 1020, angel: 1250 }, FL = 975, HP = 520, JX = 300, JY = 505;
+    const bebT = {}; let pilladaT = -9, contentaT = -9;
     let round = 0, rt = 0, look = true, nextTurn = 1.6, warn = 0, state = {}, msg = '', msgT = 0, plant = 1, flyT = -1, caught = 0, tossed = 0;
     const res = { marcos: 0, tossed: 0 };
     const btns = {};
@@ -53,16 +55,16 @@ const MG = (() => {
       for (const k in btns) btns[k].forEach((b) => b.classList.remove('hidden'));
     }
     function drinkIt(id) {
-      if (state[id]) return; state[id] = 1; drink(id, 1); try { AUDIO.laugh(pick(['ramis', 'marc', 'angel'])); } catch (e) {}
+      if (state[id]) return; state[id] = 1; drink(id, 1); bebT[id] = G.t; if (look) contentaT = G.t; try { AUDIO.laugh(pick(['ramis', 'marc', 'angel'])); } catch (e) {}
       if (id === 'marcos') { res.marcos++; }
       btns[id].forEach((b) => b.classList.add('hidden')); check();
     }
     function toss() {
       if (state.marcos) return;
       if (look) {
-        state.marcos = 1; caught++; sfx('error'); msg = '¡¿ME TIRAS MI LICOR CAFÉ?! ¡Para dentro, guapo!'; msgT = 2.2;
+        state.marcos = 1; caught++; sfx('error'); msg = '¡¿ME TIRAS MI LICOR CAFÉ?! ¡Para dentro, guapo!'; msgT = 2.2; pilladaT = G.t;
         setTimeout(() => { drink('marcos', 1); res.marcos++; }, 500);
-      } else { state.marcos = 2; tossed++; res.tossed++; sfx('servir'); flyT = 0; msg = 'Marcos lo tira al jarrón. Las flores lo agradecen.'; msgT = 1.8; }
+      } else { state.marcos = 2; bebT.marcos = G.t; tossed++; res.tossed++; sfx('servir'); flyT = 0; msg = 'Marcos lo tira al jarrón. Las flores lo agradecen.'; msgT = 1.8; }
       btns.marcos.forEach((b) => b.classList.add('hidden')); check();
     }
     function check() {
@@ -70,8 +72,8 @@ const MG = (() => {
     }
     const top = bar('');
     for (const id of PROTA) {
-      if (id === 'marcos') btns[id] = [btn('🥃 Beber', X[id], 790, '', () => drinkIt('marcos')), btn('💐 ¡Al jarrón!', X[id], 872, 'grn', toss)];
-      else btns[id] = [btn('🥃 ¡Para dentro!', X[id], 790, '', () => drinkIt(id))];
+      if (id === 'marcos') btns[id] = [btn('🥃 Beber', X[id], 822, '', () => drinkIt('marcos')), btn('💐 ¡Al jarrón!', X[id], 904, 'grn', toss)];
+      else btns[id] = [btn('🥃 ¡Para dentro!', X[id], 904, '', () => drinkIt(id))];
     }
     newRound();
     m.update = (dt) => {
@@ -88,30 +90,32 @@ const MG = (() => {
       }
     };
     m.draw = (c, t) => {
-      // v20: el bar de JRAR, un poco más cerca y corrido para que el jarrón de flores quede a la izquierda
-      { const im = G.img['bg/estrella']; c.fillStyle = '#000'; c.fillRect(0, 0, W, H); if (im) c.drawImage(im, W / 2 - W * 0.6 - 75, H / 2 - H * 0.6, W * 1.2, H * 1.2); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, 0, W, H); }
-      // mesa
-      // v24: en primer plano, la barra del dibujo del bar (madera y azulejos de JRAR)
-      { const im = G.img['bg/estrella']; if (im) { c.drawImage(im, 0, 560, 980, 300, 0, 625, 1600, 490); c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(0, 625, W, 375); } }
+      // v25: el bar de JRAR entero y los cuatro de cuerpo entero delante de la barra
+      { const im = G.img['bg/estrella']; c.fillStyle = '#000'; c.fillRect(0, 0, W, H); if (im) c.drawImage(im, 0, 0, W, H); c.fillStyle = 'rgba(0,0,0,.28)'; c.fillRect(0, 0, W, H); }
       // el jarrón de flores del dibujo (sin pintar nada): una luz encima, que crece con cada chupito
-      { const jx = 125, jy = 505, r = 120 + tossed * 25 + Math.sin(t * 3) * 6;
-        c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(jx, jy, 5, jx, jy, r);
-        g.addColorStop(0, 'rgba(255,225,160,' + (0.28 + tossed * 0.06) + ')'); g.addColorStop(1, 'rgba(255,225,160,0)'); c.fillStyle = g; c.fillRect(jx - r, jy - r, r * 2, r * 2); c.restore();
-        if (tossed) { c.font = "28px 'Patrick Hand'"; c.fillStyle = '#c8ffb0'; c.textAlign = 'center'; c.fillText('Flores felices ×' + tossed, jx + 20, 625); } }
-      // caras y chupitos
+      { const r = 110 + tossed * 25 + Math.sin(t * 3) * 6;
+        c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(JX, JY, 5, JX, JY, r);
+        g.addColorStop(0, 'rgba(255,225,160,' + (0.3 + tossed * 0.06) + ')'); g.addColorStop(1, 'rgba(255,225,160,0)'); c.fillStyle = g; c.fillRect(JX - r, JY - r, r * 2, r * 2); c.restore();
+        if (tossed) { c.save(); c.font = "30px 'Patrick Hand'"; c.fillStyle = '#c8ffb0'; c.textAlign = 'center'; c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.7)'; c.strokeText('Flores felices ×' + tossed, JX, 640); c.fillText('Flores felices ×' + tossed, JX, 640); c.restore(); } }
+      // los cuatro, con su chupito en la mano
       for (const id of PROTA) {
-        const lv = S.drunk[id], mood = state[id] === 1 ? (lv >= 3 ? 'borracho' : 'risa') : (lv >= 3 ? 'borracho' : 'normal');
-        drawImgH(c, 'faces/' + id + '_' + mood, X[id], 600 + Math.sin(t * 2 + X[id]) * 4, 270, { rot: Math.sin(t * (1 + lv * 0.2) + X[id]) * 0.02 * lv });
-        c.font = "800 30px 'Nunito'"; c.fillStyle = '#fff6e0'; c.textAlign = 'center'; c.fillText(NAMES[id], X[id], 640);
-        if (!state[id]) drawImgH(c, 'items/chupitos', X[id], 760, 100);
+        const lv = S.drunk[id], sp = bodySprite(id), k = G.img[sp] && G.img['chars/' + id] ? G.img[sp].height / G.img['chars/' + id].height : 1;
+        const bt = bebT[id] !== undefined ? G.t - bebT[id] : 9, hop = bt < 0.45 ? Math.sin(bt / 0.45 * Math.PI) * 26 : 0;
+        c.save(); c.globalAlpha = 0.45; c.fillStyle = '#000'; c.beginPath(); c.ellipse(X[id], FL - 4, 80, 14, 0, 0, 7); c.fill(); c.restore();
+        drawImgH(c, sp, X[id], FL - hop, HP * k, { rot: Math.sin(t * (1 + lv * 0.2) + X[id]) * 0.012 * lv });
+        c.save(); c.font = "800 26px 'Nunito'"; c.textAlign = 'center'; c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.75)'; c.strokeText(NAMES[id], X[id], FL - HP - 18); c.fillStyle = '#fff6e0'; c.fillText(NAMES[id], X[id], FL - HP - 18); c.restore();
+        if (!state[id]) drawImgH(c, 'items/chupitos', X[id] + 46, FL - HP * 0.43, 74);
+        else if (bt < 1.2) { c.save(); c.globalAlpha = 1 - bt / 1.2; c.font = "800 34px 'Nunito'"; c.textAlign = 'center'; c.fillStyle = '#ffd98a'; c.fillText(state[id] === 2 ? '¡Al jarrón!' : '¡Glup!', X[id], FL - HP - 60 - bt * 40); c.restore(); }
       }
-      if (flyT >= 0 && flyT < 0.7) { const k = flyT / 0.7; drawImgH(c, 'items/chupitos', X.marcos + (125 - X.marcos) * k, 760 - (760 - 500) * k - Math.sin(k * Math.PI) * 300, 90, { rot: k * 6 }); }
-      // la señora
-      const sx = 1370, alert = !look && nextTurn < 0.45;
-      drawImgH(c, look ? 'chars/senora' : 'chars/senora_risa', sx, 800, 520, { flip: look });
+      if (flyT >= 0 && flyT < 0.7) { const k = flyT / 0.7; drawImgH(c, 'items/chupitos', X.marcos + 46 + (JX - X.marcos - 46) * k, FL - HP * 0.43 + (JY - (FL - HP * 0.43)) * k - Math.sin(k * Math.PI) * 300, 70, { rot: k * 6 }); }
+      // Doña Maruxa: mirando, pensativa (de lado, mirando a otra parte), contenta si bebéis o sorprendida si os pilla
+      const sx = 1470, alert = !look && nextTurn < 0.45;
+      const pose = G.t - pilladaT < 2.2 ? 'senora_sorpresa' : look ? (G.t - contentaT < 1.4 ? 'senora_habla' : 'senora') : 'senora_piensa';
+      c.save(); c.globalAlpha = 0.45; c.fillStyle = '#000'; c.beginPath(); c.ellipse(sx, FL - 4, 75, 13, 0, 0, 7); c.fill(); c.restore();
+      drawImgH(c, 'chars/' + pose, sx, FL, 470 * (G.img['chars/' + pose] ? G.img['chars/' + pose].height / G.img['chars/senora'].height : 1), { flip: look || pose === 'senora_sorpresa' });
       c.save(); c.font = "800 36px 'Nunito'"; c.textAlign = 'center';
-      if (look) { c.fillStyle = '#ff7b7b'; c.fillText('👁 TE ESTÁ MIRANDO', sx, 250); }
-      else { c.fillStyle = alert ? '#ffd23a' : '#9dffb0'; c.fillText(alert ? '⚠ ¡SE VA A GIRAR!' : '♪ Distraída', sx, 250); if (Math.random() < 0.05) emit('note', sx + 40, 330, 1); }
+      if (look) { c.fillStyle = '#ff7b7b'; c.fillText('👁 TE ESTÁ MIRANDO', W - 260, 400); }
+      else { c.fillStyle = alert ? '#ffd23a' : '#9dffb0'; c.fillText(alert ? '⚠ ¡SE VA A GIRAR!' : '💭 Distraída', W - 260, 400); if (Math.random() < 0.05) emit('note', sx + 40, 480, 1); }
       c.restore();
       // tiempo
       c.fillStyle = 'rgba(0,0,0,.5)'; c.fillRect(500, 100, 600, 18); c.fillStyle = '#ffd98a'; c.fillRect(500, 100, 600 * clamp(rt / RT, 0, 1), 18);

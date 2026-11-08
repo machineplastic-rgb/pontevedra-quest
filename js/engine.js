@@ -165,6 +165,8 @@ function removeActor(id) { delete G.actors[id]; }
 const CHAR_SCALE = 1.2;
 function aScale(a) { return a.k * (isProta(a.id) ? 1 : (a.ks || (isCrowd(a.id) ? 1.85 : 1.72))) * CHAR_SCALE; }
 // pose de cuerpo según la borrachera: alegre (1), piripi (2-3) y mamado (4-5)
+// v25: poses agachadas, sentadas o con la espada en alto: cuánto miden respecto a de pie
+const POSE_H = { 'chars/gc2_mira': 0.78, 'chars/gc1_agacha': 0.77, 'chars/chica_suena': 0.76, 'chars/gente_baila': 0.95, 'chars/fantasma_guardia': 1.08, 'chars/fantasma_ataca': 1.0, 'chars/meiga_reza': 0.97 };
 const BODY = ['_alegre', '_piripi', '_mamado'];
 function bodySprite(id) {
   const lv = S ? S.drunk[id] : 0, v = lv >= 4 ? '_mamado' : lv >= 2 ? '_piripi' : lv === 1 ? '_alegre' : '';
@@ -189,7 +191,7 @@ function drawActor(c, a) {
   const t = G.t, lvl = isProta(a.id) ? S.drunk[a.id] : (a.drunkLvl || (isCrowd(a.id) ? nocheFase() * 1.5 : 0));
   let k = aScale(a);
   // si el sprite de risa viene de otra hoja, se iguala la altura (las poses de borrachera ya vienen a escala)
-  if (!body && sprite !== base && G.img[base]) k = k * G.img[base].height / G.img[sprite].height;
+  if (!body && sprite !== base && G.img[base]) k = k * G.img[base].height / G.img[sprite].height * (POSE_H[sprite] || 1);
   const w = img.width * k, h = img.height * k;
   const breathe = 1 + Math.sin(t * 2.2 + a.phase) * 0.008;
   const sway = lvl * 0.011 * Math.sin(t * (0.9 + lvl * 0.18) + a.phase) + (lvl >= 4 ? 0.012 * Math.sin(t * 2.7 + a.phase) : 0);

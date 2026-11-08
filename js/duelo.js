@@ -293,11 +293,12 @@ async function dueloXesus() {
   }
   if (!flag('dueloVisto')) {
     flag('dueloVisto', 1);
-    await say('fantasma', '¡En guaaardia, bribón! En 1714 nos batíamos con la espada… y con la lengua. Yo insulto, tú contestas.', 'risa');
+    try { AUDIO.laugh('fantasma'); } catch (e) {}
+    await say('fantasma', '¡En guaaardia, bribón! En 1714 nos batíamos con la espada… y con la lengua. Yo insulto, tú contestas.', 'guardia');
     await say('marcos', '¿Y yo con qué me defiendo?', 'sorpresa');
     await say('ramis', 'Coge el candelabro, que con lo que brilla el fantasma ya hay luz de sobra.');
     await say('marcos', 'Nivel veinte de esgrima… en la Play. Tirad iniciativa.', 'risa');
-  } else await say('fantasma', '¿Revancha? ¡Albricias! ¡En guaaardia!', 'risa');
+  } else await say('fantasma', '¿Revancha? ¡Albricias! ¡En guaaardia!', 'ataca');
   const r = await MG.duelo();
   const win = r === undefined || r === true || !!(r && r.win);
   if (win) {

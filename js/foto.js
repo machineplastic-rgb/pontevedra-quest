@@ -24,6 +24,7 @@ const FOTO = {
     dice: { 3: ['Perfect, mate! For my mum!', 'Lovely! Lovely!'], 2: ['Not bad, mate.', 'Okay-ish.'], 1: ['Mmm… thinking face. No.', 'Again, again!'], 0: ['Oops. Too many pints, mate.', 'Delete it! Mum can\'t see that!'] },
     com: [['guiri', 'Mum says thank you lads! 🇬🇧'], ['carla', 'Me he colado, sí. Contenido de calidad 📲']] },
 };
+EXTRA_ASSETS.push('chars/recep_piensa', 'chars/gente_baila', 'chars/camarero_serio', 'chars/meiga_reza', 'chars/gc2_mira', 'chars/gc1_ok', 'chars/fantasma_guardia', 'chars/fantasma_ataca', 'chars/chica_timida', 'chars/chica_suena');
 EXTRA_ASSETS.push(...['vera', 'sabela', 'guiri'].flatMap((k) => FOTO[k].poses.map(([n]) => 'pose/' + k + '_' + n)));
 
 MG.foto = function (quien) {

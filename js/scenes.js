@@ -551,9 +551,9 @@ SCENES.bareto = {
     await say('gente', '¿Casi un Porsche? Eso es como decir que una sardina es casi un pulpo.', 'risa');
     await narr('Ramis deja las llaves en la barra para gesticular mejor. Brais las coge al vuelo.');
     sfx('pickup'); takeItem('llaves'); flag('llavesConfiscadas', 1);
-    await say('camarero', 'Estas llaves se quedan conmigo. Política de la casa: de aquí nadie sale conduciendo piripi.');
+    await say('camarero', 'Estas llaves se quedan conmigo. Política de la casa: de aquí nadie sale conduciendo piripi.', 'serio');
     await say('marcos', '¡Pero si el que conduce soy yo! ¡Y voy sereno!', 'sorpresa');
-    await say('camarero', 'Pues me lo demuestras. Y de paso me pagáis la ronda, que vuestro amigo ha invitado a todo el bar.');
+    await say('camarero', 'Pues me lo demuestras. Y de paso me pagáis la ronda, que vuestro amigo ha invitado a todo el bar.', 'serio');
     await say('ramis', 'Yo al menos podré decir que he vivido.', 'risa');
     await narr('La cartera de Ramis está más vacía que la nevera de un estudiante. Toca buscar dinero… en algún sitio.');
     updObj();
@@ -571,7 +571,7 @@ async function braisTalk() {
   if (v === 'llaves') {
     if (!f.pagado) {
       if (flag('carteraLlena')) return pagarBrais();
-      return say('camarero', 'Primero la ronda: veintitrés euros. Y aquí no aceptamos «bajo el yugo opresor» como forma de pago.');
+      return say('camarero', 'Primero la ronda: veintitrés euros. Y aquí no aceptamos «bajo el yugo opresor» como forma de pago.', 'serio');
     }
     await say('camarero', 'Pagado. Ahora que el conductor me siga el dedo con la nariz. Si lo haces bien, llaves.');
     if (S.drunk.marcos >= 3) { await say('camarero', 'Uy, no. Tú ahora mismo no sigues ni un tractor. Tómate un café primero.'); return; }
@@ -631,7 +631,7 @@ async function parroquianoTalk() {
   ]);
   if (v === 'q') await say('gente', 'Aquí, como siempre: los de Pontevedra quejándonos de la lluvia y bebiendo para que pase.');
   if (v === 'c') await say('gente', 'Los sábados la Guardia Civil pone control en la N-550. Si no queréis líos, o agua… o la meiga de la Alameda.');
-  if (v === 'n') { sfx('clink'); await say('gente', '¡Saúde, rapaz!', 'risa'); }
+  if (v === 'n') { sfx('clink'); try { AUDIO.laugh('gente'); } catch (e) {} await say('gente', '¡Saúde, rapaz!', 'baila'); }
 }
 
 /* ---------------- PUB OSCURO ---------------- */
@@ -703,7 +703,7 @@ async function chicaTalk() {
     { t: '«Perdona, esas gafas son mías»', v: 2 },
     { t: '«¿Te puedo invitar a algo?»', v: 3 },
   ]);
-  if (v === 1) await say('chica', 'Me encantan los hombres con barba y voz de concierto.');
+  if (v === 1) await say('chica', 'Me encantan los hombres con barba y voz de concierto.', 'timida');
   if (v === 2) await say('chica', '¿Ah, sí? Pues ven a por ellas, barbas.', 'risa');
   if (v === 3) await say('chica', 'A algo me vas a invitar, sí…', 'risa');
   await narr('No pasa ni un minuto. Ni uno. La chica agarra a Ángel de la camisa de cuadros y…');
@@ -713,7 +713,7 @@ async function chicaTalk() {
   sfx('beso');
   const mm = Math.floor(r.seg / 60);
   await narr(`…Y se besan. Y se besan. Y se siguen besando. ${mm >= 2 ? mm + ' minutos' : 'Un buen rato'} sin parar. El pub entero aplaude.`);
-  await say('chica', 'Ha sido un placer, barbas. Toma tus gafas. Te quedan mejor a ti… bueno, no.', 'risa');
+  await say('chica', 'Ha sido un placer, barbas. Toma tus gafas. Te quedan mejor a ti… bueno, no.', 'suena');
   give('gafas');
   await walk('chica', 1750, 1.6, { flip: false });
   removeActor('chica'); flag('beso', 1);
@@ -1002,7 +1002,7 @@ async function darMeiga(what) {
 }
 async function meigallo() {
   music('meiga');
-  await say('meiga', 'Agora si. Poñédevos arredor, rapaces.');
+  await say('meiga', 'Agora si. Poñédevos arredor, rapaces.', 'reza');
   await narr('La meiga baila una muiñeira alrededor del cruceiro, con los calzoncillos de Ramis en una mano y una filloa en la otra.');
   // la muiñeira de verdad: va cambiando de paso (dibujos de JRAR) y gira
   const mg = G.actors.meiga, oldSp = mg && mg.sprite, oldFlip = mg && mg.flip, baila = !!G.img['chars/meiga_baila1'];
@@ -1014,7 +1014,7 @@ async function meigallo() {
   }
   if (mg) { mg.sprite = oldSp; mg.flip = oldFlip; }
   flash('#c9a0ff', 0.6);
-  await say('meiga', 'Meigallo de boa sorte: esta noite ningún garda vos verá torcidos.');
+  await say('meiga', 'Meigallo de boa sorte: esta noite ningún garda vos verá torcidos.', 'reza');
   await say('meiga', 'E se vedes á Santa Compaña: círculo de sal… e non miredes atrás.');
   flag('meigallo', 1); logro('meigallo');
   await say('meiga', 'E agora, un chisquiño de licor de herbas para pechar o trato.');
@@ -1129,7 +1129,7 @@ async function finale() {
   // control de la Guardia Civil
   await goScene('control');
   sfx('sirena');
-  await say('gc2', 'Buenas noches. Control de alcoholemia. Documentación y a soplar, conductor.');
+  await say('gc2', 'Buenas noches. Control de alcoholemia. Documentación y a soplar, conductor.', 'mira');
   await say('marcos', '…Buenas noches, agente.', 'sorpresa');
   let pasa = false;
   if (flag('meigallo')) {
@@ -1147,10 +1147,11 @@ async function finale() {
     await say('ramis', '¡YO AL MENOS PODRÉ DECIR QUE HE VIVIDO!', 'risa');
     await say('gc2', '¿Qué ha dicho ese?');
     await say('marc', 'Nada, agente. Que es poeta.');
-    await say('gc1', 'Ja, ja. Buenas noches, poetas.', 'risa');
+    try { AUDIO.laugh('gc'); } catch (e) {}
+    await say('gc1', 'Ja, ja. Buenas noches, poetas.', 'ok');
   } else {
     sfx('tic'); await narr('Marcos sopla. El aparato pita con cara de pocos amigos.');
-    await say('gc2', 'Cero coma treinta y uno. Positivo, caballero. Bajen del vehículo.');
+    await say('gc2', 'Cero coma treinta y uno. Positivo, caballero. Bajen del vehículo.', 'mira');
     sfx('fallo'); music('derrota'); S.stats.derrotas++;
     await card('EL CUARTELILLO', 'La noche acaba jugando al mus con el sargento', 3000);
     await say('angel', 'Lo sabía… nos hacía falta suerte. La meiga de la Alameda…');
@@ -1196,7 +1197,7 @@ async function finale() {
   // llegada
   await goScene('balneario');
   await narr('Caldas de Reis, a punto de amanecer. Las farolas todavía encendidas, el Umia humeando… y el Balneario Acuña esperándoos, blanco y elegante, como si no supiera lo que se le viene encima.');
-  await say('recep', 'Buenos días… ¿Señores…? ¿Caballeros? Tienen reserva para… una persona.');
+  await say('recep', 'Buenos días… ¿Señores…? ¿Caballeros? Tienen reserva para… una persona.', 'piensa');
   await say('marcos', 'Somos cuatro. Pero ocupamos como uno.');
   await say('recep', 'Pasen, pasen. La piscina termal abre a las ocho. Son las ocho menos un minuto.', 'risa');
   // el peregrino de la plaza llega justo detrás (si le indicasteis bien)
