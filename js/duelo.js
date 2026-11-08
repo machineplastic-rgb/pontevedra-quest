@@ -88,7 +88,7 @@ MG.duelo = function () {
     big = { t: '¡EN GUARDIA!', c: '#ffd98a', t0: clock }; sfx('espada'); await sleep(1.5); big = null;
     let pool = [];
     for (;;) {
-      if (!pool.length) pool = mix(INSULTOS.filter((i) => i !== last));
+      if (!pool.length) pool = mix((typeof ADULTO !== 'undefined' && ADULTO.on() ? INSULTOS.concat(ADULTO.insultos) : INSULTOS).filter((i) => i !== last));
       const cur = pool.pop(); last = cur;
       setX('ataque'); sfx('swish'); xBub = { t: cur.x, t0: clock, face: 'normal' }; mBub = null; cheer = null;
       await sleep(0.55); setX('guardia');

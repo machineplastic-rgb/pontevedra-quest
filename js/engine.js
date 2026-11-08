@@ -400,6 +400,8 @@ function updIdle(dt) {
   // a veces habla alguien de la gente de la noche
   const who = crowd.length && Math.random() < 0.55 ? pick(crowd) : pick(ids);
   let txt = isCrowd(who) ? pick(crowdIdle(who)) : pick(IDLE_LINES[who] || ['…']);
+  if (isProta(who) && typeof ADULTO !== 'undefined' && ADULTO.on() && ADULTO.idle[who] && Math.random() < 0.6) txt = pick(ADULTO.idle[who]);
+  else if (typeof ADULTO !== 'undefined') txt = ADULTO.frase(txt);
   // en los sitios con la música a tope no se oye nada
   if (G.scene.loud && isProta(who) && Math.random() < 0.5) txt = pick(['¿¡QUÉ!?', '¡NO TE OIGO!', '¿¡CÓMO DICES!?', '¡QUE SÍ, QUE VALE!', '¿HAS DICHO PULPO?', '¡ESTA CANCIÓN ES UN TEMAZO!']);
   if (isProta(who) && S.drunk[who] >= 4 && Math.random() < 0.45) txt = pick(DRUNK_LINES);
@@ -448,6 +450,7 @@ function renderScene(c) {
       c.beginPath(); c.moveTo(a.x - 16, y - 22); c.lineTo(a.x + 16, y - 22); c.lineTo(a.x, y); c.closePath(); c.stroke(); c.fill(); c.restore(); } }
     drawFx(c, sc.fx);
     if (sc.drawTop) sc.drawTop(c, G.t);
+    if (typeof LUZ !== 'undefined') LUZ.draw(c);   // v13: escenas a oscuras
     if (!G.busy && !G.dlgOpen) drawBubble(c);
   }
   drawParticles(c);
@@ -580,6 +583,7 @@ async function run(fn) {
 }
 function onTap(p) {
   closeMenus();
+  if (typeof LUZ !== 'undefined' && LUZ.toque(p)) return;   // a oscuras: primero va la luz
   const hit = pickAt(p);
   if (G.holding) { useHolding(hit); return; }
   if (!hit) { emit('spark', p.x, p.y, 4); return; }
@@ -758,6 +762,7 @@ function slur(t, lv) {
 }
 async function say(who, text, mood, o) {
   o = o || {};
+  if (typeof ADULTO !== 'undefined') text = ADULTO.frase(text);   // v13: modo 18+
   if (TEST) { (G.log = G.log || []).push((NAMES[who] || who) + ': ' + text); return; }
   const dlg = $('dlg'), port = $('dport').querySelector('img'), nm = $('dname'), tx = $('dtext');
   G.dlgOpen = true; closeMenus();
@@ -836,7 +841,7 @@ async function choose(opts, prompt) {
   return new Promise((res) => {
     opts.forEach((o) => {
       const b = document.createElement('button');
-      b.innerHTML = o.t + (o.sub ? `<small>${o.sub}</small>` : '');
+      b.innerHTML = (typeof ADULTO !== 'undefined' ? ADULTO.frase(o.t) : o.t) + (o.sub ? `<small>${o.sub}</small>` : '');
       b.onclick = (e) => { e.stopPropagation(); sfx('click'); box.classList.add('hidden'); $('dlg').classList.add('hidden'); G.dlgOpen = false; res(o.v !== undefined ? o.v : o.t); };
       box.appendChild(b);
     });
@@ -909,6 +914,7 @@ function bindInput() {
   st.addEventListener('pointermove', (e) => {
     const p = toStage(e);
     if (G.mode && G.mode.move) { G.mode.move(p, e); return; }
+    if (e.pointerType === 'mouse' && typeof LUZ !== 'undefined' && LUZ.activa()) LUZ.mover(p);
     if (e.pointerType !== 'mouse' || G.busy || G.dlgOpen || !G.started || !G.scene) { $('label').classList.add('hidden'); return; }
     const hit = pickAt(p), l = $('label');
     let name = null;

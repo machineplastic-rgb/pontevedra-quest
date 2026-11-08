@@ -8,14 +8,16 @@
    ===================================================================== */
 EXTRA_ASSETS.push('chars/angel_guitarra', 'escenas/beso1', 'escenas/beso2', 'chars/meiga_baila1', 'chars/meiga_baila2', 'chars/meiga_baila3',
   'road/vaca_frente2', 'road/peugeot', 'bg/balneario', 'items/movil', 'items/cartera', 'items/gafas', 'items/calzoncillos', 'items/llaves',
-  'items/postres', 'items/compana', 'items/cruceiro', 'items/peugeot_lado');
+  'items/postres', 'items/compana', 'items/cruceiro', 'items/peugeot_lado',
+  // v13: las fotos de verdad de la mañana en Caldofran (dibujadas por JRAR)
+  'fotos/balneario1', 'fotos/balneario2', 'fotos/balneario3', 'fotos/balneario4');
 
 const CRED = (() => {
   // la foto (760x570) y la Polaroid entera con su marco
-  const PW = 760, PH = 570, BD = 28, BB = 132, CW = PW + BD * 2, CH = PH + BD + BB;
+  const PW = 760, PH = 570, BD = 28, BB = 132, CW = PW + BD * 2, CH = PH + BD + BB, PH0 = PH, CH0 = CH;
   const HX = 492, HY = 500, HS = 0.9;   // dónde se queda la foto grande
   const CX = 1275, COLW = 530;          // columna de los créditos
-  const MAX_FOTOS = 16, MIN_FOTOS = 12;
+  const MAX_FOTOS = 19, MIN_FOTOS = 12;
 
   const mk = (w, h) => { const v = document.createElement('canvas'); v.width = Math.max(1, w | 0); v.height = Math.max(1, h | 0); return v; };
   const lerp = (a, b, k) => a + (b - a) * k;
@@ -420,24 +422,15 @@ const CRED = (() => {
         fig(c, gente('peregrino'), 565, 665, 520, { flip: true });
         flashLuz(c, 400, 300, 540, 0.8);
       } },
-    { id: 'piscina', h: '08:00', tipo: 'siempre', kb: [0.5, 0.5],
-      cap: () => 'Caldofran, 8:00. Aguas que curan (casi todo).',
-      draw(c) {
-        fondo(c, PROC.get('piscina'), 1.12, 0.5, 0.6, 0);
-        const wl = 330;
-        c.save(); c.globalCompositeOperation = 'lighter';
-        for (let i = 0; i < 26; i++) { const y = wl + 20 + (i * 37) % 230, x = (i * 173) % 860 - 50; c.globalAlpha = 0.12; c.fillStyle = '#e8ffff'; c.beginPath(); c.ellipse(x, y, 50 + (i % 5) * 16, 4, 0, 0, 7); c.fill(); }
-        c.restore();
-        PROTA.forEach((id, i) => {
-          const x = 108 + i * 182, y = wl + 70 + (i % 2) * 14;
-          c.save(); c.beginPath(); c.rect(0, 0, PW, y); c.clip(); cara(c, id, 'risa', x, y + 95, 255, { rot: (i - 1.5) * 0.05 }); c.restore();
-          c.save(); c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 3;
-          for (let r = 0; r < 3; r++) { c.globalAlpha = 0.75 - r * 0.22; c.beginPath(); c.ellipse(x, y + 4, 95 + r * 38, 12 + r * 6, 0, 0, 7); c.stroke(); }
-          c.restore();
-        });
-        niebla(c, 9, wl - 60, PH, 9, 0.16);
-        flashLuz(c, 380, 300, 560, 0.7);
-      } },
+    // v13: la mañana en Caldofran, con los dibujos de JRAR: en color y apaisadas
+    { id: 'piscina', h: '08:00', tipo: 'siempre', kb: [0.5, 0.45], ph: 452, keep: 0.82, foto: 'fotos/balneario1',
+      cap: () => 'Caldofran, 8:00. Aguas que curan (casi todo).' },
+    { id: 'albornoz', h: '09:20', tipo: 'siempre', kb: [0.5, 0.35], ph: 452, keep: 0.82, foto: 'fotos/balneario2',
+      cap: () => 'Caballeros de Santo Domingo, en albornoz. Marcos aprueba el patronaje.' },
+    { id: 'hamacas', h: '10:45', tipo: 'siempre', kb: [0.4, 0.6], ph: 452, keep: 0.82, foto: 'fotos/balneario3',
+      cap: () => 'La siesta del guerrero. Nadie ha dicho «nunca más»… todavía.' },
+    { id: 'brindis', h: '11:58', tipo: 'siempre', kb: [0.5, 0.5], ph: 452, keep: 0.82, doodle: 'heart', foto: 'fotos/balneario4',
+      cap: () => '¡Por el Club! Nunca más… hasta el sábado.' },
   ];
   const horaN = (h) => { let a = +h.slice(0, 2); const b = +h.slice(3, 5); if (a < 12) a += 24; return a * 60 + b; };
   function elegir() {
@@ -487,7 +480,7 @@ const CRED = (() => {
   }
   // brillo suave (sobreexposición), luz que se cuela, polvo y rayas
   function efectos(cv, seed) {
-    const c = cv.getContext('2d'), R = rng(seed);
+    const c = cv.getContext('2d'), R = rng(seed), PW = cv.width, PH = cv.height;
     const sm = mk(PW / 8, PH / 8); sm.getContext('2d').drawImage(cv, 0, 0, sm.width, sm.height);
     c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = 0.3; c.drawImage(sm, 0, 0, PW, PH); c.restore();
     // fuga de luz en un borde
@@ -561,10 +554,16 @@ const CRED = (() => {
   function tarjeta(it) {
     const f = it.f, seed = it.i * 977 + 131, R = rng(seed + 5);
     // 1) la escena
-    const ph = mk(PW, PH), c = ph.getContext('2d', { willReadFrequently: true });
+    const PHf = f.ph || PH, CHf = PHf + BD + BB;
+    const ph = mk(PW, PHf), c = ph.getContext('2d', { willReadFrequently: true });
     c.save();
+    if (f.foto) {
+      const im = G.img[f.foto];
+      if (im) { const k = Math.max(PW / im.width, PHf / im.height), w = im.width * k, h = im.height * k; c.drawImage(im, (PW - w) / 2, (PHf - h) / 2, w, h); }
+      else { c.fillStyle = '#1a120b'; c.fillRect(0, 0, PW, PHf); }
+    }
     if (f.tilt) { const z = 1 + Math.abs(f.tilt) * 1.7; c.translate(PW / 2, PH / 2); c.rotate(f.tilt); c.scale(z, z); c.translate(-PW / 2, -PH / 2); }
-    try { f.draw(c); } catch (e) { console.warn('foto', f.id, e); }
+    if (!f.foto) try { f.draw(c); } catch (e) { console.warn('foto', f.id, e); }
     c.restore();
     if (f.dedo) dedo(c);
     // 2) el revelado
@@ -573,13 +572,13 @@ const CRED = (() => {
     // el sello va aparte (encima), para que el zoom lento no lo recorte
     const sc = mk(300, 50); sello(sc.getContext('2d'), fechaSello(f.h), 292, 42, 22); it.sello = sc;
     // 3) la Polaroid: papel, foto y pie escrito a boli
-    const cv = mk(CW, CH), k = cv.getContext('2d');
-    k.drawImage(papel(), 0, 0);
-    k.fillStyle = `rgba(200,160,90,${0.04 + R() * 0.1})`; k.fillRect(0, 0, CW, CH);   // cada una amarillea a su manera
+    const cv = mk(CW, CHf), k = cv.getContext('2d');
+    k.drawImage(papel(), 0, 0, CW, CHf);
+    k.fillStyle = `rgba(200,160,90,${0.04 + R() * 0.1})`; k.fillRect(0, 0, CW, CHf);   // cada una amarillea a su manera
     k.drawImage(ph, BD, BD);
-    k.strokeStyle = 'rgba(0,0,0,0.35)'; k.lineWidth = 1.5; k.strokeRect(BD + 0.5, BD + 0.5, PW - 1, PH - 1);
-    if (R() < 0.3) { k.strokeStyle = 'rgba(120,75,30,0.1)'; k.lineWidth = 6; k.beginPath(); k.arc(CW - 34, CH - 24, 40, 0, 7); k.stroke(); }  // cerco de café
-    k.save(); k.translate(CW / 2, BD + PH + BB / 2 + 2); k.rotate(-0.014 + R() * 0.02);
+    k.strokeStyle = 'rgba(0,0,0,0.35)'; k.lineWidth = 1.5; k.strokeRect(BD + 0.5, BD + 0.5, PW - 1, PHf - 1);
+    if (R() < 0.3) { k.strokeStyle = 'rgba(120,75,30,0.1)'; k.lineWidth = 6; k.beginPath(); k.arc(CW - 34, CHf - 24, 40, 0, 7); k.stroke(); }  // cerco de café
+    k.save(); k.translate(CW / 2, BD + PHf + BB / 2 + 2); k.rotate(-0.014 + R() * 0.02);
     k.fillStyle = '#25305a'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.globalAlpha = 0.9;
     // a una línea si cabe encogiendo un poco; si no, a dos
     const cap = f.cap(); let fs = 42, lines = [];
@@ -591,10 +590,10 @@ const CRED = (() => {
     if (f.doodle === 'star') estrella(k, dx, dy, 13, '#25305a');
     k.restore();
     // copia pequeña para el montón y el mural
-    const sm = mk(CW / 2, CH / 2), sx = sm.getContext('2d');
+    const sm = mk(CW / 2, CHf / 2), sx = sm.getContext('2d');
     sx.imageSmoothingEnabled = true; try { sx.imageSmoothingQuality = 'high'; } catch (e) {}
     sx.drawImage(cv, 0, 0, sm.width, sm.height);
-    it.big = cv; it.small = sm;
+    it.big = cv; it.small = sm; it.ch = CHf; it.ph = PHf;
   }
 
   /* ---------------- la mesa ---------------- */
@@ -954,6 +953,7 @@ const CRED = (() => {
     function pinta(c, it, t) {
       const big = it.big, src = big && (it.s > 0.5 || it.z > 1.001) ? big : it.small || big;
       if (!src) return;
+      const CH = it.ch || CH0, PH = it.ph || PH0;
       c.save(); c.translate(it.x, it.y); c.rotate(it.r); c.scale(it.s, it.s);
       // sombra (más grande y lejos cuando la foto va por el aire)
       const L2 = it.lift || 0, o = 12 + L2 * 70, sp = 1 + L2 * 0.06;

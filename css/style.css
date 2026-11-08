@@ -182,6 +182,35 @@ body.small .mgbtn{font-size:36px}
 .dopts button b{display:inline-block;min-width:34px;color:var(--gold)}
 .dopts button:hover,.dopts button:active{background:#3b2f63}
 body.small .dopts button{font-size:35px}
+/* v13 · capítulos, 18+ y salir */
+#tbtns .gold.big{font-size:34px;padding:18px 34px}
+#tExit{position:absolute;left:22px;bottom:16px;font-size:20px;padding:10px 20px}
+#caps{position:absolute;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center}
+.capbox{position:relative;width:1340px;padding:26px 34px 28px;border-radius:24px;background:linear-gradient(#221c3e,#120f24);border:4px solid var(--gold)}
+.capbox h3{font-family:'Cinzel',serif;font-size:44px;color:var(--gold2);text-align:center;margin-bottom:16px}
+.capgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.capc{position:relative;height:250px;border-radius:16px;overflow:hidden;border:3px solid var(--gold);background:#000;color:#fff;text-align:left;padding:0;cursor:pointer}
+.capc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75}
+.capc:hover img{opacity:.95}
+.capc::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(5,4,14,.92))}
+.capc .capn,.capc b,.capc small{position:absolute;left:18px;right:14px;z-index:1}
+.capc .capn{top:12px;font-family:'Cinzel',serif;font-weight:800;font-size:18px;letter-spacing:3px;color:var(--gold2);text-shadow:0 2px 6px #000}
+.capc b{bottom:46px;font-family:'Cinzel',serif;font-size:30px;line-height:1.1;text-shadow:0 2px 8px #000}
+.capc small{bottom:14px;font-size:21px;color:#e9dfc4}
+.capc.lock{cursor:default;border-color:rgba(232,184,90,.3)}
+.capc.lock img{filter:grayscale(1) brightness(.35);opacity:1}
+.capfoot{display:flex;justify-content:center;align-items:center;gap:22px;margin-top:20px}
+.capfoot .gold.on{background:linear-gradient(#6b1f2e,#3a0d18);border-color:#ff8a9a;color:#ffd0d6}
+.caphint{font-size:24px;color:#e9dfc4}
+#capAsk{position:absolute;inset:0;z-index:5;border-radius:20px;background:rgba(8,6,18,.92);display:flex;align-items:center;justify-content:center}
+.capq{text-align:center;max-width:820px}
+.capq p{font-size:34px;line-height:1.35;margin-bottom:24px}
+.capq small{font-size:24px;color:#e9dfc4}
+.capq div{display:flex;gap:20px;justify-content:center}
+#bye{position:absolute;inset:0;background:#05060f;display:flex;align-items:center;justify-content:center;z-index:50}
+.byein{text-align:center}
+.byein h2{font-family:'Cinzel',serif;font-size:64px;color:var(--gold2);margin-bottom:18px}
+.byein p{font-size:32px;color:#e9dfc4;margin-bottom:30px}
 body.small .it p{font-size:22px}
 body.small #bagdesc{font-size:30px}
 

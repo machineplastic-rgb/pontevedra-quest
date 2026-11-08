@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v12';
+const VERSION = 'v13';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -34,7 +34,7 @@ function showTitle() {
   fadeTo(0, 1);
 }
 
-async function startGame(fromSave) {
+async function startGame(fromSave, capId) {
   try { AUDIO.init(); } catch (e) {}
   sfx('click');
   $('title').classList.add('hidden');
@@ -44,7 +44,8 @@ async function startGame(fromSave) {
     if (FINAL_SCENES.includes(S.scene) || S.flags.enRuta) { S.scene = 'parking'; S.flags.enRuta = 0; }
   } else {
     clearSave(); S = newState();
-    G.bodegaLeft = 75;
+    if (capId) { S.cap = capId; S.capOk = 0; }   // v13: empezado desde Capítulos
+    G.bodegaLeft = 90;
     // la intro con la viñeta: por qué se ven en Pontevedra
     await introSeq();
   }
@@ -59,6 +60,10 @@ async function startGame(fromSave) {
 function bindMenus() {
   $('tNew').onclick = (e) => { e.stopPropagation(); startGame(null); };
   $('tCont').onclick = (e) => { e.stopPropagation(); const s = loadSave(); startGame(s); };
+  $('tCap').onclick = (e) => { e.stopPropagation(); CAPI.abrir(); };
+  $('tExit').onclick = (e) => { e.stopPropagation(); CAPI.salir(); };
+  $('mExit').onclick = (e) => { e.stopPropagation(); $('menu').classList.add('hidden'); CAPI.salir(); };
+  $('mAdult').onclick = (e) => { e.stopPropagation(); sfx('click'); CAPI.cambiaAdulto(); updSoundBtn(); };
   $('tScore').onclick = async (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('click'); $('title').classList.add('hidden'); await verMarcador(-1, 'Cerrar'); $('title').classList.remove('hidden'); };
   $('tver').textContent = 'Versión ' + VERSION.replace('v', '');
   $('mver').textContent = 'Pontevedra Quest · versión ' + VERSION.replace('v', '');
@@ -71,6 +76,7 @@ function bindMenus() {
     const b = $('menu').querySelector('.mbox');
     const old = b.innerHTML;
     b.innerHTML = `<h3>Cómo se juega</h3>
+      <p>• En la bodega y en la cripta no se ve nada: la luz del móvil (o del candelabro) sigue al ratón o al dedo. Lo que está a oscuras no se puede tocar.</p>
       <p>• Toca personas y cosas para <b>mirar, hablar o usar</b>. Las flechas doradas son salidas.</p>
       <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b>, diseñador de moda y algo friki, se bate en duelo con la lengua y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
@@ -82,7 +88,12 @@ function bindMenus() {
   };
   $('rotOk').onclick = (e) => { e.stopPropagation(); G.rotOk = true; fit(); };
 }
-function updSoundBtn() { let m = false; try { m = AUDIO.isMuted(); } catch (e) {} $('mSound').textContent = 'Sonido: ' + (m ? 'No' : 'Sí'); }
+function updSoundBtn() {
+  let m = false; try { m = AUDIO.isMuted(); } catch (e) {} $('mSound').textContent = 'Sonido: ' + (m ? 'No' : 'Sí');
+  // v13: el 18+ solo aparece en el menú cuando está desbloqueado y con la edad confirmada
+  const st = CAPI.estado(), b = $('mAdult');
+  if (b) { b.classList.toggle('hidden', !(st.adulto && st.edad)); b.textContent = '🔞 Modo 18+: ' + (CAPI.adultoOn() ? 'Sí' : 'No'); }
+}
 
 async function boot() {
   fit(); makeVignette(); bindInput(); bindMenus();
@@ -90,6 +101,7 @@ async function boot() {
   const prog = $('lprog');
   await loadImages(assetList(), (k) => { prog.style.width = Math.round(k * 100) + '%'; });
   await loadOptionalBg(['control', 'camino', 'balneario', 'piscina']);
+  CAPI.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
   showTitle();

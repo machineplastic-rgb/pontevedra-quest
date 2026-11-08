@@ -359,6 +359,7 @@ let bodegaTimer = null;
 SCENES.bodega = {
   title: 'BODEGA SECRETA', sub: 'Bajo el Bar Estrella', bg: 'bodega', music: 'bodega', ambient: 'bodega',
   tint: { c: '#ff9a4a', a: 0.1, d: 0.05 }, k: 0.64,
+  oscuro: { a: 0.93 },   // v13: a oscuras, con el móvil o el candelabro
   pos: { ramis: [300, 995], marc: [520, 998], angel: [1160, 995], marcos: [1370, 992] },
   props: [
     { img: 'candelabro', x: 680, y: 557, h: 112, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
@@ -373,7 +374,7 @@ SCENES.bodega = {
   setup() {
     clearInterval(bodegaTimer);
     if (!flag('senoraVuelta')) {
-      G.bodegaLeft = G.bodegaLeft || 75;
+      G.bodegaLeft = G.bodegaLeft || 90;
       bodegaTimer = setInterval(() => {
         if (S.scene !== 'bodega') { clearInterval(bodegaTimer); return; }
         if (G.dlgOpen || G.mode) return;
@@ -849,6 +850,8 @@ async function abrirCripta() {
 SCENES.cripta = {
   title: 'LA CRIPTA', sub: 'El descanso de Don Xesús', bg: 'cripta', music: 'cripta', ambient: 'cripta',
   tint: { c: '#ff9a4a', a: 0.1, d: 0.06 }, k: 0.56,
+  // v13: a oscuras; Don Xesús brilla y, con el candelabro en la inscripción, se ve casi todo
+  oscuro: { a: 0.9, luces: () => [{ x: 1010, y: 430, r: 440, a: 0.85 }].concat(flag('luzCripta') ? [{ x: 1030, y: 640, r: 720, a: 0.95 }] : []) },
   pos: { ramis: [250, 995], marc: [450, 1000], marcos: [650, 995], angel: [1490, 995] },
   npcs: [{ id: 'fantasma', x: 1020, y: 720, z: 1 }],
   fx: [
@@ -1265,7 +1268,7 @@ async function resultados() {
   let k = 0; const tm = setInterval(() => { k = Math.min(1, k + 0.04); const el = $('scN'); if (el) el.textContent = Math.round(P.total * k); if (k >= 1) clearInterval(tm); else if (Math.random() < 0.3) sfx('tic'); }, 40);
   const name = await new Promise((res) => { document.querySelectorAll('.scwho button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); sfx('logro'); res(b.dataset.n); }; }); });
   clearInterval(tm);
-  const d = new Date(), entry = { name, pts: P.total, rango: r.replace('CABALLERO ', ''), fecha: d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() };
+  const d = new Date(), entry = { name, pts: P.total, rango: r.replace('CABALLERO ', '') + (S.cap && S.cap !== 'cena' ? ' (capítulo)' : ''), fecha: d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() };
   const list = loadScores(); list.push(entry); list.sort((x, y) => y.pts - x.pts);
   saveScores(list);
   await verMarcador(list.indexOf(entry), 'Ver créditos');
