@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v17';
+const VERSION = 'v18';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -60,6 +60,7 @@ async function startGame(fromSave, capId) {
 function bindMenus() {
   $('tNew').onclick = (e) => { e.stopPropagation(); startGame(null); };
   $('tCont').onclick = (e) => { e.stopPropagation(); const s = loadSave(); startGame(s); };
+  $('bMapa').onclick = (e) => { e.stopPropagation(); if (G.busy || G.mode) return; MAPA.abrir(); };
   $('tGaleria').onclick = (e) => { e.stopPropagation(); GALERIA.abrir(); };
   $('mGaleria').onclick = (e) => { e.stopPropagation(); $('menu').classList.add('hidden'); GALERIA.abrir(); };
   $('tCap').onclick = (e) => { e.stopPropagation(); CAPI.abrir(); };
@@ -86,6 +87,7 @@ function bindMenus() {
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
       <p>• ¿Atascado? Toca a uno de tus amigos y háblale: siempre tiene una idea.</p>
       <p>• La noche está llena de gente: habla con todos. En la discoteca Lume y en O Furado hay logros extra (y un concierto).</p>
+      <p>• 🗺 El mapa (arriba) os lleva a cualquier sitio de la zona vieja en el que ya hayáis estado.</p>
       <p>• La barrita de colores es la borrachera. <b>Marcos conduce</b>: que no pase de «Achispado». El café ayuda.</p>
       <button class="gold" id="mBack">Entendido</button>`;
     $('mBack').onclick = (ev) => { ev.stopPropagation(); b.innerHTML = old; bindMenus(); updSoundBtn(); };
@@ -104,7 +106,7 @@ async function boot() {
   requestAnimationFrame(frame);
   const prog = $('lprog');
   await loadImages(assetList(), (k) => { prog.style.width = Math.round(k * 100) + '%'; });
-  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina']);
+  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina', 'mapa', 'banos']);
   CAPI.alArrancar(); GALERIA.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');

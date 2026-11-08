@@ -291,3 +291,19 @@ body.small #bagdesc{font-size:30px}
 .pg-su{position:absolute;left:18px;top:62px;display:flex;align-items:center;gap:12px;z-index:3;text-shadow:0 1px 6px #000}.pg-su img{width:50px;height:50px;border-radius:50%;object-fit:cover}.pg-su b{font-size:20px}.pg-su small{font-size:18px;opacity:.85}
 .pg-simg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pg-stxt{position:absolute;left:50%;bottom:120px;transform:translateX(-50%) rotate(-3deg);padding:12px 26px;border-radius:14px;background:#fff;color:#111;font-weight:800;font-size:34px;z-index:3}
+
+/* v18 · mapa de Pontevedra */
+#mapa{position:absolute;inset:0;z-index:38;background:#05060f}
+#mapa .mp-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#mapa::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.55))}
+.mp-tit{position:absolute;left:50%;top:22px;transform:translateX(-50%);z-index:2;padding:10px 34px;border-radius:14px;background:var(--panel);border:3px solid var(--gold);font-family:'Cinzel',serif;font-weight:800;font-size:34px;color:var(--gold2);letter-spacing:4px;white-space:nowrap}
+.mp-pin{position:absolute;z-index:3;transform:translate(-50%,-35px);display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;cursor:pointer;padding:0}
+.mp-i{display:flex;align-items:center;justify-content:center;width:70px;height:70px;border-radius:50%;background:linear-gradient(#f2c35a,#a8661c);border:3px solid #2a1204;box-shadow:0 6px 16px rgba(0,0,0,.6);font-size:34px}
+.mp-n{padding:4px 12px;border-radius:10px;background:rgba(10,8,20,.88);border:2px solid var(--gold);color:var(--ink);font-weight:800;font-size:21px;white-space:nowrap}
+.mp-pin:hover .mp-i{filter:brightness(1.2)}
+.mp-pin.off{cursor:default}.mp-pin.off .mp-i{background:linear-gradient(#666,#333);border-color:#111;color:#ddd}.mp-pin.off .mp-n{border-color:#555;color:#aaa}
+.mp-pin.aqui .mp-i{background:linear-gradient(#9dffb0,#2f9a55);animation:mpbote 1s ease-in-out infinite}
+.mp-pin.aqui .mp-n{border-color:#9dffb0;color:#d9ffe2}
+@keyframes mpbote{0%,100%{margin-bottom:0}50%{margin-bottom:12px}}
+.mp-pie{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:2;padding:8px 22px;border-radius:12px;background:rgba(10,8,20,.85);color:#e9dfc4;font-size:22px;white-space:nowrap}
+.mp-x{position:absolute;right:24px;top:22px;z-index:4;width:70px;height:70px;border-radius:50%;background:var(--panel);border:3px solid var(--gold);color:var(--gold2);font-size:34px;cursor:pointer}

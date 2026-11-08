@@ -356,7 +356,7 @@ const MG = (() => {
     m.draw = (c, t) => {
       const im = PROC.get('camino'); c.drawImage(im, 0, 0, W, H);
       c.fillStyle = 'rgba(10,20,50,.25)'; c.fillRect(0, 0, W, H);
-      drawImgH(c, 'items/cruceiro', 330, 760, 420);
+      if (!G.img['bg/camino']) drawImgH(c, 'items/cruceiro', 330, 760, 420);
       // la procesión se acerca
       const k = clamp(t0 / DUR, 0, 1) * (result === 'ok' ? 0.85 : 1);
       for (let i = 0; i < 5; i++) {

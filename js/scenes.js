@@ -1063,12 +1063,12 @@ SCENES.control = {
     // luces de la Guardia Civil
     const on = Math.floor(t * 3) % 2 === 0;
     c.save(); c.globalCompositeOperation = 'lighter';
-    [[-40, 640, on ? 0.55 : 0.15], [120, 560, on ? 0.15 : 0.5]].forEach(([x, y, a]) => { const g = c.createRadialGradient(x, y, 10, x, y, 700); g.addColorStop(0, `rgba(60,120,255,${a})`); g.addColorStop(1, 'rgba(60,120,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); });
+    // con el dibujo de JRAR, las luces salen del coche patrulla (y se reflejan en el asfalto mojado)
+    (G.img['bg/control'] ? [[1505, 425, on ? 0.55 : 0.12], [1440, 430, on ? 0.12 : 0.45], [1480, 760, on ? 0.3 : 0.08]] : [[-40, 640, on ? 0.55 : 0.15], [120, 560, on ? 0.15 : 0.5]]).forEach(([x, y, a]) => { const g = c.createRadialGradient(x, y, 10, x, y, 700); g.addColorStop(0, `rgba(60,120,255,${a})`); g.addColorStop(1, 'rgba(60,120,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); });
     c.restore();
     // señales de la carretera (dibujos de JRAR) y el Peugeot a tamaño real, no de juguete
-    MG.drawImgH(c, 'road/cartel_caldas', 95, 800, 360);
-    MG.drawImgH(c, 'road/stop', 1545, 840, 400);
-    MG.drawImgH(c, 'items/peugeot_lado', 560, 960, 430, { flip: true });
+    if (!G.img['bg/control']) { MG.drawImgH(c, 'road/cartel_caldas', 95, 800, 360); MG.drawImgH(c, 'road/stop', 1545, 840, 400); }
+    MG.drawImgH(c, 'items/peugeot_lado', G.img['bg/control'] ? 470 : 560, 960, 430, { flip: true });
   }, music: 'control', ambient: 'control', noDrunk: true, noHud: true, k: 0.56,
   npcs: [{ id: 'gc1', x: 1160, y: 985, flip: true }, { id: 'gc2', x: 1380, y: 990, flip: true }],
   hs: [], exits: [],
@@ -1076,7 +1076,8 @@ SCENES.control = {
 SCENES.camino = {
   title: 'CAMIÑO DAS ÁNIMAS', sub: 'Desvío por obras', draw: (c) => c.drawImage(PROC.get('camino'), 0, 0, W, H), music: 'compana', ambient: 'compana', noDrunk: true, noHud: true, k: 0.5,
   emit: [{ kind: 'fog', rate: 0.8, x0: -100, x1: 1500, y0: 600, y1: 1000, pre: 12, color: '#a8b8e8' }],
-  props: [{ img: 'cruceiro', x: 330, y: 760, h: 420 }, { img: 'peugeot_atras', x: 800, y: 980, h: 250 }],
+  // el dibujo de JRAR ya trae su cruceiro
+  props: [{ img: 'cruceiro', x: 330, y: 760, h: 420, cond: () => !G.img['bg/camino'] }, { img: 'peugeot_atras', x: 860, y: 985, h: 250 }],
   hs: [], exits: [],
 };
 SCENES.balneario = {
