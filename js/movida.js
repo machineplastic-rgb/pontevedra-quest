@@ -25,7 +25,7 @@ const CROWD = {
   carla: { mirar: 'Carla (@carlaviral). Lo graba todo. Todo. Ahora mismo te está grabando a ti mirándola.', talk: () => carlaTalk() },
 };
 function crowdDef(id) {
-  const c = CROWD[id]; if (!c) return null;
+  const c = CROWD[id] || LATE[id]; if (!c) return null;
   const d = { name: NAMES[id], 'Hablar': c.talk, 'Mirar': () => say(S.active, c.mirar) };
   if (id === 'dj') d['Bailar|Salir a la pista'] = () => bailar();
   if (id === 'antia') d['Pedir|Pedir una ronda'] = () => antiaPedir();
@@ -50,17 +50,160 @@ function crowdIdle(id) {
     portero: ['Hoy no, amigo.', 'DNI en mano, por favor.', 'Ese de las gafas… sospechoso.'],
     tino: ['Aquí ha tocado lo mejor del punk gallego.', '¿Alguien canta? ¿Nadie?', 'La cerveza, fría. Las normas, ninguna.'],
     carla: ['¡Hola, mis viralitos!', 'Esto va directo a TikTok.', '¿Me lo repetís? No estaba grabando.'],
+    // los de la madrugada
+    rosa: ['Ramis, rey, ¿bailamos?', 'Este top vale más que vuestro Peugeot.', '¿Hace calor o es el del jersey blanco?'],
+    monos: ['¡Vale, vale, vale!', 'Ramis, que no muerdo. Mucho.', '¡Esta es nuestra canción!'],
+    colores: ['¡TEMAZO!', '¡Brazos arriba, caballeros!', '¡Que nadie se vaya a casa!'],
+    gorra: ['¿Cuál es vuestro truco, abuelos?', 'Yo ligo más los jueves.', 'Esa chaqueta marrón tiene peligro.'],
+    rockera: ['Aquí se viene a sudar.', 'Si no bailas, aparta.', 'El de la chaqueta tiene buenas manos. Para dibujar, digo.'],
+    gotica: ['La noche es joven. Yo no.', 'Me gustan los que hablan con muertos.', 'Más sombras, por favor.'],
+    bicolor: ['Me gustan todos. Y todas.', '¡Uuuh!', '¿El de la chaqueta está libre?'],
+    azul: ['¿Qué hora es? Da igual.', 'Ese jersey tiene más años que yo.', '¡Oi!'],
+    gorro: ['Llevo despierto desde el jueves.', 'Zzz… ¿eh? ¡Estoy bailando!', '¿Qué día es hoy?'],
+    cuadros: ['Yo también tengo un Ferrari imaginario.', '¡Esa es buena!', 'Bigote y orgullo.'],
+    chaval: ['¡Sois mis ídolos!', 'Quiero llegar así a vuestra edad.', '¡Otra!'],
+    chaleco: ['Gafas de sol de noche: previsión.', 'Mañana no me acuerdo de nada.', '¡Fiesta!'],
+    rizos: ['Huele a azúcar glas…', 'Yo poso, tú dibujas.', '¡Jajaja!'],
+    jersey: ['¡Me encanta esta noche!', '«Cuatro amigos fueron de viaje…» ♪', '¡Os quiero a todos!'],
+    abrigo: ['Os vi en las ruinas.', 'Yo también hablo con los muertos.', '…'],
+    leopardo: ['Con el leopardo y sin nada más.', 'Rey, ese jersey huele a colonia de Navidad.', '¡Miau!'],
   };
-  return L[id] || [];
+  const l = L[id] || [];
+  // de madrugada todos van perjudicados
+  return nocheFase() >= 2 ? l.concat(['¡Os quiero mucho, caballeros!', 'Hip…', '¿Dónde está el baño?', 'Mañana no bebo. Lo juro.', 'Te quiero, tío. En serio.']) : l;
 }
 
+/* =====================================================================
+   LOS DE LA MADRUGADA (v10): aparecen cuando la noche avanza.
+   Más subiditos de tono, sobre todo con Marc y con Ramis.
+   Dalia (pelo rosa) y Valeria (moños) son chicas trans y las reinas
+   de la Lume; Ramis, el más contento, es su objetivo favorito.
+   ===================================================================== */
+const LATE = {
+  rosa: { mirar: 'Dalia: melena rosa, top tornasolado y una seguridad que ya quisiera Ramis para aparcar en batería.', talk: () => reinasTalk('rosa') },
+  monos: { mirar: 'Valeria: dos moños, rejilla rosa y una risa que se oye por encima del bombo. Dalia y ella son las reinas de la Lume.', talk: () => reinasTalk('monos') },
+  colores: { mirar: 'Álex: chaqueta de mil colores y los brazos siempre en alto. Baila hasta el ruido del grifo.', talk: () => lateTalk('colores') },
+  gorra: { mirar: 'Kike: gorra hacia atrás, chándal y cara de llevar toda la noche sin ligar.', talk: () => lateTalk('gorra') },
+  rockera: { mirar: 'Iria: melena salvaje, rejilla rota y botas que han pisado más escenarios que Ángel.', talk: () => lateTalk('rockera') },
+  gotica: { mirar: 'Xiana: flequillo negro, gargantilla y una mirada que te lee el pasado.', talk: () => lateTalk('gotica') },
+  bicolor: { mirar: 'Lis: media melena blanca, media negra. Dice que es por indecisa. En todo.', talk: () => lateTalk('bicolor') },
+  azul: { mirar: 'Telmo: pelo azul, camisa de flores y una chapa con la bandera trans. Va a su bola y le va de maravilla.', talk: () => lateTalk('azul') },
+  gorro: { mirar: 'Roi: gorro de lana, sudadera negra y los ojos a media asta. Lleva de fiesta desde el jueves.', talk: () => lateTalk('gorro') },
+  cuadros: { mirar: 'Manolo: bigote, camisa de cuadros y un vaso rojo. Tiene la risa de un tío en una boda.', talk: () => lateTalk('cuadros') },
+  chaval: { mirar: 'Pablo: rapado con mechas de colores y una alegría que no le cabe en la camiseta.', talk: () => lateTalk('chaval') },
+  chaleco: { mirar: 'Rafa: chaleco vaquero y gafas de sol. De noche. En un local oscuro.', talk: () => lateTalk('chaleco') },
+  rizos: { mirar: 'Candela: rizos infinitos, cazadora verde y el móvil en la mano, por si pasa algo que contar.', talk: () => lateTalk('rizos') },
+  jersey: { mirar: 'Sol: jersey de rayas rosa, azul y blanco, y una sonrisa de las que contagian.', talk: () => lateTalk('jersey') },
+  abrigo: { mirar: 'Óscar: abrigo largo, gorro negro y pinta de saber cosas que no debería.', talk: () => lateTalk('abrigo') },
+  leopardo: { mirar: 'Martina: falda de leopardo, medias de liga y ninguna intención de irse a casa.', talk: () => lateTalk('leopardo') },
+};
+LOGROS.reinas = { i: '👑', t: 'Ramis, el rey de la Lume' };
+LOGROS.madrugada = { i: '🌙', t: 'La gente de la madrugada' };
+// cuántos de la madrugada te han contado algo
+function madrugadaVisto(id) {
+  S.flags['late_' + id] = 1;
+  if (LATE_IDS.filter((k) => S.flags['late_' + k]).length >= 6) logro('madrugada');
+}
+async function reinasTalk(id) {
+  const a = S.active, f = S.flags; madrugadaVisto(id);
+  const yo = id, otra = id === 'rosa' ? 'monos' : 'rosa';
+  if (a === 'ramis') {
+    if (f.reinas) return say(yo, pick(['Ramis, cuando quieras otra. Pero esta vez llevas tú.', 'Rey, que se te ha quedado la cara del color de mi top.', '¿Mañana en Mallorca vas a contar que has vivido? Pues cuenta esto también.']), 'risa');
+    await say('rosa', '¡Mira, Vale! El del jersey blanco. El que va diciendo que tiene un Porsche.', 'risa');
+    await say('monos', 'Cariño, a nosotras los Porsche nos dan igual. A nosotras nos importa lo que hay debajo del capó.');
+    await say('ramis', 'Debajo del capó hay… un motor. Bóxer. Seis cilindros.', 'sorpresa');
+    await say('rosa', 'Uy, seis. Qué fanfarrón.', 'risa');
+    await say('monos', 'Venga, Ramis: llevas toda la noche diciendo que has vivido y todavía no te hemos visto vivir. Una canción con nosotras.');
+    await narr('Dalia y Valeria cogen a Ramis de un brazo cada una y se lo llevan a la pista. Ramis baila entre las dos como un 911 entre dos camiones de bomberos: brillante, colorado y sin saber dónde poner las manos.');
+    await say('ramis', '¡Al menos yo podré decir que he vivido!', 'risa');
+    await say('rosa', '¡Eso, rey! Y mañana en Mallorca cuentas que te sacaron a bailar las más guapas de Pontevedra.', 'risa');
+    await say('marc', 'Ramis, eres mi héroe. Y te tengo envidia. Las dos cosas a la vez.');
+    groupLaugh(); flag('reinas', 1); logro('reinas');
+    return;
+  }
+  if (a === 'marc') {
+    await say('monos', '¿Tú eres el que dibuja a lo Manara? A mí me dibujas con taconazo y poca ropa, que para algo me he puesto guapa.');
+    await say('marc', 'Es exactamente lo único que sé hacer bien.');
+    await say('rosa', 'Y a tu amigo Ramis dibújalo sin el jersey, que tenemos curiosidad científica.', 'risa');
+    return;
+  }
+  if (a === 'marcos') {
+    await say('rosa', '¿Y tú, bebé? ¿Te han dejado salir tus padres?', 'risa');
+    await say('marcos', 'Tengo dos hijos. Y un Peugeot de siete plazas.');
+    await say('monos', '¿Dos hijos? Con esa cara les debes de pedir tú los zumos.', 'risa');
+    return;
+  }
+  await say(yo, f.concierto ? '¡El papá cañero de O Furado! Te he visto en el TikTok de Carla. Fírmame el brazo.' : 'Barbas, tú tienes pinta de cantar baladas en la ducha. Y de hacerlo bien.', 'risa');
+  await say(otra, 'Pregúntale por su amigo Ramis. Dile que le estamos esperando.');
+}
+async function lateTalk(id) {
+  const a = S.active, f = S.flags; madrugadaVisto(id);
+  const L = {
+    rockera: {
+      marc: [['rockera', 'Las de Vigo dicen que eres un ligón. A ver: convénceme en una sola frase.'], ['marc', 'Te dibujaría en blanco y negro, con la luz de ese neón… y sin la chupa.'], ['rockera', 'Vale. Una frase. Lo has conseguido. Te la apunto.', 'risa']],
+      ramis: [['rockera', 'Tú eres el del Porsche. ¿Me llevas? Me da igual que sea un Peugeot.'], ['ramis', 'El Peugeot lo conduce Marcos. Yo voy detrás, gritando.'], ['rockera', 'Mejor. Me gustan los que gritan.', 'risa']],
+      '*': [['rockera', 'Aquí se viene a sudar, guapo. Si no vas a bailar, aparta, que me pisas el ritmo.']],
+    },
+    gotica: {
+      angel: [['gotica', 'Tienes cara de saber latín… y de haber hablado esta noche con un muerto.'], ['angel', f.fantasmaVisto ? '¿Cómo sabes lo de Don Xesús?' : '¿Esta noche? Todavía no. Pero lo noto cerca.', 'sorpresa'], ['gotica', 'Lo huelo. Hueles a cripta y a vino de 1714. Me encanta.', 'risa']],
+      marc: [['gotica', 'Si me dibujas, que sea con más sombras que luz. Y con menos ropa que sombras.'], ['marc', 'Tengo el lápiz más afilado de Mallorca.'], ['gotica', 'Eso dicen todos. Luego es un plastidecor.', 'risa']],
+      '*': [['gotica', 'La noche es joven. Yo no. Y tú tampoco, cariño.']],
+    },
+    bicolor: {
+      marc: [['bicolor', 'Me gustan los hombres con chaqueta marrón. Y las mujeres. Y las chaquetas. Soy de gustos amplios.'], ['marc', 'Y yo de trazo fino.'], ['bicolor', 'Pues afílalo, que la noche es larga.', 'risa']],
+      ramis: [['bicolor', 'Tú eres el que ha bailado con Dalia y Valeria, ¿no? Toda la Lume habla de ti.'], ['ramis', 'Habiendo haber podido… sí pude.', 'risa']],
+      '*': [['bicolor', 'Llevo el pelo mitad blanco, mitad negro porque soy indecisa. En todo. ¿Me entiendes? En TODO.', 'risa']],
+    },
+    leopardo: {
+      marc: [['leopardo', 'Si me dibujas, que sea con el leopardo… y sin nada más.'], ['marc', '…Eso es exactamente mi estilo.', 'sorpresa'], ['leopardo', 'Lo sé. Te he visto dibujar a la de Bellas Artes. Celosa me tienes.', 'risa']],
+      ramis: [['leopardo', 'Rey, con ese jersey pareces el de los anuncios de colonia de Navidad.'], ['ramis', 'Es que huelo a colonia de Navidad.'], ['leopardo', 'Ya, ya. Y a orujo de Lalín.', 'risa']],
+      '*': [['leopardo', '¿Vosotros sois los del Club de Caballeros? Pues de caballeros tenéis poco. Me encanta.', 'risa']],
+    },
+    gorra: {
+      marc: [['gorra', 'Tú, el de la chaqueta. ¿Cuál es tu truco? Llevas toda la noche rodeado de chicas y yo ni una.'], ['marc', 'El truco es dibujarlas. Y no hablar de Warhammer.'], ['marcos', 'Eh. Que estoy aquí.', 'sorpresa']],
+      ramis: [['gorra', 'Caballero, ¿eso son abdominales o es el jersey?'], ['ramis', 'Es el pulpo de la cena. Y la empanada.', 'risa']],
+      '*': [['gorra', '¿Cuál es vuestro truco, abuelos? Os ligáis a media Lume.']],
+    },
+    colores: {
+      ramis: [['colores', '¡Ramis! ¡Toda Pontevedra dice que has vivido, pero nadie te ha visto bailar! ¡Brazos arriba!'], ['ramis', '¡Al menos yo podré decir que he bailado!', 'risa']],
+      '*': [['colores', '¡TEMAZO! ¡Que nadie se vaya a casa! ¡Brazos arriba, caballeros!', 'risa']],
+    },
+    azul: {
+      marcos: [['azul', '¿Tú vienes de excursión con el instituto? Te has perdido del grupo, ¿no?'], ['marcos', 'Soy diseñador de moda. Por cierto: esa camisa de flores con el pelo azul… muy buen estilismo.'], ['azul', 'Ay. Me caes bien, chaval.', 'risa']],
+      '*': [['azul', 'Esta noche no duermo. Bueno, ninguna noche duermo. ¿Qué hora es? Da igual.']],
+    },
+    gorro: { '*': [['gorro', 'Llevo despierto desde el jueves. ¿Qué día es hoy?'], [S.active, 'Sábado.'], ['gorro', '¿Sábado de qué mes?', 'sorpresa']] },
+    cuadros: {
+      ramis: [['cuadros', '¿Tú también tienes un Porsche imaginario? Yo tengo un Ferrari imaginario. Somos colegas.', 'risa'], ['ramis', 'El mío no es imaginario. Es… futuro.'], ['cuadros', 'El mío también, rey. El mío también.', 'risa']],
+      '*': [['cuadros', 'Yo de joven era como vosotros. Bueno, igual de mal, pero con más pelo.', 'risa']],
+    },
+    chaval: { '*': [['chaval', '¡Tíos, sois mis ídolos! Cuando tenga vuestra edad quiero estar igual de mal.', 'risa'], ['marc', 'Gracias. Creo.']] },
+    chaleco: { '*': [['chaleco', 'Las gafas de sol de noche son para que mañana no se me vea la cara de resaca. Previsión.'], ['marcos', 'Esto es planificación. Me gusta.']] },
+    rizos: {
+      marcos: [['rizos', 'Hueles a azúcar glas. ¿Llevas ensaimadas encima?'], ['marcos', 'Ojalá. Daría el Peugeot por una ensaimada ahora mismo.'], ['rizos', 'Pues yo daría lo que fuera por un conductor sereno. Os lo cambio.', 'risa']],
+      marc: [['rizos', 'Me han dicho que dibujas. Yo poso, tú dibujas… y nadie se entera.'], ['marc', 'Esta noche me está saliendo todo a pedir de boca.', 'risa']],
+      '*': [['rizos', 'Lo estoy grabando todo para el grupo de las amigas. Decid hola.', 'risa']],
+    },
+    jersey: { '*': [['jersey', '¡Me encanta esta noche! ¿Sois los de la canción? «Cuatro amigos fueron de viaje…» ♪', 'risa'], [S.active, 'Somos nosotros. Más o menos.']] },
+    abrigo: { '*': [['abrigo', 'Os vi en las ruinas de Santo Domingo, hablando solos con una copa de vino.'], [S.active, 'No hablábamos solos. Era Don Xesús.', 'sorpresa'], ['abrigo', 'Ya. Yo también hablo con los muertos. No juzgo.']] },
+  };
+  const d = L[id] || {};
+  const lines = d[a] || d['*'] || [[id, '¡Uuuh!']];
+  for (const [who, txt, mood] of lines) await say(who, txt, mood);
+  if (id === 'leopardo' || id === 'rockera' || id === 'bicolor') { if (a === 'marc') logro('ligon'); }
+}
+
+
+
 /* ---------------- dónde está cada uno ---------------- */
+// de madrugada, cuando ya han hecho sus gracias en la Lume, las de Vigo se van a la Alameda
+function vigoAlameda() { return nocheFase() >= 2 && flag('noaOk'); }
 function addCrowd(sceneId, list) { const sc = SCENES[sceneId]; sc.npcs = (sc.npcs || []).concat(list); }
 // la plaza: el peregrino y el fan de Marcos a la izquierda, las de Vigo a la derecha
 addCrowd('plaza', [
   { id: 'peregrino', x: 320, y: 820, k: 0.3, cond: () => !flag('peregrinoOk') },
   { id: 'iago', x: 415, y: 835, k: 0.31 },
-  { id: 'uxia', x: 1265, y: 845, k: 0.33, flip: true }, { id: 'noa', x: 1340, y: 850, k: 0.33, flip: true }, { id: 'sabela', x: 1415, y: 842, k: 0.33 },
+  { id: 'uxia', x: 1265, y: 845, k: 0.33, flip: true, cond: () => !flag('vigo1') }, { id: 'noa', x: 1340, y: 850, k: 0.33, flip: true, cond: () => !flag('vigo1') }, { id: 'sabela', x: 1415, y: 842, k: 0.33, cond: () => !flag('vigo1') },
 ]);
 addCrowd('calle', [
   { id: 'portero', x: 1478, y: 795, k: 0.23, flip: true },
@@ -68,7 +211,7 @@ addCrowd('calle', [
 ]);
 addCrowd('bareto', [{ id: 'guiri', x: 1250, y: 975, k: 0.57, flip: true }]);
 addCrowd('alameda', [
-  { id: 'uxia', x: 245, y: 860, k: 0.36 }, { id: 'noa', x: 322, y: 866, k: 0.36, flip: true }, { id: 'sabela', x: 400, y: 858, k: 0.36 },
+  { id: 'uxia', x: 245, y: 860, k: 0.36, cond: vigoAlameda }, { id: 'noa', x: 322, y: 866, k: 0.36, flip: true, cond: vigoAlameda }, { id: 'sabela', x: 400, y: 858, k: 0.36, cond: vigoAlameda },
 ]);
 
 /* ---------------- pistas extra (opcionales) ---------------- */
@@ -322,9 +465,9 @@ SCENES.disco = {
   npcs: [
     { id: 'dj', x: 1192, y: 585, k: 0.17, dance: true },
     { id: 'antia', x: 990, y: 680, k: 0.24 },
-    { id: 'sabela', x: 1085, y: 735, k: 0.26, dance: true }, { id: 'uxia', x: 1300, y: 715, k: 0.25, dance: true }, { id: 'noa', x: 1385, y: 740, k: 0.27, dance: true, flip: true },
-    { id: 'lua', x: 1225, y: 815, k: 0.3, flip: true },
-    { id: 'guiri', x: 1505, y: 975, k: 0.44, dance: true, flip: true },
+    { id: 'sabela', x: 1085, y: 735, k: 0.26, dance: true, cond: () => !vigoAlameda() }, { id: 'uxia', x: 1300, y: 715, k: 0.25, dance: true, cond: () => !vigoAlameda() }, { id: 'noa', x: 1385, y: 740, k: 0.27, dance: true, flip: true, cond: () => !vigoAlameda() },
+    { id: 'lua', x: 1470, y: 820, k: 0.3, flip: true },
+    { id: 'guiri', x: 1525, y: 990, k: 0.44, dance: true, flip: true },
   ],
   fx: [
     { type: 'glow', x: 1117, y: 90, r: 200, color: '#c8a0ff', a: 0.3, flicker: 0.2 },
@@ -667,9 +810,10 @@ MG.concierto = function () {
       c.fillStyle = g; c.beginPath(); c.moveTo(x - 30, 0); c.lineTo(x + 30, 0); c.lineTo(x + sw + 220, 1000); c.lineTo(x + sw - 220, 1000); c.closePath(); c.fill();
     });
     c.restore();
-    // Ángel cantando
-    const sp = bodySprite('angel'), sh = 760 * (G.img[sp] ? G.img[sp].height / G.img['chars/angel'].height : 1);
-    MG.drawImgH(c, sp, 300, 1010 - Math.sin(angelHop * Math.PI) * 30 - beatK * 6, sh, { rot: Math.sin(t * 5) * 0.03 });
+    // Ángel con la guitarra (dibujo de JRAR); si no carga, su pose de borracho
+    const gtr = G.img['chars/angel_guitarra'] ? 'chars/angel_guitarra' : null;
+    const sp = gtr || bodySprite('angel'), sh = gtr ? 790 : 760 * (G.img[sp] ? G.img[sp].height / G.img['chars/angel'].height : 1);
+    MG.drawImgH(c, sp, gtr ? 330 : 300, 1010 - Math.sin(angelHop * Math.PI) * 30 - beatK * 6, sh, { rot: Math.sin(t * 5) * 0.03 + (angelHop > 0.5 ? -0.03 : 0) });
     // carriles
     LX.forEach((x, i) => {
       c.fillStyle = 'rgba(10,6,20,.55)'; c.fillRect(x - 58, TOP, 116, HITY - TOP + 70);
@@ -818,3 +962,41 @@ async function postCreditos() {
   await card('FIN', '…o no', 2600);
   $('dlg').classList.add('hidden'); G.dlgOpen = false;
 }
+
+/* ---------------- dónde están los de la madrugada ---------------- */
+const tarde = () => nocheFase() >= 1;
+addCrowd('disco', [
+  { id: 'colores', x: 1150, y: 655, k: 0.2, dance: true, cond: tarde },
+  { id: 'monos', x: 1085, y: 995, k: 0.47, dance: true, cond: tarde },
+  { id: 'rosa', x: 1215, y: 1000, k: 0.48, flip: true, cond: tarde },
+]);
+addCrowd('antro', [
+  { id: 'rockera', x: 1490, y: 930, k: 0.42, flip: true, cond: tarde },
+  { id: 'bicolor', x: 1270, y: 690, k: 0.27, dance: true, cond: tarde },
+  { id: 'gotica', x: 905, y: 690, k: 0.28, cond: tarde },
+]);
+addCrowd('alameda', [
+  { id: 'chaleco', x: 1560, y: 870, k: 0.34, flip: true, cond: tarde },
+]);
+addCrowd('bareto', [
+  { id: 'rizos', x: 1385, y: 860, k: 0.36, flip: true, cond: tarde },
+]);
+addCrowd('pub', [
+  { id: 'gorra', x: 1335, y: 800, k: 0.33, flip: true, cond: () => tarde() && flag('beso') },
+  { id: 'jersey', x: 1180, y: 860, k: 0.4, dance: true, cond: () => tarde() && flag('beso') },
+  { id: 'abrigo', x: 1480, y: 905, k: 0.45, flip: true, cond: tarde },
+  { id: 'leopardo', x: 1050, y: 760, k: 0.3, cond: tarde },
+]);
+addCrowd('calle', [
+  { id: 'gorro', x: 1385, y: 772, k: 0.21, flip: true, cond: tarde },
+]);
+addCrowd('plaza', [
+  { id: 'cuadros', x: 1270, y: 845, k: 0.33, flip: true, cond: () => tarde() && flag('vigo1') },
+  { id: 'chaval', x: 1350, y: 850, k: 0.33, cond: () => tarde() && flag('vigo1') },
+  { id: 'azul', x: 1440, y: 855, k: 0.33, flip: true, cond: () => nocheFase() >= 2 && flag('vigo1') },
+]);
+// imágenes que no están en la lista de siempre
+EXTRA_ASSETS.push('chars/angel_guitarra', 'escenas/beso1', 'escenas/beso2', 'chars/meiga_baila1', 'chars/meiga_baila2', 'chars/meiga_baila3',
+  'road/stop', 'road/cartel_caldas', 'road/peugeot');
+LATE_IDS.forEach((k) => EXTRA_ASSETS.push('faces/' + k + '_normal', 'faces/' + k + '_risa'));
+CROWD_IDS.forEach((k) => EXTRA_ASSETS.push('faces/' + k + '_piripi', 'faces/' + k + '_mamado'));

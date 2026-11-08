@@ -133,13 +133,13 @@ const MG = (() => {
       ['marc', 'risa', 'Que alguien le cronometre. Esto es récord del Club.'],
     ];
     const top = bar('¡Toca sin parar para mantener la <b style="color:#ff8fb5">pasión</b>!');
-    m.down = () => { taps++; pas = Math.min(1, pas + 0.07); emit('heart', 800 + rnd(-80, 80), 330, 2); sfx('corazon'); };
+    m.down = () => { taps++; pas = Math.min(1, pas + 0.07); emit('heart', 800 + pick([-1, 1]) * rnd(150, 260), 420, 2); sfx('corazon'); };
     m.key = (k, d) => { if (d && (k === ' ' || k === 'Enter')) m.down(); };
     m.update = (dt) => {
       t0 += dt; pas = Math.max(0, pas - dt * 0.16); best = Math.max(best, pas);
       sec += dt * (8 + pas * 30); // el tiempo «de verdad» vuela
       if (pops.length < lines.length && t0 > 1.6 + pops.length * 2.4) { pops.push({ l: lines[pops.length], t: t0 }); sfx('pop'); }
-      if (Math.random() < pas * 0.5) emit('heart', 800 + rnd(-60, 60), 340, 1);
+      if (Math.random() < pas * 0.5) emit('heart', 800 + pick([-1, 1]) * rnd(150, 260), 440, 1);
       if (t0 >= DUR) { S.stats.besoSeg = Math.round(sec); m.end({ pasion: best, seg: Math.round(sec) }); }
       const mm = Math.floor(sec / 60), ss = Math.floor(sec % 60);
       top.innerHTML = `Besándose: <b style="color:#ff8fb5">${mm}:${String(ss).padStart(2, '0')}</b> · Pasión ${'♥'.repeat(Math.ceil(pas * 5))}${'♡'.repeat(5 - Math.ceil(pas * 5))}`;
@@ -148,14 +148,20 @@ const MG = (() => {
       bg(c, 'pub', 0.25, 1.12);
       c.save(); c.globalCompositeOperation = 'lighter'; const gl = c.createRadialGradient(800, 420, 20, 800, 420, 600);
       gl.addColorStop(0, `rgba(255,80,150,${0.15 + pas * 0.25})`); gl.addColorStop(1, 'rgba(255,80,150,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H); c.restore();
-      const lean = 0.05 + Math.sin(t * 3) * 0.015;
-      drawImgH(c, 'chars/angel_lado', 700, 1000, 820, { rot: lean });
-      drawImgH(c, 'chars/chica', 905, 1000, 760, { flip: true, rot: -lean });
-      // corazón gigante tapando el morreo
-      const s = 230 + Math.sin(t * 9) * 16 + pas * 40;
-      c.save(); c.shadowColor = '#ff2d6f'; c.shadowBlur = 40; c.fillStyle = '#ff3f7f'; heartPath(c, 800, 210, s); c.fill(); c.restore();
-      c.save(); c.font = "800 64px 'Cinzel'"; c.textAlign = 'center'; c.fillStyle = '#fff'; c.lineWidth = 8; c.strokeStyle = '#7a0f35';
-      c.strokeText('MUAC', 800, 330 + Math.sin(t * 9) * 5); c.fillText('MUAC', 800, 330 + Math.sin(t * 9) * 5); c.restore();
+      // el beso de verdad (los dibujos de JRAR): se van turnando las dos poses
+      const pose = G.img['escenas/beso1'] && G.img['escenas/beso2'] ? (Math.floor(t * 0.7) % 2 ? 'escenas/beso2' : 'escenas/beso1') : null;
+      const sway = Math.sin(t * 2.2) * 0.012, bob = Math.sin(t * 4) * 4;
+      if (pose) {
+        c.save(); c.globalCompositeOperation = 'lighter'; const g2 = c.createRadialGradient(800, 330, 10, 800, 330, 260); g2.addColorStop(0, `rgba(255,120,170,${0.25 + pas * 0.3})`); g2.addColorStop(1, 'rgba(255,120,170,0)'); c.fillStyle = g2; c.fillRect(500, 60, 600, 560); c.restore();
+        drawImgH(c, pose, 800, 1010 + bob, 930, { rot: sway });
+      } else {
+        drawImgH(c, 'chars/angel_lado', 700, 1000, 820, { rot: 0.05 });
+        drawImgH(c, 'chars/chica', 905, 1000, 760, { flip: true, rot: -0.05 });
+      }
+      // MUAC pequeñito por encima (ya no tapa nada)
+      const mk = 1 + Math.sin(t * 9) * 0.06;
+      c.save(); c.translate(1020, 150); c.rotate(0.12); c.scale(mk, mk); c.font = "800 58px 'Cinzel'"; c.textAlign = 'center'; c.fillStyle = '#fff'; c.lineWidth = 8; c.strokeStyle = '#7a0f35';
+      c.strokeText('MUAC', 0, 0); c.fillText('MUAC', 0, 0); c.restore();
       drawParticles(c);
       // los amigos alucinando
       pops.forEach((p, i) => {

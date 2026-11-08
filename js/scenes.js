@@ -993,7 +993,15 @@ async function meigallo() {
   music('meiga');
   await say('meiga', 'Agora si. Poñédevos arredor, rapaces.');
   await narr('La meiga baila una muiñeira alrededor del cruceiro, con los calzoncillos de Ramis en una mano y una filloa en la otra.');
-  for (let i = 0; i < 5; i++) { hopA('meiga'); emit('spark', 560, 600, 18, { color: '#c9a0ff', sx: 90, sy: 120 }); sfx('magia'); await wait(500); }
+  // la muiñeira de verdad: va cambiando de paso (dibujos de JRAR) y gira
+  const mg = G.actors.meiga, oldSp = mg && mg.sprite, oldFlip = mg && mg.flip, baila = !!G.img['chars/meiga_baila1'];
+  for (let i = 0; i < 14; i++) {
+    if (mg && baila) { mg.sprite = 'chars/meiga_baila' + ((i % 3) + 1); mg.flip = Math.floor(i / 3) % 2 === 1; }
+    if (i % 2 === 0) hopA('meiga');
+    if (i % 3 === 0) { emit('spark', 560, 600, 18, { color: '#c9a0ff', sx: 90, sy: 120 }); sfx('magia'); }
+    await wait(320);
+  }
+  if (mg) { mg.sprite = oldSp; mg.flip = oldFlip; }
   flash('#c9a0ff', 0.6);
   await say('meiga', 'Meigallo de boa sorte: esta noite ningún garda vos verá torcidos.');
   await say('meiga', 'E se vedes á Santa Compaña: círculo de sal… e non miredes atrás.');
@@ -1047,7 +1055,10 @@ SCENES.control = {
     c.save(); c.globalCompositeOperation = 'lighter';
     [[-40, 640, on ? 0.55 : 0.15], [120, 560, on ? 0.15 : 0.5]].forEach(([x, y, a]) => { const g = c.createRadialGradient(x, y, 10, x, y, 700); g.addColorStop(0, `rgba(60,120,255,${a})`); g.addColorStop(1, 'rgba(60,120,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); });
     c.restore();
-    MG.drawImgH(c, 'items/peugeot_lado', 760, 905, 290, { flip: true });
+    // señales de la carretera (dibujos de JRAR) y el Peugeot a tamaño real, no de juguete
+    MG.drawImgH(c, 'road/cartel_caldas', 95, 800, 360);
+    MG.drawImgH(c, 'road/stop', 1545, 840, 400);
+    MG.drawImgH(c, 'items/peugeot_lado', 560, 960, 430, { flip: true });
   }, music: 'control', ambient: 'control', noDrunk: true, noHud: true, k: 0.56,
   npcs: [{ id: 'gc1', x: 1160, y: 985, flip: true }, { id: 'gc2', x: 1380, y: 990, flip: true }],
   hs: [], exits: [],
@@ -1059,12 +1070,13 @@ SCENES.camino = {
   hs: [], exits: [],
 };
 SCENES.balneario = {
-  title: 'BALNEARIO ACUÑA', sub: 'Caldas de Reis · amanecer', draw: (c) => c.drawImage(PROC.get('balneario'), 0, 0, W, H), music: 'balneario', ambient: 'balneario', noDrunk: true, noHud: true, k: 0.42,
+  title: 'BALNEARIO ACUÑA', sub: 'Caldas de Reis · casi amanece', draw: (c) => c.drawImage(PROC.get('balneario'), 0, 0, W, H), music: 'balneario', ambient: 'balneario', noDrunk: true, noHud: true, k: 0.42,
   pos: { ramis: [400, 862], marc: [565, 866], marcos: [1040, 862], angel: [1205, 866] },
   npcs: [{ id: 'recep', x: 800, y: 870 }],
   props: [{ img: 'peugeot_lado', x: 1430, y: 880, h: 190 }],
-  emit: [{ kind: 'steam', rate: 3, x0: 300, x1: 1300, y0: 250, y1: 300, pre: 10 }, { kind: 'leaf', rate: 0.3, x0: 0, x1: 1600, y0: -20, y1: 0 }],
-  fx: [{ type: 'shimmer', x: 800, y: 900, w: 1400, color: '#ffd08a' }],
+  emit: [{ kind: 'leaf', rate: 0.3, x0: 0, x1: 1600, y0: -20, y1: 0 }, { kind: 'fog', rate: 0.15, x0: -100, x1: 1500, y0: 700, y1: 980, pre: 4 }],
+  fx: [{ type: 'shimmer', x: 800, y: 900, w: 1400, color: '#ffd08a' },
+    ...[[318, 305], [262, 330], [376, 330], [1450, 300], [1393, 325], [1507, 325], [668, 370]].map(([x, y], i) => ({ type: 'glow', x, y, r: 130, color: '#ffcf7a', a: 0.3, flicker: 0.1, seed: i }))],
   hs: [], exits: [],
 };
 SCENES.piscina = {
@@ -1098,10 +1110,10 @@ async function finale() {
   await say('ramis', '¡YO AL MENOS PODRÉ DECIR QUE HE VIVIDO!', 'risa');
   await fadeTo(1, 0.8);
   await card('RUMBO A CALDOFRAN', 'N-550 · Pontevedra → Caldas de Reis', 2200);
-  music('carretera'); ambient('carretera');
+  music('cancion'); ambient('carretera');
   G.scene = null; G.actors = {};
   await fadeTo(0, 0.4);
-  await MG.carretera({ len: 32, km: 12, label: 'N-550 hacia Caldas de Reis' });
+  await MG.carretera({ len: 55, km: 12, label: 'N-550 hacia Caldas de Reis' });
   // control de la Guardia Civil
   await goScene('control');
   sfx('sirena');
@@ -1154,12 +1166,12 @@ async function finale() {
   logro('compana');
   await narr('La procesión pasa a vuestro lado, tan cerca que se siente el frío. Una de las ánimas se gira hacia Ramis, le mira… y niega con la cabeza: «Este aún no».');
   await say('ramis', 'Yo al menos podré decir que he vivido… y que voy a vivir un poco más.', 'risa');
-  await fadeTo(1, 0.6); G.scene = null; G.actors = {}; music('carretera'); ambient('carretera'); await fadeTo(0, 0.4);
-  await MG.carretera({ len: 26, km: 5, cow: true, label: 'Últimos kilómetros' });
+  await fadeTo(1, 0.6); G.scene = null; G.actors = {}; music('cancion'); ambient('carretera'); await fadeTo(0, 0.4);
+  await MG.carretera({ len: 36, km: 5, cow: true, label: 'Últimos kilómetros' });
   logro('muuu');
   // llegada
   await goScene('balneario');
-  await narr('Amanece sobre Caldas de Reis. El río Umia humea. El Balneario Acuña os espera, blanco y elegante, como si no supiera lo que se le viene encima.');
+  await narr('Caldas de Reis, a punto de amanecer. Las farolas todavía encendidas, el Umia humeando… y el Balneario Acuña esperándoos, blanco y elegante, como si no supiera lo que se le viene encima.');
   await say('recep', 'Buenos días… ¿Señores…? ¿Caballeros? Tienen reserva para… una persona.');
   await say('marcos', 'Somos cuatro. Pero ocupamos como uno.');
   await say('recep', 'Pasen, pasen. La piscina termal abre a las ocho. Son las ocho menos un minuto.', 'risa');
@@ -1188,7 +1200,7 @@ function rango() {
   const f = S.flags; let pts = 0;
   // los de la historia valen 1; los de la movida (opcionales) también suman
   ['postre', 'minuto', 'caballero', 'meigallo', 'compana', 'calzon', 'maceta', 'lupanar', 'sereno', 'muuu',
-    'joven', 'pillaria', 'porche', 'ligon', 'pista', 'canero', 'apostol', 'camino'].forEach((l) => { if (S.logros.includes(l)) pts++; });
+    'joven', 'pillaria', 'porche', 'ligon', 'pista', 'canero', 'apostol', 'camino', 'reinas', 'madrugada'].forEach((l) => { if (S.logros.includes(l)) pts++; });
   pts -= S.stats.derrotas; pts -= Math.floor(S.stats.sustos / 3);
   return pts >= 15 ? 'CABALLERO LEGENDARIO' : pts >= 10 ? 'CABALLERO DE ORO' : pts >= 6 ? 'CABALLERO DE PLATA' : 'CABALLERO DE BARRO';
 }

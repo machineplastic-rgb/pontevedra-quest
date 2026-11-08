@@ -6,6 +6,8 @@
    bolsa de objetos, minijuegos y guardado automático.
    ===================================================================== */
 const $ = (id) => document.getElementById(id);
+// cada archivo puede añadir aquí las imágenes que necesita (rutas dentro de img/, sin .webp)
+var EXTRA_ASSETS = [];
 const W = 1600, H = 1000;
 const PROTA = ['ramis', 'marc', 'marcos', 'angel'];
 const LV = ['Sobrio', 'Alegre', 'Achispado', 'Piripi', 'Cogorza', 'Mamado'];
@@ -18,12 +20,35 @@ const NAMES = {
   uxia: 'Uxía', noa: 'Noa', sabela: 'Sabela', xurxo: 'Xurxo', nando: 'Nando', dj: 'DJ Raxo', vera: 'Vera', iago: 'Iago',
   peregrino: 'Toño, el peregrino', antia: 'Antía, la camarera', guiri: 'Gary, el guiri', lua: 'Lúa', portero: 'Rubén, el portero',
   tino: 'Tino', carla: 'Carla (@carlaviral)',
+  // los de la madrugada (v10)
+  rockera: 'Iria', azul: 'Telmo', gorro: 'Roi', monos: 'Valeria', rosa: 'Dalia', gorra: 'Kike', gotica: 'Xiana', colores: 'Álex',
+  cuadros: 'Manolo', bicolor: 'Lis', chaval: 'Pablo', chaleco: 'Rafa', rizos: 'Candela', jersey: 'Sol', abrigo: 'Óscar', leopardo: 'Martina',
 };
 const SECOND = ['senora', 'chica', 'fantasma', 'gc1', 'gc2', 'meiga', 'camarero', 'gente', 'recep'];
 // gente de la calle: vienen de una sola hoja, dibujados más pequeños que los protas
 const CROWD_IDS = ['uxia', 'noa', 'sabela', 'xurxo', 'nando', 'dj', 'vera', 'iago', 'peregrino', 'antia', 'guiri', 'lua', 'portero', 'tino', 'carla'];
+// los de la madrugada: dos dibujos, «_a» de fiesta y «_b» ya muy perjudicados
+const LATE_IDS = ['rockera', 'azul', 'gorro', 'monos', 'rosa', 'gorra', 'gotica', 'colores', 'cuadros', 'bicolor', 'chaval', 'chaleco', 'rizos', 'jersey', 'abrigo', 'leopardo'];
+// caras que ya miran a la izquierda: a la derecha del diálogo no se giran
+const FACE_LEFT = ['portero', 'cuadros', 'bicolor', 'chaval', 'chaleco', 'jersey'];
 const isProta = (id) => PROTA.includes(id);
-const isCrowd = (id) => CROWD_IDS.includes(id);
+const isLate = (id) => LATE_IDS.includes(id);
+const isCrowd = (id) => CROWD_IDS.includes(id) || isLate(id);
+// lo avanzada que va la noche: 0 al principio, 1 a mitad de la ruta, 2 de madrugada
+function nocheFase() {
+  if (!S) return 0;
+  const n = ['llavesConfiscadas', 'fantasmaVino', 'retrato', 'sarcofago', 'pagado', 'llavesDevueltas', 'beso', 'meigallo', 'concierto', 'pista', 'gaita', 'noaOk', 'luaOk']
+    .filter((k) => S.flags[k]).length;
+  return n >= 6 ? 2 : n >= 1 ? 1 : 0;
+}
+// el dibujo de la gente según la hora: se van emborrachando
+function crowdSprite(id) {
+  const f = nocheFase();
+  if (isLate(id)) return 'chars/' + id + (f >= 2 ? '_b' : '_a');
+  const v = f >= 2 ? '_mamado' : f >= 1 ? '_piripi' : '';
+  return v && G.img['chars/' + id + v] ? 'chars/' + id + v : 'chars/' + id;
+}
+function spriteOf(a) { return isCrowd(a.id) && a.sprite === 'chars/' + a.id ? crowdSprite(a.id) : a.sprite; }
 
 const G = {
   img: {}, t: 0, dt: 0, last: 0, scene: null, sceneId: null, actors: {}, props: [], busy: 0, mode: null,
@@ -67,9 +92,12 @@ function assetList() {
   const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo', 'bg/disco', 'bg/antro', 'bg/intro'];
   PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); BODY.forEach((v) => l.push('chars/' + p + v)); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
   SECOND.forEach((s) => { l.push('chars/' + s, 'chars/' + s + '_risa', 'faces/' + s + '_normal', 'faces/' + s + '_risa'); });
-  CROWD_IDS.forEach((s) => l.push('chars/' + s, 'faces/' + s + '_normal'));
+  CROWD_IDS.forEach((s) => l.push('chars/' + s, 'chars/' + s + '_piripi', 'chars/' + s + '_mamado', 'faces/' + s + '_normal'));
+  LATE_IDS.forEach((s) => l.push('chars/' + s + '_a', 'chars/' + s + '_b'));
   Object.keys(ITEMS).forEach((k) => l.push('items/' + ITEMS[k].img));
   ['peugeot_lado', 'peugeot_atras', 'vaca', 'compana', 'cruceiro', 'estrella', 'b1906', 'chupitos', 'vino'].forEach((k) => l.push('items/' + k));
+  // imágenes que piden otros archivos (carretera.js, creditos.js, movida.js…)
+  if (typeof EXTRA_ASSETS !== 'undefined') EXTRA_ASSETS.forEach((k) => l.push(k));
   return [...new Set(l)];
 }
 // imágenes personalizables para los sitios que todavía no tienen ilustración
@@ -143,22 +171,22 @@ function bodySprite(id) {
   return v && G.img['chars/' + id + v] ? 'chars/' + id + v : 'chars/' + id;
 }
 function actorBox(a) {
-  const img = G.img[a.sprite]; if (!img) return null;
+  const img = G.img[spriteOf(a)]; if (!img) return null;
   const k = aScale(a); const w = img.width * k, h = img.height * k;
   return { x: a.x - w / 2, y: a.y - h, w, h };
 }
 function drawActor(c, a) {
   if (!a.visible || a.alpha <= 0) return;
-  let sprite = a.sprite;
+  const base = spriteOf(a); let sprite = base;
   if (a.laughUntil > G.t && G.img['chars/' + a.id + '_risa'] && !isProta(a.id)) sprite = 'chars/' + a.id + '_risa';
   const body = isProta(a.id) && a.sprite === 'chars/' + a.id && !a.noBody;
   if (body) sprite = bodySprite(a.id);
   const img = tinted(sprite, G.scene && G.scene.tint && !a.ghost ? G.scene.tint : null);
   if (!img) return;
-  const t = G.t, lvl = isProta(a.id) ? S.drunk[a.id] : (a.drunkLvl || 0);
+  const t = G.t, lvl = isProta(a.id) ? S.drunk[a.id] : (a.drunkLvl || (isCrowd(a.id) ? nocheFase() * 1.5 : 0));
   let k = aScale(a);
   // si el sprite de risa viene de otra hoja, se iguala la altura (las poses de borrachera ya vienen a escala)
-  if (!body && sprite !== a.sprite && G.img[a.sprite]) k = k * G.img[a.sprite].height / G.img[sprite].height;
+  if (!body && sprite !== base && G.img[base]) k = k * G.img[base].height / G.img[sprite].height;
   const w = img.width * k, h = img.height * k;
   const breathe = 1 + Math.sin(t * 2.2 + a.phase) * 0.008;
   const sway = lvl * 0.011 * Math.sin(t * (0.9 + lvl * 0.18) + a.phase) + (lvl >= 4 ? 0.012 * Math.sin(t * 2.7 + a.phase) : 0);
@@ -664,7 +692,8 @@ function buildParty() {
   updParty();
 }
 function face(id, mood) {
-  if (isCrowd(id)) return 'img/faces/' + id + '_normal.webp';
+  if (isLate(id)) return 'img/faces/' + id + '_' + (mood === 'risa' || nocheFase() >= 2 ? 'risa' : 'normal') + '.webp';
+  if (isCrowd(id)) { const f = nocheFase(); return 'img/faces/' + id + '_' + (f >= 2 ? 'mamado' : f >= 1 ? 'piripi' : 'normal') + '.webp'; }
   if (!isProta(id)) return 'img/faces/' + id + '_' + (mood === 'risa' ? 'risa' : 'normal') + '.webp';
   if (!mood || mood === 'auto') mood = S.drunk[id] >= 3 ? 'borracho' : 'normal';
   return 'img/faces/' + id + '_' + mood + '.webp';
@@ -739,6 +768,9 @@ async function say(who, text, mood, o) {
     port.src = face(who, mood);
     nm.textContent = o.name || NAMES[who];
     if (!isProta(who)) dlg.classList.add('right');
+    // las caras que ya miran a la izquierda no se giran, para que miren al texto
+    port.style.setProperty('--sx', !isProta(who) && FACE_LEFT.includes(who) ? '1' : '');
+    if (!port.style.getPropertyValue('--sx')) port.style.removeProperty('--sx');
   }
   const lv = isProta(who) ? S.drunk[who] : 0;
   if (isProta(who) && !o.noSlur) text = slur(text, lv);
