@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v21';
+const VERSION = 'v22';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -45,7 +45,7 @@ async function startGame(fromSave, capId) {
   } else {
     clearSave(); S = newState();
     if (capId) { S.cap = capId; S.capOk = 0; }   // v13: empezado desde Capítulos
-    G.bodegaLeft = 90;
+    G.bodegaLeft = 75;
     // la intro con la viñeta: por qué se ven en Pontevedra
     await introSeq();
   }
@@ -81,7 +81,7 @@ function bindMenus() {
     const b = $('menu').querySelector('.mbox');
     const old = b.innerHTML;
     b.innerHTML = `<h3>Cómo se juega</h3>
-      <p>• En la bodega y en la cripta no se ve nada: la luz del móvil (o del candelabro) sigue al ratón o al dedo. Lo que está a oscuras no se puede tocar.</p>
+      <p>• En la cripta no se ve nada: la luz del móvil (o del candelabro) sigue al ratón o al dedo. Lo que está a oscuras no se puede tocar.</p>
       <p>• Toca personas y cosas para <b>mirar, hablar o usar</b>. Las flechas doradas son salidas.</p>
       <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b>, diseñador de moda y algo friki, se bate en duelo con la lengua y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>

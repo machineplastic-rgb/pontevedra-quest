@@ -356,7 +356,6 @@ let bodegaTimer = null;
 SCENES.bodega = {
   title: 'BODEGA SECRETA', sub: 'Bajo el Bar Estrella', bg: 'bodega', music: 'bodega', ambient: 'bodega',
   tint: { c: '#ff9a4a', a: 0.1, d: 0.05 }, k: 0.64,
-  oscuro: { a: 0.93 },   // v13: a oscuras, con el móvil o el candelabro
   pos: { ramis: [300, 995], marc: [520, 998], angel: [1160, 995], marcos: [1370, 992] },
   props: [
     { img: 'candelabro', x: 680, y: 557, h: 112, cond: () => !has('candelabro') && !flag('candelabroCogido'), hs: { name: 'Candelabro', verbs: { 'Coger': async () => { flag('candelabroCogido', 1); give('candelabro'); await say(S.active, 'Un candelabro con tres velas encendidas. ¿Quién las ha encendido? Mejor no preguntar.'); } } } },
@@ -371,7 +370,7 @@ SCENES.bodega = {
   setup() {
     clearInterval(bodegaTimer);
     if (!flag('senoraVuelta')) {
-      G.bodegaLeft = G.bodegaLeft || 90;
+      G.bodegaLeft = G.bodegaLeft || 75;
       bodegaTimer = setInterval(() => {
         if (S.scene !== 'bodega') { clearInterval(bodegaTimer); return; }
         if (G.dlgOpen || G.mode) return;
