@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v16';
+const VERSION = 'v17';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -65,7 +65,7 @@ function bindMenus() {
   $('tCap').onclick = (e) => { e.stopPropagation(); CAPI.abrir(); };
   $('tExit').onclick = (e) => { e.stopPropagation(); CAPI.salir(); };
   $('mAjustes').onclick = (e) => { e.stopPropagation(); sfx('open'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); }); };
-  $('tAjustes').onclick = (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('open'); $('menu').classList.remove('hidden'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); $('menu').classList.add('hidden'); }); };
+  $('tAjustes').onclick = (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('open'); $('title').classList.add('hidden'); $('menu').classList.remove('hidden'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); $('menu').classList.add('hidden'); $('title').classList.remove('hidden'); }); };   // v17: la portada tapaba los clics
   $('mExit').onclick = (e) => { e.stopPropagation(); $('menu').classList.add('hidden'); CAPI.salir(); };
   $('mAdult').onclick = (e) => { e.stopPropagation(); sfx('click'); CAPI.cambiaAdulto(); updSoundBtn(); };
   $('tScore').onclick = async (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('click'); $('title').classList.add('hidden'); await verMarcador(-1, 'Cerrar'); $('title').classList.remove('hidden'); };

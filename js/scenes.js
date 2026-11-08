@@ -169,23 +169,20 @@ SCENES.estrella = {
   pos: { ramis: [300, 990], marc: [515, 995], marcos: [725, 992], angel: [935, 995] },
   npcs: [{ id: 'senora', x: 1165, y: 990, flip: true, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
   props: [
-    { img: 'sal', x: 150, y: 720, h: 70, cond: () => !TUNEL() && !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': () => cogerSal() } } },
-    { img: 'sal', x: 165, y: 572, h: 62, cond: () => TUNEL() && !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': () => cogerSal() } } },
-    { img: 'postres', x: 120, y: 712, h: 120, cond: () => !TUNEL() && flag('senoraVuelta') && !flag('postresComidos') },
-    { img: 'postres', x: 850, y: 577, h: 112, cond: () => TUNEL() && flag('senoraVuelta') && !flag('postresComidos') },
+    // v17: el bar ya no tiene la mesa delante; el salero y los postres, en la barra
+    { img: 'sal', x: 235, y: 570, h: 62, cond: () => !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': () => cogerSal() } } },
+    { img: 'postres', x: 140, y: 575, h: 112, cond: () => flag('senoraVuelta') && !flag('postresComidos') },
   ],
   fx: [
-    { type: 'glow', x: 353, y: 125, r: 260, color: '#ffc26a', a: 0.32, flicker: 0.15, cond: () => !TUNEL() },
-    { type: 'glow', x: 1200, y: 168, r: 240, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2, cond: () => !TUNEL() },
-    { type: 'glow', x: 277, y: 118, r: 250, color: '#ffc26a', a: 0.32, flicker: 0.15, cond: TUNEL },
-    { type: 'glow', x: 1130, y: 168, r: 230, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2, cond: TUNEL },
-    { type: 'glow', x: 1440, y: 580, r: 280, color: '#6f8cff', a: 0.08, flicker: 0.3, seed: 5, cond: TUNEL },
+    { type: 'glow', x: 344, y: 115, r: 250, color: '#ffc26a', a: 0.32, flicker: 0.15 },
+    { type: 'glow', x: 1180, y: 160, r: 230, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2 },
+    { type: 'glow', x: 1470, y: 590, r: 260, color: '#6f8cff', a: 0.08, flicker: 0.3, seed: 5, cond: TUNEL },
     { type: 'glow', x: 520, y: 330, r: 420, color: '#ff9a4a', a: 0.08 },
   ],
   emit: [{ kind: 'dust', rate: 3, x0: 150, x1: 1400, y0: 120, y1: 600, pre: 20 }],
   hs: [
-    { name: 'Mesa', get r() { return TUNEL() ? [1460, 700, 140, 300] : [0, 690, 260, 310]; }, verbs: { 'Mirar': () => say(S.active, 'Restos de una cena épica. En la servilleta, Marc ha dibujado a la señora estilo Manara. Con bastante menos ropa.') } },
-    { name: 'Barra', get r() { return TUNEL() ? [0, 565, 915, 290] : [20, 560, 950, 240]; }, verbs: {
+    { name: 'Mesa', get r() { return TUNEL() ? [1510, 690, 90, 310] : [1440, 660, 160, 340]; }, verbs: { 'Mirar': () => say(S.active, 'Restos de una cena épica. En la servilleta, Marc ha dibujado a la señora estilo Manara. Con bastante menos ropa.') } },
+    { name: 'Barra', r: [0, 560, 975, 290], verbs: {
       'Mirar': () => say(S.active, flag('senoraFuera') && !flag('senoraVuelta') ? 'La barra del Estrella, sola, para nosotros. Qué responsabilidad.' : 'Una barra de madera con azulejos. Aquí se han cerrado más tratos que en el Concello.'),
       'Usar|Servirse una caña': async () => {
         if (!flag('senoraFuera') || flag('senoraVuelta')) return say(S.active, 'Con la señora delante, ni se me ocurre tocar su grifo.');
@@ -194,16 +191,16 @@ SCENES.estrella = {
         await say(S.active, 'Mejor que lo haga Ramis, que es el experto en grifos.');
       },
     } },
-    { name: 'Botellas', get r() { return TUNEL() ? [10, 110, 1020, 220] : [90, 130, 1090, 200]; }, verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en el Galactic.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
-    { name: 'Caja registradora', get r() { return TUNEL() ? [665, 462, 120, 100] : [735, 465, 125, 110]; }, verbs: { 'Mirar': () => say(S.active, S.active === 'marcos' ? 'Intento instalarle el Doom al TPV. No arranca. Qué decepción.' : 'La caja. Marc: «Ni la mires, que nos conocemos».') } },
-    { name: 'Cocina', get r() { return TUNEL() ? [790, 340, 200, 225] : [975, 340, 200, 320]; }, verbs: { 'Mirar': () => say(S.active, 'La cocina. De ahí salen la tortilla y el pulpo. Huele a gloria bendita.') } },
-    { name: 'Bufanda', get r() { return TUNEL() ? [1125, 280, 125, 250] : [1408, 240, 125, 280]; }, verbs: { 'Mirar': () => say(S.active, 'Una bufanda de fútbol. Ramis dice que es del Pontevedra. Marc dice que no. Llevan diez minutos discutiendo.') } },
-    { name: 'Retrato', r: [20, 320, 62, 125], cond: () => !TUNEL(), verbs: { 'Mirar': () => say(S.active, 'Un retrato antiguo. El señor tiene cara de haber cerrado este bar en 1950.') } },
-    { name: 'Túnel', r: [1285, 290, 300, 545], cond: TUNEL, verbs: {
+    { name: 'Botellas', r: [60, 110, 1130, 200], verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en el Galactic.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
+    { name: 'Caja registradora', r: [720, 462, 110, 100], verbs: { 'Mirar': () => say(S.active, S.active === 'marcos' ? 'Intento instalarle el Doom al TPV. No arranca. Qué decepción.' : 'La caja. Marc: «Ni la mires, que nos conocemos».') } },
+    { name: 'Cocina', get r() { return TUNEL() ? [840, 330, 190, 320] : [840, 330, 330, 320]; }, verbs: { 'Mirar': () => say(S.active, 'La cocina. De ahí salen la tortilla y el pulpo. Huele a gloria bendita.') } },
+    { name: 'Bufanda', get r() { return TUNEL() ? [1180, 270, 125, 260] : [1400, 240, 140, 280]; }, verbs: { 'Mirar': () => say(S.active, 'Una bufanda de fútbol. Ramis dice que es del Pontevedra. Marc dice que no. Llevan diez minutos discutiendo.') } },
+    { name: 'Retrato', r: [5, 315, 60, 130], verbs: { 'Mirar': () => say(S.active, 'Un retrato antiguo. El señor tiene cara de haber cerrado este bar en 1950.') } },
+    { name: 'Túnel', r: [1335, 300, 265, 535], cond: TUNEL, verbs: {
       'Mirar': () => say(S.active, S.active === 'angel' ? 'De ahí sale el aire frío. Y algo más… La señora dice que llega hasta Santo Domingo.' : pick(['Un agujero en la pared y un túnel de roca. Esto no sale en TripAdvisor.', 'Huele a humedad, a vino viejo y a aventura.'])),
       'Bajar': () => bajarBodega(),
     } },
-    { name: 'Aparador', get r() { return TUNEL() ? [990, 250, 260, 590] : [1255, 215, 275, 640]; }, verbs: {
+    { name: 'Aparador', get r() { return TUNEL() ? [1035, 240, 245, 600] : [1255, 150, 265, 690]; }, verbs: {
       'Mirar': async () => {
         if (flag('bodegaAbierta')) return say(S.active, pick(['El aparador, apartado. Ni un plato roto: Ángel tiene manos de músico.', 'El aparador, corrido a un lado. Y al lado, ese agujero que baja a la bodega secreta.']));
         if (!flag('senoraFuera')) return say(S.active, 'Un aparador lleno de platos. La señora no le quita ojo.');

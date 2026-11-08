@@ -1,6 +1,6 @@
 'use strict';
 /* =====================================================================
-   v16 · «Pontegram»: la galería de logros y fotos, como el perfil de una
+   v16 · «Intaclub» (antes Pontegram): la galería de logros y fotos, como el perfil de una
    red social dentro de un móvil. Cada logro es una publicación (con su
    foto de la noche si la tiene), con likes, corazones y comentarios de
    la gente del juego. Los logros se guardan entre partidas.
@@ -108,7 +108,7 @@ const GALERIA = (() => {
     const segu = 1714 + got.length * 137 + Object.keys(st.likes).length;
     root.innerHTML = `<div class="pg-phone">
       <div class="pg-status"><span>03:14</span><span>📶 🔋 14%</span></div>
-      <div class="pg-top"><b class="pg-logo">Pontegram</b><span class="pg-icons">♡ &nbsp;✉</span></div>
+      <div class="pg-top"><b class="pg-logo">Intaclub</b><span class="pg-icons">♡ &nbsp;✉</span></div>
       <div class="pg-scroll">
         <div class="pg-head">
           <div class="pg-av">${['ramis', 'marc', 'marcos', 'angel'].map((p) => `<img src="img/faces/${p}_risa.webp" alt="">`).join('')}</div>
