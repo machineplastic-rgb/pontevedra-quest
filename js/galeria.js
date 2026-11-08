@@ -37,7 +37,7 @@ const GALERIA = (() => {
     canero: { f: ['canero'], c: [['tino', 'PUNK NOT DEAD 🤘'], ['xurxo', '¡Ángel, qué papá más cañero!']] },
     apostol: { f: ['apostol'], c: [['iago', 'Nike Apóstol, ¿me firmas el dado? 🎲'], ['marcos', 'Nunca falla una tirada']] },
     camino: { f: ['camino'], c: [['peregrino', '¡Ultreia! Llegué casi a la vez que el Peugeot 🐚'], ['marcos', 'Empate técnico']] },
-    cola: { f: [], c: [['guiri', 'Queue jumper! 😤'], ['carla', 'Lo tengo grabado. Todo. 📲'], ['rosa', 'Bueno, bailó Paquito el Chocolatero. Se lo perdono 💅']] },
+    cola: { f: [], c: [['tino', 'En mi bar se hace cola. Bueno, casi siempre 🤘'], ['carla', 'Lo tengo grabado. Todo. 📲'], ['xurxo', '¡Por la vejiga! 🍺']] },
     reinas: { f: [], c: [['rosa', 'Las reinas de la noche 👑'], ['monos', 'Ramis, otra canción, rey']] },
     madrugada: { f: [], c: [['dj', '¿Quién sigue en pie? 🌙'], ['carla', 'Directo de madrugada 📲']] },
   };

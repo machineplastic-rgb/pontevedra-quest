@@ -17,8 +17,8 @@ const DUELO_POSES = {
   xesus_guardia: { x: 625, y: 80, w: 911, h: 862, ax: 1185, fy: 935 },
   xesus_ataque: { x: 506, y: 110, w: 1022, h: 835, ax: 1224, fy: 938 },
   xesus_estocada: { x: 579, y: 89, w: 952, h: 855, ax: 1248, fy: 937 },
-  // este sale de la hoja pequeña (pendiente del dibujo grande)
-  xesus_retrocede: { x: 2036, y: 1073, w: 743, h: 832, ax: 2383, fy: 1886 },
+  // v19: cayéndose de espaldas (hoja de poses de JRAR, a escala 2.3 para igualarlo a los otros)
+  xesus_retrocede: { x: 2304.6, y: 246.1, w: 936.1, h: 899.3, ax: 2866.2, fy: 1138.5 },   // ax corrido: cae hacia la derecha
 };
 EXTRA_ASSETS.push(...Object.keys(DUELO_POSES).map((k) => 'duelo/' + k));
 const INSULTOS = [
@@ -118,8 +118,8 @@ MG.duelo = function () {
     if (win) {
       setM('para'); setX('retrocede'); clash(); sfx('swish');
       const xx = xxOf();
-      // con los dibujos la espada sigue en la mano: no sale volando
-      if (!DIB()) fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: 1500, y1: FLOOR - 25, spin: 3.2 };
+      // al caerse suelta la espada, que sale volando y se clava en el suelo
+      fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: DIB() ? 905 : 1500, y1: FLOOR - 25, spin: 3.2 };
       xBub = { t: '¡Me rindo! ¡Touché, retouché y requetetouché!', t0: clock, face: 'risa' };
       await sleep(0.75); sfx('espada');
       big = { t: '¡TOUCHÉ!', c: '#ffd98a', t0: clock }; try { AUDIO.laugh('grupo'); } catch (e) {}

@@ -158,7 +158,7 @@ async function cogerSal() { flag('salCogida', 1); give('sal'); await say(S.activ
 async function bajarBodega() {
   if (!flag('bodegaAbierta')) return say(S.active, '¿Bajar a dónde? Es un aparador.');
   if (flag('senoraVuelta') && !flag('permisoBodega')) {
-    await say('senora', '¿La bodega de mi abuelo? Bajad, bajad… pero no me bebáis nada. ¡Ramis, te estoy mirando!');
+    await say('senora', '¿La bodega de mi abuelo? Bajad, bajad… pero no me bebáis nada. ¡Ramis, te estoy mirando!', 'piensa');
     flag('permisoBodega', 1);
   }
   await goScene('bodega', { from: 'left' });
@@ -293,9 +293,9 @@ async function senoraTalk() {
     await say('senora', 'Un cafeíto bien cargado para el chófer. Tómalo cuando lo necesites, ¿eh?');
     give('cafe');
   } else if (v === 'bodega') {
-    await say('senora', 'La bodega de mi abuelo. Dicen que hay un túnel que llega hasta Santo Domingo. Yo no bajo, que hay arañas.');
+    await say('senora', 'La bodega de mi abuelo. Dicen que hay un túnel que llega hasta Santo Domingo. Yo no bajo, que hay arañas.', 'piensa');
   } else if (v === 'vida') {
-    await say('senora', 'Media vida detrás de esta barra. He visto de todo: bodas, bautizos, reconciliaciones… y a un fraile bailando la muiñeira.');
+    await say('senora', 'Media vida detrás de esta barra. He visto de todo: bodas, bautizos, reconciliaciones… y a un fraile bailando la muiñeira.', 'piensa');
     if (S.active === 'angel') { await say('senora', 'Y tú, barbas, tienes cara de músico. ¿A que sí?'); await say('angel', 'Canto en un par de grupos… y toco algo la guitarra.', 'sorpresa'); await say('senora', '¡Lo sabía! Manos de guitarrista y ojos de bolero. ¡Ay, si yo tuviera treinta años menos!', 'risa'); }
   } else if (v === 'nada') {
     await say('senora', 'Si necesitáis algo, me silbáis. ¡Silbar sabéis, ¿no?!', 'risa');
@@ -340,9 +340,9 @@ async function senoraVuelve(pillados) {
   groupLaugh(); logro('postre');
   await say('senora', 'Tomad, os pongo un táper para el camino. Y llevad sal gorda, que de noche en Galicia nunca se sabe.');
   give('postres'); if (!has('sal')) { flag('salCogida', 1); give('sal'); }
-  await say('senora', 'Si veis en la Alameda a una mujer con pañuelo negro, dadle uno de mis postres. Es mi prima Pura. Es meiga… pero de las buenas.');
+  await say('senora', 'Si veis en la Alameda a una mujer con pañuelo negro, dadle uno de mis postres. Es mi prima Pura. Es meiga… pero de las buenas.', 'piensa');
   await say('marcos', '¿Meiga? ¿Meiga de verdad?', 'sorpresa');
-  await say('senora', 'Haberlas, haylas. Y en las ruinas de Santo Domingo dicen que se aparece un caballero que bebe vino y suelta palabrotas finas.');
+  await say('senora', 'Haberlas, haylas. Y en las ruinas de Santo Domingo dicen que se aparece un caballero que bebe vino y suelta palabrotas finas.', 'piensa');
   await say('ramis', 'Señora, la cuenta. Invito yo. ¡Bajo el yugo opresor!');
   sfx('moneda');
   await narr('Ramis paga la cena. Su cartera se queda temblando, vacía como un bar a las nueve de la mañana.');

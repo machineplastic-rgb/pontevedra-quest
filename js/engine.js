@@ -179,6 +179,9 @@ function drawActor(c, a) {
   if (!a.visible || a.alpha <= 0) return;
   const base = spriteOf(a); let sprite = base;
   if (a.laughUntil > G.t && G.img['chars/' + a.id + '_risa'] && !isProta(a.id)) sprite = 'chars/' + a.id + '_risa';
+  // v19: poses según el gesto (sorpresa, piensa) y, mientras habla, la de hablar
+  else if (!isProta(a.id) && a.mood && a.moodUntil > G.t && G.img['chars/' + a.id + '_' + a.mood]) sprite = 'chars/' + a.id + '_' + a.mood;
+  else if (!isProta(a.id) && a.talking && G.img['chars/' + a.id + '_habla']) sprite = 'chars/' + a.id + '_habla';
   const body = isProta(a.id) && a.sprite === 'chars/' + a.id && !a.noBody;
   if (body) sprite = bodySprite(a.id);
   const img = tinted(sprite, G.scene && G.scene.tint && !a.ghost ? G.scene.tint : null);
@@ -782,7 +785,7 @@ async function say(who, text, mood, o) {
   const lv = isProta(who) ? S.drunk[who] : 0;
   if (isProta(who) && !o.noSlur) text = slur(text, lv);
   if (lv >= 3 && /hip|HIC/i.test(text)) sfx('hipo');
-  const a = G.actors[who]; if (a) a.talking = true;
+  const a = G.actors[who]; if (a) { a.talking = true; a.mood = mood && mood !== 'risa' ? mood : null; a.moodUntil = 1e9; }
   if (mood === 'risa') {
     // la risa suena como mucho cada pocos segundos, para que no canse
     const now = performance.now();
@@ -818,7 +821,7 @@ async function say(who, text, mood, o) {
     advanceFn = () => { done = true; tx.innerHTML = html; if (a) a.talking = false; port.classList.remove('talk'); finish(); };
     tick();
   });
-  if (a) a.talking = false;
+  if (a) { a.talking = false; if (a.mood) a.moodUntil = G.t + 0.8; }
   if (!o.keep) { dlg.classList.add('hidden'); G.dlgOpen = false; }
   await wait(60);
 }
