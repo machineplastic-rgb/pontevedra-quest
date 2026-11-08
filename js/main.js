@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v15';
+const VERSION = 'v16';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -60,6 +60,8 @@ async function startGame(fromSave, capId) {
 function bindMenus() {
   $('tNew').onclick = (e) => { e.stopPropagation(); startGame(null); };
   $('tCont').onclick = (e) => { e.stopPropagation(); const s = loadSave(); startGame(s); };
+  $('tGaleria').onclick = (e) => { e.stopPropagation(); GALERIA.abrir(); };
+  $('mGaleria').onclick = (e) => { e.stopPropagation(); $('menu').classList.add('hidden'); GALERIA.abrir(); };
   $('tCap').onclick = (e) => { e.stopPropagation(); CAPI.abrir(); };
   $('tExit').onclick = (e) => { e.stopPropagation(); CAPI.salir(); };
   $('mAjustes').onclick = (e) => { e.stopPropagation(); sfx('open'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); }); };
@@ -103,7 +105,7 @@ async function boot() {
   const prog = $('lprog');
   await loadImages(assetList(), (k) => { prog.style.width = Math.round(k * 100) + '%'; });
   await loadOptionalBg(['control', 'camino', 'balneario', 'piscina']);
-  CAPI.alArrancar();
+  CAPI.alArrancar(); GALERIA.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
   // v15: la intro de aventura de los 90 (se salta con un toque)

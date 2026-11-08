@@ -750,6 +750,7 @@ function toast(icon, title, text) {
 function logro(id) {
   if (!S || S.logros.includes(id) || !LOGROS[id]) return;
   S.logros.push(id); sfx('logro');
+  if (typeof GALERIA !== 'undefined') GALERIA.gana(id);   // v16: Pontegram
   setTimeout(() => toast(LOGROS[id].i, 'Logro', LOGROS[id].t), 400);
 }
 
