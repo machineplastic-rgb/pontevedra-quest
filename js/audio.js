@@ -2811,6 +2811,12 @@
   };
   FX.tic = function (d, t, o) { shit(d, 'tick', t, (o && o.hi) ? 1.5 : 1, 0.3, 0, 0.05); };
   FX.whoosh = function (d, t) { nhit(d, t, { type: 'bandpass', f: 400, f2: 2500, ft: 0.2, q: 1.5, d: 0.4, a: 0.15, lvl: 0.45, pan: -0.6, pan2: 0.6 }); };
+  // v23: pollo de goma (squeak de ida y vuelta)
+  FX.pollo = function (d, t) {
+    tn(d, t, { type: 'square', f: 700, f2: 1700, ft: 0.16, a: 0.004, hold: 0.12, r: 0.05, lvl: 0.09, bp: 1600 });
+    tn(d, t + 0.2, { type: 'square', f: 1600, f2: 520, ft: 0.28, a: 0.004, hold: 0.22, r: 0.08, lvl: 0.08, bp: 1300 });
+    nhit(d, t, { type: 'bandpass', f: 2400, q: 3, d: 0.4, lvl: 0.05 });
+  };
   FX.pop = function (d, t) {
     tn(d, t, { f: 300, f2: 1200, ft: 0.05, a: 0.002, r: 0.02, lvl: 0.25 });
     nhit(d, t, { type: 'highpass', f: 3000, d: 0.01, lvl: 0.06 });

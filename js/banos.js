@@ -112,7 +112,7 @@ MG.banos = function (sitio) {
   const m = { drunk: 0, name: 'banos' };
   const drawImgH = MG.drawImgH;
   const VMAX = 75;
-  let clock = 0, vej = 0.3, lleno = false, fallos = 0, ganado = false, fuera = false;
+  let clock = 0, vej = 0.3, lleno = false, fallos = 0, ganado = false, fuera = false, papelUsado = false;
   let xBub = null, mBub = null, big = null, asking = false, keyPick = null, timeoutPick = null;
   const waits = [];
   const sleep = (s) => new Promise((r) => waits.push({ at: clock + s, r }));
@@ -145,6 +145,7 @@ MG.banos = function (sitio) {
   function ask(v) {
     return new Promise((res) => {
       const list = mix([{ t: v.ok, k: 'ok' }].concat(v.mal.map((t) => ({ t, k: 'mal' }))));
+      if (has('papel') && !papelUsado) list.push({ t: '🧻 «¿Un poco de papel higiénico? Es tuyo si me dejas pasar.»', k: 'papel' });
       const box = document.createElement('div'); box.className = 'dopts';
       let done = false;
       const fin = (o) => { if (done) return; done = true; asking = false; keyPick = timeoutPick = null; box.remove(); sfx(o.k === 'lleno' ? 'error' : 'click'); res(o); };
@@ -168,8 +169,9 @@ MG.banos = function (sitio) {
       const o = await ask(v);
       if (o.k === 'lleno') break;
       mBub = { t: o.t, t0: clock }; await sleep(1.1);
-      if (o.k === 'ok') {
-        xBub = { t: v.si, t0: clock, who: p.id }; sfx('pop');
+      if (o.k === 'ok' || o.k === 'papel') {
+        if (o.k === 'papel') papelUsado = true;
+        xBub = { t: o.k === 'papel' ? '¿PAPEL? ¡Eres mi héroe! Pasa, pasa, pasa.' : v.si, t0: clock, who: p.id }; sfx('pop');
         delante.pop(); detras.unshift(p); colocar(); yo.hop = clock; updTop();
         await sleep(1.7);
       } else {
@@ -196,7 +198,7 @@ MG.banos = function (sitio) {
     m.end({ win: ganado, fallos });
   }
 
-  m.key = (k, d) => { if (d && keyPick && ['1', '2', '3'].includes(k)) keyPick(+k - 1); };
+  m.key = (k, d) => { if (d && keyPick && ['1', '2', '3', '4'].includes(k)) keyPick(+k - 1); };
   m.down = () => {};
   m.update = (dt) => {
     clock += dt;
@@ -287,7 +289,7 @@ async function banoCola(sitio) {
   if (r && r.salir) { await say(S.active, pick(['Mejor me aguanto. Un caballero sabe esperar.', 'Bah, ya iré luego. O en Caldas.', 'Demasiada cola. Me guardo la dignidad… y lo demás.'])); return; }
   const win = r === undefined || r === true || !!(r && r.win);
   if (win) {
-    await narr('Unos minutos después, la puerta se abre y sale un caballero nuevo. Más ligero. Más sabio. Con las manos sin secar.');
+    await narr('Unos minutos después, la puerta se abre y sale un caballero nuevo. Más ligero. Más sabio. Con las manos sin secar.' + (has('papel') ? ' Y gracias al rollo de Brais, sin dramas.' : ' No había papel. Marc ha sacrificado tres bocetos.'));
     if (S.drunk[S.active] > 0) { drink(S.active, -1); await say(S.active, 'Uf. Como nuevo. Hasta se me ha bajado un poco el pedo.', 'risa'); }
     else await say(S.active, 'Uf. Esto sí que es vivir.', 'risa');
     logro('cola');

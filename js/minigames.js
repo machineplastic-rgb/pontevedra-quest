@@ -360,8 +360,8 @@ const MG = (() => {
       const k = clamp(t0 / DUR, 0, 1) * (result === 'ok' ? 0.85 : 1);
       for (let i = 0; i < 5; i++) {
         const kk = clamp(k * 1.15 - i * 0.07, 0, 1), p = 0.12 + kk * 0.75;
-        const x = 770 + (i - 2) * 60 * p * 2.2 + (result === 'ok' ? kk * (i - 2) * 220 : 0), y = 560 + p * 330;
-        drawImgH(c, 'items/compana', x, y, 520 * p, { alpha: 0.55 + 0.25 * Math.sin(t * 2 + i), glow: 'rgba(160,200,255,.8)' });
+        const x = 1180 - kk * 170 + (i - 2) * 70 * p * 2.2 + (result === 'ok' ? kk * (i - 2) * 220 : 0), y = 560 + p * 330;   // v23: llegan por la derecha del camino
+        const cs = 'items/compana_' + [1, 5, 3, 2, 4][i]; drawImgH(c, G.img[cs] ? cs : 'items/compana', x, y, 520 * p, { alpha: 0.72 + 0.2 * Math.sin(t * 2 + i), glow: 'rgba(160,200,255,.8)' });
         c.save(); c.globalCompositeOperation = 'lighter'; const gg = c.createRadialGradient(x + 60 * p, y - 260 * p, 0, x + 60 * p, y - 260 * p, 90 * p);
         gg.addColorStop(0, 'rgba(140,200,255,.5)'); gg.addColorStop(1, 'rgba(140,200,255,0)'); c.fillStyle = gg; c.fillRect(x - 200, y - 500 * p, 400, 400 * p); c.restore();
       }

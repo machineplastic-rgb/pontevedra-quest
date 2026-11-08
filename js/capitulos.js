@@ -110,6 +110,8 @@ const CAPI = (() => {
     clearSave();
     S = JSON.parse(JSON.stringify(base));
     S.startT = Date.now(); S.cap = c.id; S.capOk = 0; S.over = false;
+    if (!S.inv.includes('pollo')) S.inv.push('pollo');
+    if (S.flags.postresComidos && !S.inv.includes('omeprazol') && !S.flags.omepDado) { S.flags.omepDado = 1; S.inv.push('omeprazol'); }
     // las escenas de los capítulos anteriores ya «pasaron»; la de este sale ahora
     S.inter = {}; CAPS.forEach((x) => { try { if (x.abre(S)) S.inter[x.id] = 1; } catch (e) {} });
     G.mode = null; G.started = true;

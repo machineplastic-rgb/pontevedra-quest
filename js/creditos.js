@@ -397,7 +397,7 @@ const CRED = (() => {
       cap: () => 'La Santa Compaña mira a Ramis: «Este aún no».',
       draw(c) {
         fondo(c, PROC.get('camino'), 1.15, 0.5, 0.5, 0.15);
-        [[705, 345, 120, 0.3], [655, 375, 170, 0.45], [585, 420, 235, 0.62], [480, 478, 310, 0.82]].forEach(([x, y, h, a]) => fig(c, 'items/compana', x, y, h, { alpha: a, glow: 'rgba(170,200,255,0.9)', blur: 24 }));
+        [[705, 345, 120, 0.3], [655, 375, 170, 0.45], [585, 420, 235, 0.62], [480, 478, 310, 0.82]].forEach(([x, y, h, a], i) => fig(c, G.img['items/compana_' + [6, 3, 5, 1][i]] ? 'items/compana_' + [6, 3, 5, 1][i] : 'items/compana', x, y, h, { alpha: a, glow: 'rgba(170,200,255,0.9)', blur: 24 }));
         sal(c, 190, 532, 160, 40);
         PROTA.forEach((id, i) => fig(c, 'chars/' + id, 112 + i * 55, 540 - (i % 2) * 8, 300));
         niebla(c, 7, 380, 570, 5, 0.18);

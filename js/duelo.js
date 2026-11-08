@@ -267,6 +267,20 @@ async function dueloXesus() {
     await say(S.active, 'Esto es cosa de Marcos. Lleva veinte años de partidas de rol.');
     return;
   }
+  // v23: en el modo 18+, el pollo de goma vence a Don Xesús
+  if (typeof ADULTO !== 'undefined' && ADULTO.on() && has('pollo')) {
+    const v = await choose([{ t: '⚔ Batirse con el candelabro', v: 0 }, { t: '🐔 Sacar el pollo de goma', v: 1 }]);
+    if (v) {
+      sfx('pollo'); shake(0.4);
+      await say('marcos', 'En guardia, Don Xesús. Le presento… al pollo.', 'risa');
+      await say('fantasma', '¿Un… POLLO? ¿De goma? ¡Por los clavos de Cristo! ¡Eso en 1714 era brujería!', 'sorpresa');
+      sfx('pollo');
+      await say('fantasma', '¡Me rindo, me rindo! ¡Guarde eso, bribón, que me da repelús!', 'risa');
+      await say('ramis', '¡SIRVE PARA AQUÍ! ¡Veinte años con ese pollo y por fin sirve para aquí!', 'risa');
+      sfx('magia'); flash('#ffe9a0', 0.5); flag('acertijo', 1); logro('pollo'); groupLaugh(); updObj();
+      return;
+    }
+  }
   if (!flag('dueloVisto')) {
     flag('dueloVisto', 1);
     await say('fantasma', '¡En guaaardia, bribón! En 1714 nos batíamos con la espada… y con la lengua. Yo insulto, tú contestas.', 'risa');

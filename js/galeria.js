@@ -7,8 +7,20 @@
    ===================================================================== */
 const GALERIA = (() => {
   const KEY = 'pq_pgram_v1';
-  let st = { got: {}, likes: {} };
+  let st = { got: {}, likes: {}, fotos: {} };
   try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.got) st = Object.assign(st, v); } catch (e) {}
+  st.fotos = st.fotos || {};
+  // v23: las fotos de las sesiones (Vera, Sabela, Gary), apaisadas para la publicación
+  const FIMG = {};
+  function cargaFoto(id) {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
+      x.drawImage(im, 0, (570 - 760 * im.height / im.width) / 2, 760, 760 * im.height / im.width); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 760, 570);
+      const w = im.width * 570 / im.height; x.drawImage(im, (760 - w) / 2, 0, w, 570); FIMG[id] = c; };
+    im.src = st.fotos[id].img;
+  }
+  Object.keys(st.fotos).forEach(cargaFoto);
+  const okDe = (id) => !!(st.got[id] || st.fotos[id]);
   const guarda = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
   function gana(id) { if (!st.got[id]) { st.got[id] = Date.now(); guarda(); } }
   function alArrancar() { const sv = typeof loadSave === 'function' ? loadSave() : null; if (sv && sv.logros) sv.logros.forEach(gana); }
@@ -37,17 +49,19 @@ const GALERIA = (() => {
     canero: { f: ['canero'], c: [['tino', 'PUNK NOT DEAD 🤘'], ['xurxo', '¡Ángel, qué papá más cañero!']] },
     apostol: { f: ['apostol'], c: [['iago', 'Nike Apóstol, ¿me firmas el dado? 🎲'], ['marcos', 'Nunca falla una tirada']] },
     camino: { f: ['camino'], c: [['peregrino', '¡Ultreia! Llegué casi a la vez que el Peugeot 🐚'], ['marcos', 'Empate técnico']] },
+    pollo: { f: [], c: [['fantasma', '¿Un pollo de goma? En 1714 eso era brujería 🐔'], ['ramis', '¡VEINTE AÑOS esperando que sirviera para algo!']] },
+    foto: { f: [], c: [['vera', 'Sigo esperando mi copia 🖤'], ['carla', 'Competencia. Me gusta 📲']] },
     cola: { f: [], c: [['tino', 'En mi bar se hace cola. Bueno, casi siempre 🤘'], ['carla', 'Lo tengo grabado. Todo. 📲'], ['xurxo', '¡Por la vejiga! 🍺']] },
     reinas: { f: [], c: [['rosa', 'Las reinas de la noche 👑'], ['monos', 'Ramis, otra canción, rey']] },
     madrugada: { f: [], c: [['dj', '¿Quién sigue en pie? 🌙'], ['carla', 'Directo de madrugada 📲']] },
   };
   const NICK = { ramis: 'ramis911', marc: 'marc_manara', marcos: 'nike_apostol', angel: 'angel_elbarbas', senora: 'dona_maruxa', fantasma: 'don_xesus_1714',
     meiga: 'meiga_pura', guiri: 'gary_in_galicia', peregrino: 'tono_ultreia', dj: 'dj_raxo', tino: 'tino_ofurado', vera: 'vera_retratos', lua: 'lua.baila',
-    noa: 'noa_profe', chica: 'a_do_pub', rosa: 'dalia_reina', monos: 'valeria_reina', iago: 'iago_rol', portero: 'ruben_porta', xurxo: 'xurxo_pena',
+    noa: 'noa_profe', sabela: 'sabela_plastica', chica: 'a_do_pub', rosa: 'dalia_reina', monos: 'valeria_reina', iago: 'iago_rol', portero: 'ruben_porta', xurxo: 'xurxo_pena',
     gc2: 'sargento_seoane', recep: 'recepcion_balneario', carla: 'carlaviral' };
   const HIGHLIGHTS = [['Estrella', 'estrella', 'cena'], ['Bodega', 'bodega', 'cena'], ['Cripta', 'cripta', 'tesoro'], ['Lume', 'disco', 'movida'], ['Alameda', 'alameda', 'meiga'], ['Caldofran', 'balneario', 'caldofran']];
   const hash = (s) => { let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); };
-  const likesDe = (id) => 140 + (hash(id) % 1700) + (st.likes[id] ? 1 : 0);
+  const likesDe = (id) => (st.fotos[id] ? st.fotos[id].likes : 140 + (hash(id) % 1700)) + (st.likes[id] ? 1 : 0);
   const fmt = (n) => n.toLocaleString('es-ES');
 
   /* ---------- las fotos: se pintan con los dibujos de los créditos, a todo color ---------- */
@@ -76,13 +90,15 @@ const GALERIA = (() => {
     ls.slice(0, 2).forEach((s, i) => x.fillText(s, 380, 440 + i * 50));
     cache.set(key, c); return c;
   }
-  function imagenes(id) { const p = POST[id]; const fs = p && p.f.length ? p.f.map(foto).filter(Boolean) : []; return fs.length ? fs : [tarjetaEmoji(id)]; }
+  function imagenes(id) { if (st.fotos[id]) return [FIMG[id] || tarjetaFoto()]; const p = POST[id]; const fs = p && p.f.length ? p.f.map(foto).filter(Boolean) : []; return fs.length ? fs : [tarjetaEmoji(id)]; }
+  function tarjetaFoto() { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d'); x.fillStyle = '#222'; x.fillRect(0, 0, 760, 570); return c; }
   function captionDe(id) {
+    if (st.fotos[id]) return st.fotos[id].cap;
     const p = POST[id], f = p && p.f[0] && typeof CRED !== 'undefined' && CRED.FOTOS.find((x) => x.id === p.f[0]);
     let cap = ''; try { cap = f ? f.cap() : ''; } catch (e) {}
     return (cap || LOGROS[id].t) + ' ' + LOGROS[id].i;
   }
-  const horaDe = (id) => { const p = POST[id], f = p && p.f[0] && typeof CRED !== 'undefined' && CRED.FOTOS.find((x) => x.id === p.f[0]); return f ? f.h : '04:20'; };
+  const horaDe = (id) => { if (st.fotos[id]) return '03:33'; const p = POST[id], f = p && p.f[0] && typeof CRED !== 'undefined' && CRED.FOTOS.find((x) => x.id === p.f[0]); return f ? f.h : '04:20'; };
   const avatar = (who) => `img/faces/${who}_normal.webp`;
 
   // borroso que funciona en todos los navegadores: se encoge mucho y se vuelve a estirar
@@ -105,6 +121,7 @@ const GALERIA = (() => {
   }
   function cerrar() { if (root) root.classList.add('hidden'); sfx('close'); }
   function pinta() {
+    const fot = Object.keys(st.fotos).sort((a, b) => st.fotos[b].t - st.fotos[a].t);
     const all = ids(), got = all.filter((id) => st.got[id]), u = (typeof CAPI !== 'undefined' && CAPI.estado().u) || {};
     const segu = 1714 + got.length * 137 + Object.keys(st.likes).length;
     root.innerHTML = `<div class="pg-phone">
@@ -113,13 +130,13 @@ const GALERIA = (() => {
       <div class="pg-scroll">
         <div class="pg-head">
           <div class="pg-av">${['ramis', 'marc', 'marcos', 'angel'].map((p) => `<img src="img/faces/${p}_risa.webp" alt="">`).join('')}</div>
-          <div class="pg-stats"><div><b>${got.length}</b><span>publicaciones</span></div><div><b>${fmt(segu)}</b><span>seguidores</span></div><div><b>4</b><span>seguidos</span></div></div>
+          <div class="pg-stats"><div><b>${got.length + fot.length}</b><span>publicaciones</span></div><div><b>${fmt(segu)}</b><span>seguidores</span></div><div><b>4</b><span>seguidos</span></div></div>
         </div>
         <div class="pg-bio"><b>Club de Caballeros 🍺⚔</b><br>Mallorquines por el mundo · Bachillerato artístico<br>Habiendo haber podido, no quisimos poder 🍷<br>📍 Pontevedra ✈ Caldofran · <i>Nunca más… hasta el sábado</i></div>
         <div class="pg-btns"><span class="pg-b on">Siguiendo ✓</span><span class="pg-b">Mensaje</span></div>
         <div class="pg-hl">${HIGHLIGHTS.map(([n, bg, cap]) => `<div class="pg-h${u[cap] ? '' : ' off'}" data-bg="${bg}" data-n="${n}"><span><img src="img/bg/${bg}.webp" alt=""></span><small>${n}</small></div>`).join('')}</div>
         <div class="pg-tabs"><span class="on">▦</span><span>🏆 ${got.length}/${all.length}</span></div>
-        <div class="pg-grid">${all.map((id) => `<div class="pg-cell${st.got[id] ? '' : ' lock'}" data-id="${id}">${st.got[id] ? (POST[id] && POST[id].f.length > 1 ? '<i class="pg-multi">❐</i>' : '') : `<em>🔒</em>`}</div>`).join('')}</div>
+        <div class="pg-grid">${fot.concat(all).map((id) => `<div class="pg-cell${okDe(id) ? '' : ' lock'}" data-id="${id}">${okDe(id) ? (POST[id] && POST[id].f.length > 1 ? '<i class="pg-multi">❐</i>' : '') : `<em>🔒</em>`}</div>`).join('')}</div>
         <p class="pg-pie">${got.length < all.length ? 'Seguid jugando: cada logro es una publicación nueva.' : '¡Perfil completo! Sois unos influencers.'}</p>
       </div>
       <div id="pgPost" class="hidden"></div><div id="pgStory" class="hidden"></div>
@@ -129,7 +146,7 @@ const GALERIA = (() => {
       const id = cell.dataset.id, im = st.got[id] ? imagenes(id)[0] : imagenes(id)[0];
       const t = document.createElement('canvas'); t.width = 240; t.height = 240; const x = t.getContext('2d');
       const s = Math.min(im.width, im.height); x.drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 240, 240);
-      if (!st.got[id]) borroso(x, t, 240, 240, 10);
+      if (!okDe(id)) borroso(x, t, 240, 240, 10);
       cell.prepend(t);
       cell.onclick = (e) => { e.stopPropagation(); sfx('click'); post(id); };
     });
@@ -138,7 +155,7 @@ const GALERIA = (() => {
   }
 
   function post(id) {
-    const box = $('pgPost'), ok = !!st.got[id], ims = imagenes(id), p = POST[id] || { c: [] };
+    const box = $('pgPost'), ok = okDe(id), ims = imagenes(id), p = POST[id] || (st.fotos[id] ? { f: [], c: st.fotos[id].com || [] } : { c: [] });
     let idx = 0;
     box.innerHTML = `<div class="pg-ph"><span class="pg-back" id="pgBack">‹</span><b>Publicaciones</b></div>
       <div class="pg-pscroll">
@@ -189,5 +206,10 @@ const GALERIA = (() => {
   }
 
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && root && !root.classList.contains('hidden')) cerrar(); });
-  return { gana, alArrancar, abrir, cerrar, estado: () => st };
+  function foto(quien, img, likes, cap, com) {
+    const id = 'foto_' + quien; st.fotos[id] = { img, likes, cap, com, t: Date.now() };
+    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { delete st.fotos[id].img; }
+    if (st.fotos[id].img) cargaFoto(id);
+  }
+  return { gana, alArrancar, abrir, cerrar, foto, estado: () => st };
 })();

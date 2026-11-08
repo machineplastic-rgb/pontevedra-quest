@@ -340,6 +340,8 @@ async function senoraVuelve(pillados) {
   groupLaugh(); logro('postre');
   await say('senora', 'Tomad, os pongo un táper para el camino. Y llevad sal gorda, que de noche en Galicia nunca se sabe.');
   give('postres'); if (!has('sal')) { flag('salCogida', 1); give('sal'); }
+  await say('senora', 'Y omeprazol, que con lo que vais a beber esta noche… Para el barbas, el del Porsche y el que dibuja.', 'piensa');
+  if (!has('omeprazol') && !flag('omepDado')) { flag('omepDado', 1); give('omeprazol'); }
   await say('senora', 'Si veis en la Alameda a una mujer con pañuelo negro, dadle uno de mis postres. Es mi prima Pura. Es meiga… pero de las buenas.', 'piensa');
   await say('marcos', '¿Meiga? ¿Meiga de verdad?', 'sorpresa');
   await say('senora', 'Haberlas, haylas. Y en las ruinas de Santo Domingo dicen que se aparece un caballero que bebe vino y suelta palabrotas finas.', 'piensa');
@@ -1168,14 +1170,26 @@ async function finale() {
   await say('angel', '¡La Santa Compaña! ¡Que nadie la mire a los ojos! ¡Fuera del coche y la sal, rápido!', 'sorpresa');
   await say('ramis', 'Bajo el yugo opresor… y ahora también bajo el yugo de las ánimas.', 'sorpresa');
   if (!has('sal')) { await say('marc', '¡No tenemos sal! …Espera, en la guantera hay un sobre de sal de un McDonald’s de 2019.'); }
-  let ok = false, intentos = 0;
+  let ok = false, intentos = 0, conPollo = false;
+  // v23: en el modo 18+, el pollo de goma también espanta a la Compaña
+  if (typeof ADULTO !== 'undefined' && ADULTO.on() && has('pollo')) {
+    const v = await choose([{ t: '🧂 ¡Un círculo de sal!', v: 0 }, { t: '🐔 ¡Atacar con el pollo de goma!', v: 1 }]);
+    if (v) {
+      ok = conPollo = true; sfx('pollo');
+      await narr('Ramis saca el pollo de goma y lo aprieta con todas sus fuerzas. *SQUEEEAK.*');
+      await say('angel', '…¿Sirve para aquí?', 'sorpresa');
+      sfx('pollo'); await narr('Las ánimas se paran. Se miran entre ellas. Y salen corriendo campo a través, con las velas apagadas.');
+      await say('ramis', '¡SIRVE PARA AQUÍ! ¡Veinte años esperando este momento!', 'risa');
+      logro('pollo');
+    }
+  }
   while (!ok) {
     ok = await MG.circulo(); intentos++;
     if (!ok) { await say('angel', intentos === 1 ? '¡Otra vez, más grande y que se cierre! ¡Los cuatro dentro!' : '¡Venga, que se acercan! ¡Un círculo bien cerrado!', 'sorpresa'); }
   }
   logro('compana');
-  await narr('La procesión pasa a vuestro lado, tan cerca que se siente el frío. Una de las ánimas se gira hacia Ramis, le mira… y niega con la cabeza: «Este aún no».');
-  await say('ramis', 'Yo al menos podré decir que he vivido… y que voy a vivir un poco más.', 'risa');
+  if (!conPollo) await narr('La procesión pasa a vuestro lado, tan cerca que se siente el frío. Una de las ánimas se gira hacia Ramis, le mira… y niega con la cabeza: «Este aún no».');
+  if (!conPollo) await say('ramis', 'Yo al menos podré decir que he vivido… y que voy a vivir un poco más.', 'risa');
   await fadeTo(1, 0.6); G.scene = null; G.actors = {}; music('cancion'); ambient('carretera'); await fadeTo(0, 0.4);
   await MG.carretera({ len: 36, km: 5, cow: true, label: 'Últimos kilómetros' });
   logro('muuu');

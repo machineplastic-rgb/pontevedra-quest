@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v22';
+const VERSION = 'v23';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -87,6 +87,7 @@ function bindMenus() {
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
       <p>• ¿Atascado? Toca a uno de tus amigos y háblale: siempre tiene una idea.</p>
       <p>• La noche está llena de gente: habla con todos. En la discoteca Lume y en O Furado hay logros extra (y un concierto).</p>
+      <p>• 📸 Con Marc y su móvil podéis hacer sesiones de fotos para Intaclub (pregunta a Vera, a Gary… o a alguna profe en la Alameda).</p>
       <p>• 🗺 El mapa (arriba) os lleva a cualquier sitio de la zona vieja en el que ya hayáis estado.</p>
       <p>• La barrita de colores es la borrachera. <b>Marcos conduce</b>: que no pase de «Achispado». El café ayuda.</p>
       <button class="gold" id="mBack">Entendido</button>`;
@@ -106,7 +107,7 @@ async function boot() {
   requestAnimationFrame(frame);
   const prog = $('lprog');
   await loadImages(assetList(), (k) => { prog.style.width = Math.round(k * 100) + '%'; });
-  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina', 'mapa', 'banos', 'banos_lume']);
+  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina', 'mapa', 'banos', 'banos_lume', 'callejon']);
   CAPI.alArrancar(); GALERIA.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
