@@ -265,6 +265,16 @@ const CRED = (() => {
         chispas(c, 14, 470, 250, 70, 50, '#cfefff', 7);
         flashLuz(c, 380, 300, 520);
       } },
+    { id: 'duelo', h: '01:41', tipo: 'logro', pri: 5.5, ok: () => F('acertijo'), kb: [0.5, 0.3], doodle: 'star',
+      cap: () => '¡Touché! Marcos contra Don Xesús, a candelabro y lengua.',
+      draw(c) {
+        fondo(c, 'bg/cripta', 1.2, 0.5, 0.45, 0.3);
+        if (G.img['duelo/marcos_para']) fig(c, 'duelo/marcos_para', 215, 640, 560); else { fig(c, 'chars/marcos_lado', 215, 640, 540); fig(c, 'items/candelabro', 262, 390, 120, { rot: 1.2 }); }
+        if (G.img['duelo/xesus_retrocede']) fig(c, 'duelo/xesus_retrocede', 530, 615, 560, { alpha: 0.85, glow: 'rgba(150,220,255,0.95)', blur: 34 });
+        else fig(c, 'chars/fantasma_risa', 530, 615, 540, { flip: true, rot: 0.08, alpha: 0.82, glow: 'rgba(150,220,255,0.95)', blur: 34 });
+        chispas(c, 16, 380, 330, 60, 50, '#fff2b0', 11);
+        flashLuz(c, 380, 330, 520);
+      } },
     { id: 'calzon', h: '02:21', tipo: 'logro', pri: 3, ok: () => L('calzon'), kb: [0.45, 0.2],
       cap: () => 'Los calzoncillos de Ramis, en manos de una meiga. Calentitos.',
       draw(c) {

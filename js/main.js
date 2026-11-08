@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v10';
+const VERSION = 'v11';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -72,7 +72,7 @@ function bindMenus() {
     const old = b.innerHTML;
     b.innerHTML = `<h3>Cómo se juega</h3>
       <p>• Toca personas y cosas para <b>mirar, hablar o usar</b>. Las flechas doradas son salidas.</p>
-      <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b>, diseñador de moda y algo friki, resuelve acertijos y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
+      <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b>, diseñador de moda y algo friki, se bate en duelo con la lengua y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
       <p>• ¿Atascado? Toca a uno de tus amigos y háblale: siempre tiene una idea.</p>
       <p>• La noche está llena de gente: habla con todos. En la discoteca Lume y en O Furado hay logros extra (y un concierto).</p>

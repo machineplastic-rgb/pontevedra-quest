@@ -48,6 +48,8 @@ const LOGROS = {
   canero: { i: '🎸', t: '¡Ángel, qué papá más cañero!' },
   apostol: { i: '🎲', t: 'Nike Apóstol tiene fans' },
   camino: { i: '🐚', t: '¡Buen Camino!' },
+  // v11
+  plata: { i: '🤺', t: 'Lengua de plata: duelo sin un fallo' },
 };
 
 /* ---------- frases sueltas de cada uno ---------- */
@@ -109,7 +111,7 @@ function nextStep() {
     if (!f.criptaAbierta) return 'La puertecita de la derecha de las ruinas… ¿y la llave antigua de la bodega?';
     if (!f.luzCripta) return 'La inscripción del sarcófago está en sombra. El candelabro de la bodega iría bien.';
     if (!f.gafasPuestas) return has('gafas') ? 'Usa las gafas de cerca de Ángel en la inscripción.' : 'Letra diminuta: hacen falta las gafas de cerca de Ángel. ¿No las llevaba colgadas la chica del pub?';
-    if (!f.acertijo) return 'El acertijo es de rol puro. Que lo lea Marcos.';
+    if (!f.acertijo) return 'Don Xesús quiere un duelo de insultos. Eso es cosa de Marcos, que se ha leído todos los libros de caballerías.';
     return 'Abre el sarcófago.';
   }
   if (!f.pagado) return 'Con el tesoro ya podemos pagarle la ronda a Brais, el del bareto.';
@@ -150,24 +152,40 @@ function GIVE_PROTA(item, id) {
 const SCENES = {};
 
 /* ---------------- BAR ESTRELLA ---------------- */
+// con el aparador movido se ve el túnel (dibujo de JRAR, con otro encuadre)
+const TUNEL = () => !!(S && S.flags && S.flags.bodegaAbierta);
+async function cogerSal() { flag('salCogida', 1); give('sal'); await say(S.active, 'Sal gorda de la buena. Por si acaso.'); }
+async function bajarBodega() {
+  if (!flag('bodegaAbierta')) return say(S.active, '¿Bajar a dónde? Es un aparador.');
+  if (flag('senoraVuelta') && !flag('permisoBodega')) {
+    await say('senora', '¿La bodega de mi abuelo? Bajad, bajad… pero no me bebáis nada. ¡Ramis, te estoy mirando!');
+    flag('permisoBodega', 1);
+  }
+  await goScene('bodega', { from: 'left' });
+}
 SCENES.estrella = {
-  title: 'BAR ESTRELLA', sub: 'Zona vieja de Pontevedra · sábado noche', bg: 'estrella', music: 'estrella', ambient: 'estrella',
+  title: 'BAR ESTRELLA', sub: 'Zona vieja de Pontevedra · sábado noche', get bg() { return TUNEL() ? 'estrella_tunel' : 'estrella'; }, music: 'estrella', ambient: 'estrella',
   tint: { c: '#ff9a4a', a: 0.08 }, k: 0.62,
   pos: { ramis: [300, 990], marc: [515, 995], marcos: [725, 992], angel: [935, 995] },
   npcs: [{ id: 'senora', x: 1165, y: 990, flip: true, cond: () => !flag('senoraFuera') || flag('senoraVuelta') }],
   props: [
-    { img: 'sal', x: 150, y: 720, h: 70, cond: () => !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': async () => { flag('salCogida', 1); give('sal'); await say(S.active, 'Sal gorda de la buena. Por si acaso.'); } } } },
-    { img: 'postres', x: 120, y: 712, h: 120, cond: () => flag('senoraVuelta') && !flag('postresComidos') },
+    { img: 'sal', x: 150, y: 720, h: 70, cond: () => !TUNEL() && !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': () => cogerSal() } } },
+    { img: 'sal', x: 165, y: 572, h: 62, cond: () => TUNEL() && !has('sal') && !flag('salCogida'), hs: { name: 'Salero', verbs: { 'Coger': () => cogerSal() } } },
+    { img: 'postres', x: 120, y: 712, h: 120, cond: () => !TUNEL() && flag('senoraVuelta') && !flag('postresComidos') },
+    { img: 'postres', x: 850, y: 577, h: 112, cond: () => TUNEL() && flag('senoraVuelta') && !flag('postresComidos') },
   ],
   fx: [
-    { type: 'glow', x: 353, y: 125, r: 260, color: '#ffc26a', a: 0.32, flicker: 0.15 },
-    { type: 'glow', x: 1200, y: 168, r: 240, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2 },
+    { type: 'glow', x: 353, y: 125, r: 260, color: '#ffc26a', a: 0.32, flicker: 0.15, cond: () => !TUNEL() },
+    { type: 'glow', x: 1200, y: 168, r: 240, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2, cond: () => !TUNEL() },
+    { type: 'glow', x: 277, y: 118, r: 250, color: '#ffc26a', a: 0.32, flicker: 0.15, cond: TUNEL },
+    { type: 'glow', x: 1130, y: 168, r: 230, color: '#ffc26a', a: 0.3, flicker: 0.15, seed: 2, cond: TUNEL },
+    { type: 'glow', x: 1440, y: 580, r: 280, color: '#6f8cff', a: 0.08, flicker: 0.3, seed: 5, cond: TUNEL },
     { type: 'glow', x: 520, y: 330, r: 420, color: '#ff9a4a', a: 0.08 },
   ],
   emit: [{ kind: 'dust', rate: 3, x0: 150, x1: 1400, y0: 120, y1: 600, pre: 20 }],
   hs: [
-    { name: 'Mesa', r: [0, 690, 260, 310], verbs: { 'Mirar': () => say(S.active, 'Restos de una cena épica. En la servilleta, Marc ha dibujado a la señora estilo Manara. Con bastante menos ropa.') } },
-    { name: 'Barra', r: [20, 560, 950, 240], verbs: {
+    { name: 'Mesa', get r() { return TUNEL() ? [1460, 700, 140, 300] : [0, 690, 260, 310]; }, verbs: { 'Mirar': () => say(S.active, 'Restos de una cena épica. En la servilleta, Marc ha dibujado a la señora estilo Manara. Con bastante menos ropa.') } },
+    { name: 'Barra', get r() { return TUNEL() ? [0, 565, 915, 290] : [20, 560, 950, 240]; }, verbs: {
       'Mirar': () => say(S.active, flag('senoraFuera') && !flag('senoraVuelta') ? 'La barra del Estrella, sola, para nosotros. Qué responsabilidad.' : 'Una barra de madera con azulejos. Aquí se han cerrado más tratos que en el Concello.'),
       'Usar|Servirse una caña': async () => {
         if (!flag('senoraFuera') || flag('senoraVuelta')) return say(S.active, 'Con la señora delante, ni se me ocurre tocar su grifo.');
@@ -176,31 +194,31 @@ SCENES.estrella = {
         await say(S.active, 'Mejor que lo haga Ramis, que es el experto en grifos.');
       },
     } },
-    { name: 'Botellas', r: [90, 130, 1090, 200], verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en el Galactic.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
-    { name: 'Caja registradora', r: [735, 465, 125, 110], verbs: { 'Mirar': () => say(S.active, S.active === 'marcos' ? 'Intento instalarle el Doom al TPV. No arranca. Qué decepción.' : 'La caja. Marc: «Ni la mires, que nos conocemos».') } },
-    { name: 'Cocina', r: [975, 340, 200, 320], verbs: { 'Mirar': () => say(S.active, 'La cocina. De ahí salen la tortilla y el pulpo. Huele a gloria bendita.') } },
-    { name: 'Bufanda', r: [1408, 240, 125, 280], verbs: { 'Mirar': () => say(S.active, 'Una bufanda de fútbol. Ramis dice que es del Pontevedra. Marc dice que no. Llevan diez minutos discutiendo.') } },
-    { name: 'Retrato', r: [20, 320, 62, 125], verbs: { 'Mirar': () => say(S.active, 'Un retrato antiguo. El señor tiene cara de haber cerrado este bar en 1950.') } },
-    { name: 'Aparador', r: [1255, 215, 275, 640], verbs: {
+    { name: 'Botellas', get r() { return TUNEL() ? [10, 110, 1020, 220] : [90, 130, 1090, 200]; }, verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en el Galactic.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
+    { name: 'Caja registradora', get r() { return TUNEL() ? [665, 462, 120, 100] : [735, 465, 125, 110]; }, verbs: { 'Mirar': () => say(S.active, S.active === 'marcos' ? 'Intento instalarle el Doom al TPV. No arranca. Qué decepción.' : 'La caja. Marc: «Ni la mires, que nos conocemos».') } },
+    { name: 'Cocina', get r() { return TUNEL() ? [790, 340, 200, 225] : [975, 340, 200, 320]; }, verbs: { 'Mirar': () => say(S.active, 'La cocina. De ahí salen la tortilla y el pulpo. Huele a gloria bendita.') } },
+    { name: 'Bufanda', get r() { return TUNEL() ? [1125, 280, 125, 250] : [1408, 240, 125, 280]; }, verbs: { 'Mirar': () => say(S.active, 'Una bufanda de fútbol. Ramis dice que es del Pontevedra. Marc dice que no. Llevan diez minutos discutiendo.') } },
+    { name: 'Retrato', r: [20, 320, 62, 125], cond: () => !TUNEL(), verbs: { 'Mirar': () => say(S.active, 'Un retrato antiguo. El señor tiene cara de haber cerrado este bar en 1950.') } },
+    { name: 'Túnel', r: [1285, 290, 300, 545], cond: TUNEL, verbs: {
+      'Mirar': () => say(S.active, S.active === 'angel' ? 'De ahí sale el aire frío. Y algo más… La señora dice que llega hasta Santo Domingo.' : pick(['Un agujero en la pared y un túnel de roca. Esto no sale en TripAdvisor.', 'Huele a humedad, a vino viejo y a aventura.'])),
+      'Bajar': () => bajarBodega(),
+    } },
+    { name: 'Aparador', get r() { return TUNEL() ? [990, 250, 260, 590] : [1255, 215, 275, 640]; }, verbs: {
       'Mirar': async () => {
-        if (flag('bodegaAbierta')) return say(S.active, 'Detrás del aparador, la escalera de piedra que baja a la bodega secreta.');
+        if (flag('bodegaAbierta')) return say(S.active, pick(['El aparador, apartado. Ni un plato roto: Ángel tiene manos de músico.', 'El aparador, corrido a un lado. Y al lado, ese agujero que baja a la bodega secreta.']));
         if (!flag('senoraFuera')) return say(S.active, 'Un aparador lleno de platos. La señora no le quita ojo.');
         if (S.active !== 'angel') return say(S.active, 'Es un aparador. Con platos. Ángel dice que de aquí sale aire frío… que lo mire él.');
         sfx('viento'); await say('angel', '…Aquí hay corriente. Y no es del aire acondicionado. Es… energía.', 'sorpresa');
         await say('ramis', '¿Energía? Ángel, que has cenado pulpo.');
         sfx('door'); shake(0.3);
-        await narr('Ángel empuja el aparador. Se desliza con un chirrido. Detrás hay una puerta baja y una escalera de piedra que baja a la oscuridad.');
+        // fundido al dibujo del túnel
+        G.bgFrom = { name: 'estrella', a: 1 }; flag('bodegaAbierta', 1);
+        await tween(G.bgFrom, { a: 0 }, 1.6); G.bgFrom = null; sfx('viento');
+        await narr('Ángel empuja el aparador. Se desliza con un chirrido… y en la pared aparece un agujero: un túnel de roca que baja a la oscuridad.');
         await say('marcos', 'Caballeros… una mazmorra. Tirad iniciativa.', 'sorpresa');
-        flag('bodegaAbierta', 1); setObj('¡Bajar a la bodega antes de que vuelva la señora!');
+        setObj('¡Bajar a la bodega antes de que vuelva la señora!');
       },
-      'Bajar': async () => {
-        if (!flag('bodegaAbierta')) return say(S.active, '¿Bajar a dónde? Es un aparador.');
-        if (flag('senoraVuelta') && !flag('permisoBodega')) {
-          await say('senora', '¿La bodega de mi abuelo? Bajad, bajad… pero no me bebáis nada. ¡Ramis, te estoy mirando!');
-          flag('permisoBodega', 1);
-        }
-        await goScene('bodega', { from: 'left' });
-      },
+      'Bajar': () => bajarBodega(),
     } },
   ],
   exits: [{ name: 'Salir a la calle', r: [0, 300, 80, 380], arrow: 'left', to: 'plaza', from: 'right', check: async () => {
@@ -859,7 +877,12 @@ SCENES.cripta = {
     { name: 'Candelabro de hierro', r: [195, 410, 215, 520], verbs: { 'Mirar': () => say(S.active, 'Un candelabro de hierro con velas que no se gastan nunca. Don Xesús: «Bajo consumo, del siglo XVIII».') } },
   ],
   exits: [{ name: 'Subir a las ruinas', r: [0, 0, 170, 360], arrow: 'up', to: 'ruinas', from: 'right' }],
-  npc: { fantasma: { name: 'Don Xesús, el fantasma', 'Hablar': () => say('fantasma', flag('sarcofago') ? 'Id con mi tesoro y mi bendición, caballeros. Y volved algún año, que aquí me aburro.' : 'Mi tesoro está en el sarcófago. Pero solo lo abre quien resuelva mi acertijo. ¡Leed, leed!') } },
+  npc: { fantasma: { name: 'Don Xesús, el fantasma', 'Hablar': () => {
+    if (flag('sarcofago')) return say('fantasma', 'Id con mi tesoro y mi bendición, caballeros. Y volved algún año, que aquí me aburro.');
+    if (flag('acertijo')) return say('fantasma', 'Me has ganado en buena lid, bribón. Abre el sarcófago, anda.');
+    if (flag('gafasPuestas')) return dueloXesus();
+    return say('fantasma', 'Mi tesoro está en el sarcófago. Pero solo se lo lleva quien me venza. ¡Leed la inscripción, leed!');
+  } } },
   give: { fantasma: { '*': () => say('fantasma', 'Guárdalo. Aquí abajo no me hace falta nada.') } },
   async enter() {
     await narr('La cripta de Don Xesús. Velas que nadie enciende, un rayo de luna y un sarcófago con un caballero de piedra.');
@@ -870,26 +893,13 @@ SCENES.cripta = {
 async function leerInscripcion() {
   if (!flag('luzCripta')) return say(S.active, 'Está en sombra. Hace falta más luz… ¿algo con velas?');
   if (!flag('gafasPuestas')) return say(S.active, pick(['La letra es diminuta. Ninguno de los cuatro ve de cerca. La edad, caballeros, la edad.', 'Hace falta vista de cerca. Ángel tenía unas gafas… si las recuperamos.']));
-  if (flag('acertijo')) return say(S.active, '«Veinte caras tengo…». Resuelto. Ahora, el sarcófago.');
-  await narr('«VEINTE CARAS TENGO Y EN UNA SOLA ESTÁ TU DESTINO. NÓMBRAME Y EL CABALLERO TE DARÁ SU TESORO.»');
-  if (S.active !== 'marcos') { await say(S.active, '¿Veinte caras? Esto es cosa de friki. Que lo responda Marcos.'); return; }
-  await say('marcos', 'Caballeros… esto es de primero de rol.', 'risa');
-  const v = await choose([
-    { t: '«Un D6: el dado de toda la vida»', v: 0 },
-    { t: '«Un D20: el dado de veinte caras»', v: 1 },
-    { t: '«La cara de Ramis un domingo por la mañana»', v: 2 },
-    { t: '«Un balón de fútbol»', v: 3 },
-  ]);
-  if (v === 1) {
-    sfx('magia'); flash('#ffe9a0', 0.5); flag('acertijo', 1);
-    await say('fantasma', '¡CORRECTO! ¡El dado de los dioses! Sabía que había un sabio entre vosotros.', 'risa');
-    await say('marcos', 'Nike Apóstol nunca falla una tirada.');
-  } else if (v === 2) { await say('fantasma', '¡Ja! Esa cara tiene más de veinte. ¡Mangurrián! Prueba otra vez.', 'risa'); }
-  else { sfx('error'); await say('fantasma', '¡Serrallo! ¿Eso es lo que os enseñan en el siglo veintiuno? Otra vez.'); }
+  if (flag('acertijo')) return say(S.active, '«…que me venza en duelo». Vencido. Ahora, el sarcófago.');
+  await narr('«QUIEN QUIERA MI TESORO, QUE ME VENZA EN DUELO. DE ESPADA… Y DE LENGUA.»');
+  await dueloXesus();
 }
 async function abrirSarcofago() {
   if (flag('sarcofago')) return say(S.active, 'Abierto y saqueado. Con permiso del dueño, eso sí.');
-  if (!flag('acertijo')) return say(S.active, 'No se mueve. Ni empujando los cuatro. Habrá que resolver la inscripción.');
+  if (!flag('acertijo')) return say(S.active, flag('gafasPuestas') ? 'No se mueve. Ni empujando los cuatro. Primero hay que ganarle el duelo a Don Xesús.' : 'No se mueve. Ni empujando los cuatro. Habrá que leer la inscripción.');
   sfx('sarcofago'); shake(0.7); flag('sarcofago', 1);
   await narr('La tapa se desliza con un rugido de piedra. Dentro, sobre un cojín de terciopelo: una bolsa de reales de plata… y un billete de cincuenta euros.');
   await say('ramis', '¿Un billete de cincuenta? ¿En 1714?', 'sorpresa');

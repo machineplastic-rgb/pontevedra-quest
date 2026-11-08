@@ -89,7 +89,7 @@ function loadImages(list, onProg) {
   })));
 }
 function assetList() {
-  const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo', 'bg/disco', 'bg/antro', 'bg/intro'];
+  const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo', 'bg/disco', 'bg/antro', 'bg/intro', 'bg/estrella_tunel'];
   PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); BODY.forEach((v) => l.push('chars/' + p + v)); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
   SECOND.forEach((s) => { l.push('chars/' + s, 'chars/' + s + '_risa', 'faces/' + s + '_normal', 'faces/' + s + '_risa'); });
   CROWD_IDS.forEach((s) => l.push('chars/' + s, 'chars/' + s + '_piripi', 'chars/' + s + '_mamado', 'faces/' + s + '_normal'));
@@ -431,6 +431,7 @@ function renderScene(c) {
   if (sc) {
     if (sc.draw) sc.draw(c, G.t);
     else { const bg = G.img['bg/' + sc.bg]; if (bg) c.drawImage(bg, 0, 0, W, H); }
+    if (G.bgFrom && G.bgFrom.a > 0) { const ob = G.img['bg/' + G.bgFrom.name]; if (ob) { c.save(); c.globalAlpha = G.bgFrom.a; c.drawImage(ob, 0, 0, W, H); c.restore(); } }
     drawFx(c, sc.fxBack);
     // objetos en la escena
     for (const p of G.props) if (!p.cond || p.cond()) {
@@ -861,7 +862,7 @@ async function goScene(id, o) {
   closeMenus(); setHolding(null);
   await fadeTo(1, o.fast ? 0.3 : 0.45);
   const sc = SCENES[id]; S.scene = id; G.sceneId = id; G.scene = sc;
-  G.actors = {}; G.particles = []; G.props = sc.props ? sc.props.slice() : []; G.camZoom = 1;
+  G.actors = {}; G.particles = []; G.props = sc.props ? sc.props.slice() : []; G.camZoom = 1; G.bgFrom = null;
   if (sc.setup) sc.setup();
   // los 4 en su sitio
   if (sc.pos) PROTA.forEach((p) => { if (sc.pos[p]) actor(p, { x: sc.pos[p][0], y: sc.pos[p][1], k: sc.k || 0.62, sprite: 'chars/' + p, flip: false }); });

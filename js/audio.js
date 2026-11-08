@@ -2585,6 +2585,13 @@
     shit(d, 'plate', t + 1.45, 0.4, 0.3, 0.1, 0.55, 4000);
     thump(d, t + 1.45, 60, 0.3, 0.1, 0, 0.5);
   };
+  // choque de espadas (duelo con Don Xesús)
+  FX.espada = function (d, t) {
+    shit(d, 'plate', t, 1.7, 0.26, rnd(-0.25, 0.25), 0.35, 9000);
+    [2637, 3520, 4410, 5590].forEach(function (f, i) { tn(d, t, { type: 'triangle', f: f * rnd(0.985, 1.015), a: 0.001, dk: 0.05, sus: 0.02 / (i + 1), r: 0.5 + i * 0.12, lvl: 0.07 / (i + 1), wet: 0.3 }); });
+    nhit(d, t, { type: 'highpass', f: 5200, d: 0.09, a: 0.001, lvl: 0.14 });
+  };
+  FX.swish = function (d, t) { nhit(d, t, { type: 'bandpass', f: 700, f2: 3200, ft: 0.16, q: 1.6, d: 0.2, a: 0.05, lvl: 0.11, pan: -0.2, pan2: 0.3 }); };
   FX.trampilla = function (d, t) {
     creak(d, t, { f: 22, bp: 450, d: 1.0, lvl: 0.14, pan: 0, wet: 0.4 });
     shit(d, 'kick', t + 1.05, 0.6, 0.45, 0, 0.4);
