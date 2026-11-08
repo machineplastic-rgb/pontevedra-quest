@@ -28,7 +28,7 @@ const isCrowd = (id) => CROWD_IDS.includes(id);
 const G = {
   img: {}, t: 0, dt: 0, last: 0, scene: null, sceneId: null, actors: {}, props: [], busy: 0, mode: null,
   holding: null, reveal: 0, particles: [], fade: 1, fadeTo: 0, fadeSpeed: 2, shake: 0, flashA: 0, flashC: '#fff',
-  scale: 1, offX: 0, offY: 0, hover: null, tweens: [], dlgOpen: false, started: false, camZoom: 1, camX: 800, camY: 500,
+  scale: 1, offX: 0, offY: 0, hover: null, tweens: [], dlgOpen: false, started: false, camZoom: 1, camX: 800, camY: 500, drunkFx: 0,
 };
 let S = null; // estado de la partida (se guarda)
 
@@ -292,13 +292,14 @@ function drawFx(c, list) {
   if (!list) return;
   for (const f of list) {
     if (f.cond && !f.cond()) continue;
+    if (f.a === 0) continue; // luces apagadas (se encienden con una animación)
     const t = G.t + (f.seed || 0);
     if (f.type === 'glow' || f.type === 'candle') {
       const fl = f.type === 'candle' ? 0.75 + 0.25 * noise1(t * 6) : 1 - (f.flicker || 0) * (0.5 + 0.5 * noise1(t * 2.5));
       const r = f.r * (f.type === 'candle' ? 0.9 + 0.1 * noise1(t * 4) : 1);
       c.save(); c.globalCompositeOperation = 'lighter';
       const g = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
-      g.addColorStop(0, hexA(f.color, (f.a || 0.35) * fl)); g.addColorStop(1, hexA(f.color, 0));
+      g.addColorStop(0, hexA(f.color, (f.a !== undefined ? f.a : 0.35) * fl)); g.addColorStop(1, hexA(f.color, 0));
       c.fillStyle = g; c.fillRect(f.x - r, f.y - r, r * 2, r * 2); c.restore();
     } else if (f.type === 'neon') {
       // de vez en cuando el neón falla
@@ -314,7 +315,7 @@ function drawFx(c, list) {
       }
       c.restore();
     } else if (f.type === 'beam') {
-      c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = (f.a || 0.12) * (0.8 + 0.2 * Math.sin(t * 0.7));
+      c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = (f.a !== undefined ? f.a : 0.12) * (0.8 + 0.2 * Math.sin(t * 0.7));
       const g = c.createLinearGradient(f.x0, f.y0, f.x1, f.y1); g.addColorStop(0, f.color); g.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = g; c.beginPath(); c.moveTo(f.x0 - f.w0, f.y0); c.lineTo(f.x0 + f.w0, f.y0); c.lineTo(f.x1 + f.w1, f.y1); c.lineTo(f.x1 - f.w1, f.y1); c.closePath(); c.fill(); c.restore();
     } else if (f.type === 'tube') {
@@ -342,6 +343,23 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${clamp(a, 0, 1)})`;
 }
 
+/* ---------------- borrachera fuerte: a ratos se ve todo borroso ---------------- */
+const DRUNK_LINES = ['¡Qué borracho voy!', '¡Qué ciego!', 'Voy todo papas…', '¿Quién ha movido el suelo?', 'Veo doble… y los dos sois feos.', 'Voy más ciego que un topo en un túnel.'];
+function updBorrachera(dt) {
+  if (!S || !G.started || G.mode || !G.scene || G.scene.noDrunk || S.drunk[S.active] < 4) { G.blurT = null; return; }
+  if (G.blurT == null) G.blurT = rnd(6, 12);
+  G.blurT -= dt;
+  if (G.blurT > 0) return;
+  G.blurT = rnd(16, 30);
+  G.blurUntil = G.t + rnd(2.4, 3.4); G.blurLen = G.blurUntil - G.t;
+  // y lo dice en voz alta
+  if (!G.busy && !G.dlgOpen && G.actors[S.active]) {
+    G.bubble = { who: S.active, txt: pick(DRUNK_LINES) + ' ¡hip!', until: G.t + 3.2 }; G.idleT = Math.max(G.idleT || 0, 6);
+    hopA(S.active); sfx('hipo');
+    try { for (let i = 0; i < 3; i++) setTimeout(() => AUDIO.blip(S.active), i * 90); } catch (er) {}
+  }
+}
+
 /* ---------------- frases sueltas cuando no pasa nada ---------------- */
 function updIdle(dt) {
   if (!S || !G.started || G.busy || G.dlgOpen || G.mode || !G.scene || !G.scene.pos || typeof IDLE_LINES === 'undefined') { G.idleT = 8; return; }
@@ -356,6 +374,7 @@ function updIdle(dt) {
   let txt = isCrowd(who) ? pick(crowdIdle(who)) : pick(IDLE_LINES[who] || ['…']);
   // en los sitios con la música a tope no se oye nada
   if (G.scene.loud && isProta(who) && Math.random() < 0.5) txt = pick(['¿¡QUÉ!?', '¡NO TE OIGO!', '¿¡CÓMO DICES!?', '¡QUE SÍ, QUE VALE!', '¿HAS DICHO PULPO?', '¡ESTA CANCIÓN ES UN TEMAZO!']);
+  if (isProta(who) && S.drunk[who] >= 4 && Math.random() < 0.45) txt = pick(DRUNK_LINES);
   if (isProta(who) && S.drunk[who] >= 3) txt += ' ¡hip!';
   G.bubble = { who, txt, until: G.t + 3.4 };
   hopA(who);
@@ -436,7 +455,7 @@ function drawReveal(c) {
 
 function frame(ms) {
   const now = ms / 1000; G.dt = Math.min(0.05, now - (G.last || now)); G.last = now; G.t += G.dt;
-  updTweens(); updParticles(G.dt); updIdle(G.dt);
+  updTweens(); updParticles(G.dt); updIdle(G.dt); updBorrachera(G.dt);
   if (G.mode && G.mode.update) G.mode.update(G.dt);
   // pintar en el búfer
   bx.setTransform(1, 0, 0, 1, 0, 0);
@@ -444,6 +463,7 @@ function frame(ms) {
   if (vignette) bx.drawImage(vignette, 0, 0);
   // efecto borrachera de quien manejas: el mundo baila y se ve doble
   const lvl = G.mode && G.mode.drunk !== undefined ? G.mode.drunk : (S && G.scene && !G.scene.noDrunk ? S.drunk[S.active] : 0);
+  if (!isFinite(G.drunkFx)) G.drunkFx = 0;
   G.drunkFx += ((lvl || 0) - G.drunkFx) * Math.min(1, G.dt * 1.5);
   const d = G.drunkFx;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -455,9 +475,19 @@ function frame(ms) {
     const rot = Math.sin(G.t * 0.7) * 0.006 * d, zz = 1 + 0.012 * d;
     ctx.translate(W / 2 + sx, H / 2 + sy); ctx.rotate(rot); ctx.scale(zz, zz); ctx.translate(-W / 2, -H / 2);
     ctx.drawImage(buf, 0, 0);
-    if (d >= 1.5) {
-      ctx.globalAlpha = Math.min(0.42, (d - 1) * 0.11);
-      ctx.drawImage(buf, Math.sin(G.t * 1.3) * 7 * d, Math.cos(G.t * 1.1) * 4 * d);
+    // doble visión suave y constante solo a partir de «Piripi»; la fuerte llega a ratos (abajo)
+    if (d >= 3) {
+      ctx.globalAlpha = Math.min(0.2, (d - 2.5) * 0.08);
+      ctx.drawImage(buf, Math.sin(G.t * 1.3) * 4 * d, Math.cos(G.t * 1.1) * 2 * d);
+    }
+    // a ratos (muy borrachos): todo borroso y la doble visión se separa mucho
+    if (G.blurUntil > G.t) {
+      const k = Math.sin(Math.PI * clamp(1 - (G.blurUntil - G.t) / (G.blurLen || 3), 0, 1));
+      const off = 2 + 4 * k;
+      ctx.globalAlpha = 0.16 * k;
+      for (const [ox, oy] of [[off, 0], [-off, 0], [0, off * 0.6], [0, -off * 0.6]]) ctx.drawImage(buf, ox, oy);
+      ctx.globalAlpha = 0.24 * k;
+      ctx.drawImage(buf, Math.sin(G.t * 2.1) * 22 * k, Math.cos(G.t * 1.7) * 6 * k);
     }
   } else { ctx.translate(sx, sy); ctx.drawImage(buf, 0, 0); }
   ctx.restore();

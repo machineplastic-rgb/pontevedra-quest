@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v6';
+const VERSION = 'v7';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {

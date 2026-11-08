@@ -8,12 +8,12 @@
 
 /* ---------------- quién es quién ---------------- */
 const CROWD = {
-  uxia: { mirar: 'Uxía, de Vigo: melena hasta la cintura, pantalón cargo y cara de «a ver qué hacéis, caballeros».', talk: () => vigoTalk('uxia') },
-  noa: { mirar: 'Noa, de Vigo: moño rubio, guiño fácil y un peligro que se ve desde la otra punta de la plaza.', talk: () => vigoTalk('noa') },
-  sabela: { mirar: 'Sabela, de Vigo: falda de cuadros, calentadores y una risa que se oye por encima de cualquier música.', talk: () => vigoTalk('sabela') },
+  uxia: { mirar: 'Uxía, profe de Matemáticas en Vigo: melena hasta la cintura, pantalón cargo y cara de «a ver qué hacéis, caballeros».', talk: () => vigoTalk('uxia') },
+  noa: { mirar: 'Noa, profe de Educación Física en Vigo: moño rubio, guiño fácil y un peligro que se ve desde la otra punta de la plaza.', talk: () => vigoTalk('noa') },
+  sabela: { mirar: 'Sabela, profe de Plástica en Vigo: falda de cuadros, calentadores y una risa que se oye por encima de cualquier música.', talk: () => vigoTalk('sabela') },
   xurxo: { mirar: 'Xurxo, de la peña: lleva el vaso en alto desde hace tres horas. No se sabe si brinda o pide un taxi.', talk: () => penaTalk('xurxo') },
   nando: { mirar: 'Nando, de la peña: se ríe de todo. De todo. Incluso de esto.', talk: () => penaTalk('nando') },
-  dj: { mirar: 'DJ Raxo: gafas de sol de noche, camisa abierta y el dedo siempre arriba. Su especialidad: la gaita house.', talk: () => djTalk() },
+  dj: { mirar: 'DJ Raxo: gafas de sol de noche, camisa abierta y el dedo siempre arriba. Dice que esta noche tiene guardado algo especial.', talk: () => djTalk() },
   vera: { mirar: 'Vera: rubio platino, botas militares y medias de rejilla. Manda en O Furado y lo sabe todo el mundo.', talk: () => veraTalk() },
   iago: { mirar: 'Un chaval con sudadera y cascos. Lleva un rato mirando a Marcos como quien ve a una estrella de rock.', talk: () => iagoTalk() },
   peregrino: { mirar: 'Un peregrino con mochila, gafas y cara de llevar tres días buscando una flecha amarilla.', talk: () => peregrinoTalk() },
@@ -40,7 +40,7 @@ function crowdIdle(id) {
     sabela: ['El de las gafas parece muy joven, ¿no?', '¡Jajaja!', loud ? '¿¡QUÉ!?' : 'Hace frío para ir en falda.'],
     xurxo: ['¡CABALLEROS!', '¡Otra ronda!', '¡Oi! ¡Oi! ¡Oi!'],
     nando: ['Jajajaja.', 'Jajaja… ¿de qué nos reímos?', '¡Esa es buena!'],
-    dj: ['¡MANOS ARRIBA, PONTEVEDRA!', '¡GAITA HOUSE!', '¡SUBE ESE BOMBO!'],
+    dj: ['¡MANOS ARRIBA, PONTEVEDRA!', '¡ESTA VA POR LOS LORDS!', '¡SUBE ESE BOMBO!'],
     vera: ['Esta noche mando yo.', f.concierto ? '¡Qué papá más cañero!' : 'A ver si sube alguien al escenario…', 'Bonitas botas, ¿eh? Lo sé.'],
     iago: ['¿Ese es Nike Apóstol?', 'Esto lo cuento en el foro.', '¡El Señor!'],
     peregrino: ['¿Por dónde se va a Santiago?', 'Buen Camino…', 'Me duelen hasta las pestañas.'],
@@ -67,7 +67,6 @@ addCrowd('calle', [
   { id: 'carla', x: 1310, y: 790, k: 0.24, flip: true },
 ]);
 addCrowd('bareto', [{ id: 'guiri', x: 1250, y: 975, k: 0.57, flip: true }]);
-addCrowd('ruinas', [{ id: 'peregrino', x: 640, y: 860, k: 0.45, cond: () => !flag('peregrinoOk') }]);
 addCrowd('alameda', [
   { id: 'uxia', x: 245, y: 860, k: 0.36 }, { id: 'noa', x: 322, y: 866, k: 0.36, flip: true }, { id: 'sabela', x: 400, y: 858, k: 0.36 },
 ]);
@@ -109,6 +108,9 @@ async function vigoPlaza() {
   await say('ramis', 'Despedida no, señorita: Club de Caballeros. Es muy distinto.');
   await say('uxia', '¿Y qué hace un club de caballeros un sábado por Pontevedra?');
   await say('marc', 'Cenar, beber… y lo que surja.');
+  await say('sabela', 'Nosotras somos profes, de Vigo. Hoy sin alumnos y sin exámenes que corregir.', 'risa');
+  await say('angel', '¿Profesoras? …Maje…', 'sorpresa');
+  await say('marc', 'Caballeros, esto es como volver al Llompart. Pero mejor.');
   await say('uxia', 'El de la chaqueta marrón es un ligón. Se le nota en el guiño.', 'risa');
   await say('marc', 'Me llamo Marc. Y el guiño viene de serie.');
   await say('uxia', 'Pues Marc es un ligón. Apuntado.', 'risa');
@@ -128,7 +130,8 @@ async function vigoDisco(id) {
     flag('vigo1', 1);
     await say('noa', '¡HOLA, CABALLEROS! ¡SOMOS DE VIGO!', 'risa');
     await say('ramis', '¿¡DE BIGOTE!?', 'sorpresa');
-    await say('noa', '¡DE VIGO! ¡VI-GO!');
+    await say('noa', '¡DE VIGO! ¡VI-GO! ¡Y SOMOS PROFES!');
+    await say('ramis', '¿¡PROFETAS!? ¡Ay, Chus, si nos vieras!', 'risa');
     await say('uxia', '¡Y EL DE LA CHAQUETA ES UN LIGÓN, SE VE DESDE LA BARRA!', 'risa');
   }
   if (id === 'noa') {
@@ -141,7 +144,7 @@ async function vigoDisco(id) {
     await narr('Y entonces, de golpe, la música se corta. Silencio absoluto. Toda la Lume oye el final de la frase.');
     await say('noa', '…¡Y TE HARÍA COSAS QUE NO SALEN NI EN LOS DIBUJOS DE TU AMIGO!');
     await narr('Trescientas personas mirando a Ramis. Tres segundos eternos. La música vuelve.');
-    await say('ramis', 'Habiendo haber podido…', 'sorpresa');
+    await say('ramis', 'Habiendo haber podido… no quise poder.', 'sorpresa');
     await say('marc', 'Ramis, eso es lo más bonito que te han dicho en tu vida. Y yo dibujo cosas muy fuertes.', 'risa');
     groupLaugh(); flag('noaOk', 1); logro('pillaria');
     return;
@@ -220,7 +223,7 @@ async function peregrinoTalk() {
     { t: '«¿Santiago? ¿Eso no está en Chile?»', v: 'chile' },
   ], 'Toño espera una respuesta…');
   if (v === 'mal') return say('peregrino', '¿Del cruceiro? Ya van tres cruceiros esta noche, y en todos me dicen lo mismo…');
-  if (v === 'chile') { await say('peregrino', 'Ese es otro Santiago. Andando me queda un poco lejos.'); return say('ramis', 'Habiendo haber podido…'); }
+  if (v === 'chile') { await say('peregrino', 'Ese es otro Santiago. Andando me queda un poco lejos.'); return say('ramis', 'Al menos yo podré decir que he vivido. Y que he estado en Chile.'); }
   await say('peregrino', '¡Las flechas amarillas! ¡Eso me dijeron en Tui y se me olvidó! Caldas de Reis… ¡Gracias, caballeros! ¡Buen Camino!', 'risa');
   await say('marcos', 'Caldas de Reis… ¿no es donde vamos nosotros?');
   flag('peregrinoOk', 1);
@@ -256,8 +259,8 @@ async function garyTalk() {
       await say('guiri', 'MAGALUF?! I LOVE MAGALUF!', 'risa');
       await say('ramis', 'Bajo el yugo opresor…');
       if (f.gaita) {
-        await say('guiri', 'And this music! Scottish bagpipes! Wonderful!');
-        await say('marcos', '¡GALLEGA! ¡LA GAITA ES GALLEGA! …Bueno, es un tema delicado.');
+        await say('guiri', 'And this song… four friends on a trip… IS IT ABOUT YOU, LADS?');
+        await say('ramis', '¡ES NUESTRA CANCIÓN! ¡LA DE LOS LORDS!', 'risa');
       }
       return;
     }
@@ -295,7 +298,7 @@ async function porteroCheck() {
   await say('portero', '…Anda. Si eres mayor que yo.', 'sorpresa');
   await say('marcos', 'Bastante.');
   await say('portero', 'Perdona, jefe. Es que pareces muy joven. Bueno, tú. Ellos no.');
-  await say('ramis', 'Bajo el yugo opresor…');
+  await say('ramis', 'Al menos yo podré decir que he vivido. Se nota, ¿eh?');
   groupLaugh(); flag('porteroOk', 1); logro('joven');
   return true;
 }
@@ -308,8 +311,12 @@ async function porteroTalk() {
    DISCOTECA LUME
    ===================================================================== */
 SCENES.disco = {
-  title: 'DISCOTECA LUME', sub: 'Soportales · la música a tope', bg: 'disco', music: 'disco', ambient: 'disco', loud: true, bpm: 124,
-  tint: { c: '#8a5aff', a: 0.12, d: 0.08 }, k: 0.6,
+  title: 'DISCOTECA LUME', sub: 'Soportales · la música a tope', bg: 'disco', ambient: 'disco', loud: true, bpm: 124,
+  // si el DJ ya ha puesto la canción del Club, sigue sonando al volver
+  get music() { return S && S.flags.gaita ? 'cancion' : 'disco'; },
+  // la Lume es oscura: todos en penumbra morada
+  tint: { c: '#5a3aff', a: 0.16, d: 0.38 }, k: 0.6,
+  fxBack: [{ type: 'draw', fn: (c) => { c.fillStyle = 'rgba(6,0,22,0.32)'; c.fillRect(0, 0, W, H); } }],
   pos: { ramis: [280, 990], marc: [475, 995], marcos: [670, 990], angel: [865, 995] },
   npcs: [
     { id: 'dj', x: 1192, y: 585, k: 0.17, dance: true },
@@ -368,10 +375,10 @@ async function djTalk() {
   await say(S.active, '¡OYE! ¿¡PUEDES PONER ALGO DE SINIESTRO TOTAL!?');
   await say('dj', '¿¡UN SINIESTRO TOTAL!? ¿¡OS HABÉIS ESTRELLADO CON EL COCHE!?', 'sorpresa');
   await say('marcos', '¡NO, NO! ¡EL COCHE ESTÁ PERFECTO! ' + (flag('llavesConfiscadas') && !flag('llavesDevueltas') ? '¡LAS LLAVES LAS TIENE BRAIS!' : '¡Y LAS LLAVES LAS TENGO YO!'), 'sorpresa');
-  await say('dj', '¡PUES PARA CELEBRAR QUE ESTÁIS VIVOS… GAITA HOUSE!', 'risa');
-  sfx('ovacion');
-  await narr('Suena una muiñeira con bombo de discoteca. La Lume se viene arriba. Gary llora de emoción. Las de Vigo bailan con los brazos en alto.');
-  flag('gaita', 1);
+  await say('dj', '¡PUES PARA CELEBRAR QUE ESTÁIS VIVOS… TENGO ALGO ESPECIAL PARA VOSOTROS, LORDS!', 'risa');
+  flag('gaita', 1); music('cancion'); sfx('ovacion');
+  await narr('Suena «Cuatro amigos fueron de viaje…». Es la canción del Club. La Lume entera se viene arriba, Gary llora de emoción y las profes de Vigo la bailan con los brazos en alto.');
+  await say('ramis', '¡ESTA ES NUESTRA! ¡Al menos yo podré decir que he vivido!', 'risa');
 }
 async function bailar() {
   if (S.scene !== 'disco') return;
@@ -384,7 +391,7 @@ async function bailar() {
     }
     await narr('Los cuatro caballeros salen a la pista de la Lume.');
     await narr('Ramis baila como si aparcara un Porsche en batería. Marc hace el robot, pero sexy. Marcos baila sin mover los pies, por si hay control. Y Ángel cierra los ojos y baila con el universo.');
-    if (flag('gaita')) await narr('Y con la gaita house, acaban bailando una muiñeira con media discoteca alrededor.');
+    if (flag('gaita')) await narr('Y con la canción del Club sonando, acaban bailando abrazados con media discoteca alrededor.');
     await say('guiri', 'LADS! LEGENDS!', 'risa');
     await say('noa', '¡ESOS CABALLEROS!', 'risa');
     if (S.drunk.marcos > 0) { drink('marcos', -1); await say('marcos', 'He sudado una copa entera. Ya veo una sola bola de espejos.'); }
@@ -793,7 +800,7 @@ async function postCreditos() {
   await fadeTo(0, 0.8);
   await narr('Mientras tanto, en las ruinas de Santo Domingo…');
   await say('guiri', 'Double or nothing, Mister Xesús!', 'risa');
-  await say('fantasma', '¡Lupanar! ¿Otra vez? Esta noche apostamos fuerte, inglés: si gano yo, me quedo tus chanclas.');
+  await say('fantasma', '¡Albricias! ¿Otra vez, mangurrián? Esta noche apostamos fuerte, inglés: si gano yo, me quedo tus chanclas.');
   await say('guiri', 'Deal! And if I win?');
   await say('fantasma', 'Si ganas tú… te doy unos calzoncillos de rayas que me ha regalado una meiga. Todavía calentitos.', 'risa');
   await narr('Don Xesús reparte. Gary mira sus cartas. Gary no sabe jugar al mus.');

@@ -52,7 +52,7 @@ const LOGROS = {
 
 /* ---------- frases sueltas de cada uno ---------- */
 const IDLE_LINES = {
-  ramis: ['Habiendo haber podido…', 'Bajo el yugo opresor…', '¡Yo al menos podré decir que he vivido!', 'Nunca más… hasta el sábado.', '¿Eso es un 911? Ah, no, es una farola.'],
+  ramis: ['Habiendo haber podido, no quise poder.', 'Bajo el yugo opresor…', '¡Al menos yo podré decir que he vivido!', 'Nunca más… hasta el sábado.', '¿Eso es un 911? Ah, no, es una farola.', 'Esta noche es nuestra, Lords.'],
   marc: ['Esa luz está fatal.', 'Esto me lo apunto para un dibujo.', 'Para un Manara, esta noche.', 'Letra de escribano… ningún contenido.'],
   marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', 'Para esto necesito un D20.', '¿Alguien tiene agua?', 'Que no, que no aparento menos. Bueno, un poco.'],
   angel: ['Lo noto… aquí hay algo.', 'Qué bonita está la noche.', 'Maje… no, no pienso en Maje.', 'La luna dice cosas.', '(Ángel tararea un riff de guitarra)', 'Esta noche tiene ritmo. Lo noto en las cuerdas.'],
@@ -121,7 +121,7 @@ function nextStep() {
 function HINT(id) {
   const n = nextStep();
   const pre = {
-    ramis: ['Habiendo haber podido… ', 'Bajo el yugo opresor… ', 'Escuchad: ', ''],
+    ramis: ['Habiendo haber podido… ', 'Escuchad, Lords: ', 'Al menos yo lo tengo claro: ', ''],
     marc: ['A ver, caballeros: ', 'Lo tengo claro: ', ''],
     marcos: ['Según mi hoja de personaje: ', 'Siguiente misión: ', ''],
     angel: ['Lo presiento: ', 'Algo me dice que… ', ''],
@@ -176,7 +176,7 @@ SCENES.estrella = {
         await say(S.active, 'Mejor que lo haga Ramis, que es el experto en grifos.');
       },
     } },
-    { name: 'Botellas', r: [90, 130, 1090, 200], verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en la boda de Ramis.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
+    { name: 'Botellas', r: [90, 130, 1090, 200], verbs: { 'Mirar': () => say(S.active, pick(['Más botellas que en el Galactic.', 'Albariño, Ribeiro, licor café, de hierbas… Esto es un museo.'])) } },
     { name: 'Caja registradora', r: [735, 465, 125, 110], verbs: { 'Mirar': () => say(S.active, S.active === 'marcos' ? 'Intento instalarle el Doom al TPV. No arranca. Qué decepción.' : 'La caja. Marc: «Ni la mires, que nos conocemos».') } },
     { name: 'Cocina', r: [975, 340, 200, 320], verbs: { 'Mirar': () => say(S.active, 'La cocina. De ahí salen la tortilla y el pulpo. Huele a gloria bendita.') } },
     { name: 'Bufanda', r: [1408, 240, 125, 280], verbs: { 'Mirar': () => say(S.active, 'Una bufanda de fútbol. Ramis dice que es del Pontevedra. Marc dice que no. Llevan diez minutos discutiendo.') } },
@@ -228,10 +228,10 @@ SCENES.estrella = {
     await say('marc', 'Ángel lleva toda la cena tamborileando en la mesa con el tenedor.');
     await say('angel', 'Es que esta noche tiene ritmo. Lo noto. Pontevedra suena a punk.');
     await say('marcos', 'Ángel, eso es la cafetera.', 'risa');
-    await say('angel', 'Ya… Ojalá estuviera Chus para llamar a todo esto «¡lupanar!».');
-    await say('ramis', '¡Esta noche es nuestra, caballeros! ¡Palabra de caballero!');
+    await say('angel', 'Ya… Ojalá estuviera Chus para decir: «¡Esto es Maaaaagniiifico!».');
+    await say('ramis', '¡Esta noche es nuestra, Lords!');
     await say('marcos', 'Y yo no bebo, que luego conduzco hasta Caldofran. Palabra de caballero también.');
-    await say('marc', 'Eso mismo dijiste en Coruña. Y acabaste cantando «Rianxeira» en un karaoke.', 'risa');
+    await say('marc', 'Eso mismo dijiste en Coruña. Y acabaste cantando «Miña terra galega» abrazado a una farola.', 'risa');
     await narr('Toca a la gente y las cosas para mirar, hablar o usar. Abajo eliges con quién juegas: cada uno de los cuatro tiene su don. ¿Atascado? Habla con tus amigos.');
     setObj('Disfrutar de la cena · Hablar con la señora');
   },
@@ -602,7 +602,7 @@ async function parroquianoTalk() {
   if (S.active === 'ramis') {
     await say('ramis', '¿A ti te gustan los Porsche? El 911 es poesía. El Cayenne es un error. El 718… el 718 es un amor de verano.');
     await say('gente', 'Hombre, yo tuve un Seat 127 que subía O Castro en tercera. Eso sí que era un coche.', 'risa');
-    await say('ramis', '…Bajo el yugo opresor. Respeto.');
+    await say('ramis', '…Al menos tú podrás decir que has vivido. Respeto.');
     return;
   }
   const v = await choose([
@@ -618,9 +618,9 @@ async function parroquianoTalk() {
 /* ---------------- PUB OSCURO ---------------- */
 SCENES.pub = {
   title: 'PUB OSCURO', sub: 'Al fondo de la ruta', bg: 'pub', music: 'pub', ambient: 'pub',
-  tint: { c: '#4a5aff', a: 0.12, d: 0.12 }, k: 0.58,
-  pos: { ramis: [190, 990], marc: [400, 995], marcos: [610, 990], angel: [820, 995] },
-  npcs: [{ id: 'chica', x: 1280, y: 990, flip: true, cond: () => !flag('beso') }],
+  tint: { c: '#4a5aff', a: 0.12, d: 0.12 }, k: 0.72,
+  pos: { ramis: [195, 995], marc: [430, 1000], marcos: [665, 995], angel: [900, 1000] },
+  npcs: [{ id: 'chica', x: 1310, y: 995, flip: true, cond: () => !flag('beso') }],
   fx: [
     { type: 'neon', x: 427, y: 205, w: 150, h: 150, color: '#4aa3ff', a: 0.4, period: 6 },
     { type: 'neon', x: 1475, y: 258, w: 170, h: 90, color: '#3f7dff', a: 0.38, period: 8, seed: 2 },
@@ -669,7 +669,7 @@ async function chicaTalk() {
   if (id === 'ramis') {
     await say('ramis', 'Perdona… ¿te gustan los Porsche? Y otra cosa: esas gafas son de mi amigo.');
     await say('chica', 'Me gustan los hombres que no hablan de coches. Y las gafas me las quedo hasta que venga a por ellas el de la barba.', 'risa');
-    await say('ramis', 'Habiendo haber podido…');
+    await say('ramis', 'Habiendo haber podido… no quise poder.');
     return;
   }
   if (id === 'marcos') {
@@ -720,7 +720,12 @@ SCENES.ruinas = {
     { type: 'glow', x: 420, y: 330, r: 160, color: '#ffc26a', a: 0.25, flicker: 0.2, seed: 3 },
     { type: 'glow', x: 1530, y: 600, r: 90, color: '#ffc26a', a: 0.35, flicker: 0.3, seed: 6 },
     { type: 'glow', x: 830, y: 700, r: 360, color: '#9fd8ff', a: 0.12, cond: () => flag('fantasmaVisto') },
+    // la luz del fondo de la cripta, cuando se abre la puertecita
+    { type: 'glow', id: 'puertaLuz', x: 1525, y: 602, r: 260, color: '#ffe2a0', a: 0, aMax: 0.55, flicker: 0.15 },
+    { type: 'glow', id: 'puertaLuz', x: 1525, y: 600, r: 60, color: '#fff6d8', a: 0, aMax: 1, flicker: 0.25, seed: 4 },
+    { type: 'beam', id: 'puertaLuz', x0: 1525, y0: 650, x1: 1360, y1: 1000, w0: 34, w1: 190, color: 'rgba(255,225,160,0.9)', a: 0, aMax: 0.32 },
   ],
+  setup() { this.fx.filter((f) => f.id === 'puertaLuz').forEach((f) => { f.a = flag('criptaAbierta') ? f.aMax : 0; }); },
   emit: [{ kind: 'fog', rate: 0.4, x0: -100, x1: 1500, y0: 720, y1: 1000, pre: 8 }, { kind: 'firefly', rate: 0.6, x0: 0, x1: 1600, y0: 300, y1: 800, pre: 5 }],
   hs: [
     { name: 'Arcos góticos', r: [130, 40, 480, 640], verbs: { 'Mirar': () => say(S.active, 'Arcos del siglo XIV que han aguantado guerras, lluvias y despedidas de soltero. Respeto.') } },
@@ -740,7 +745,7 @@ SCENES.ruinas = {
   npc: {
     fantasma: { name: 'Don Xesús, el fantasma', 'Hablar': () => fantasmaTalk(), 'Mirar': () => say(S.active, 'Un caballero translúcido con sombrero de pluma, capa y copa de vino. Brilla como una pantalla de móvil a las tres de la mañana.') },
   },
-  give: { fantasma: { jarra: () => darVino(), llave_antigua: () => abrirCripta(), '*': () => say('fantasma', '¿Eso? ¡Lupanar! Un caballero no acepta baratijas.') } },
+  give: { fantasma: { jarra: () => darVino(), llave_antigua: () => abrirCripta(), '*': () => say('fantasma', '¿Eso? ¡Mangurrián! Un caballero no acepta baratijas.') } },
   async enter() {
     await narr('Las ruinas de Santo Domingo bajo la luna llena. Arcos góticos, niebla y un frío que no es normal.');
     await say('angel', 'Aquí hay alguien. Lo noto.');
@@ -748,12 +753,12 @@ SCENES.ruinas = {
     sfx('fantasma'); flash('#bfe8ff', 0.6); shake(0.4);
     actor('fantasma', { x: 830, y: 930, k: 0.58, alpha: 0 }); flag('fantasmaVisto', 1);
     await tween(G.actors.fantasma, { alpha: 1 }, 1.2);
-    await say('fantasma', '¡SERRALLO! ¡LUPANAR! ¿Quién osa perturbar mi descanso eterno a estas horas?');
+    await say('fantasma', '¡BRIBONES! ¡MANGURRIANES! ¿Quién osa perturbar mi descaaanso eterno a estas horas?');
     await say('marc', '…Es Chus. Es igualito que Chus.', 'sorpresa');
     await say('ramis', '¡Habla como Chus! ¡Chus, eres tú!', 'sorpresa');
     await say('fantasma', 'Soy Don Xesús de Santo Domingo, caballero ilustrado. Muerto en 1714 de mal de amores… y de un orujo en mal estado.');
     await say('marcos', 'Un fantasma de verdad. Esto es mejor que cualquier partida de rol.', 'risa');
-    await say('fantasma', '¿Caballeros? ¿Vosotros? ¡Ja! Un caballero trae vino y respeta el arte. Traedme vino… y un retrato digno de mi persona.');
+    await say('fantasma', '¿Caaaballeros? ¿Vosotros? ¡Ja! Un caballero trae vino y respeta el arte. Traedme vino… y un retrato digno de mi persona.');
     await say('fantasma', 'Y quizá, solo quizá, os enseñe mi cripta. Dicen que guardo un tesoro. Dicen bien.');
     logro('lupanar'); updObj();
   },
@@ -767,7 +772,7 @@ async function fantasmaTalk() {
     await narr('Marc saca el móvil y dibuja. Capa al viento, pluma al aire… y, al estilo Manara, pecho descubierto y unas medias de liga que nadie le ha pedido.');
     await say('fantasma', '¡Maaarc! Tienes letra de escribano… pero ningún contenido.');
     await say('marc', '…', 'sorpresa');
-    await say('fantasma', '…Bueno. Contenido sí que tiene. Mucho. ¡Me encanta! ¡LUPANAR!', 'risa');
+    await say('fantasma', '…Bueno. Contenido sí que tiene. Mucho. ¡Albricias! ¡Es maaaagnífico!', 'risa');
     flag('retrato', 1); groupLaugh();
     if (f.fantasmaVino) await fantasmaListo();
     return;
@@ -775,22 +780,28 @@ async function fantasmaTalk() {
   const opts = [];
   if (!f.fantasmaVino) opts.push({ t: '«¿Qué hay que hacer para ver su cripta?»', v: 'q' });
   opts.push({ t: '«Usted habla igual que nuestro profe Chus»', v: 'chus' });
+  opts.push({ t: '«Don Xesús, ¿qué le parecen las discotecas de neón?»', v: 'neon' });
   if (S.active === 'angel') opts.push({ t: '«¿Usted sabe cosas del amor, Don Xesús?»', v: 'amor' });
   opts.push({ t: '«Nada, buenas noches»', v: 'n' });
   const v = await choose(opts);
-  if (v === 'q') await say('fantasma', 'Vino y un retrato. ¡Vino y un retrato! ¿Tan difícil es, rapaces del siglo veintiuno?');
+  if (v === 'q') await say('fantasma', 'Vino y un retraaato. ¡Vino y un retraaato! ¿Tan difícil es, bribones del siglo veintiuno?');
   if (v === 'chus') await say('fantasma', '¿Chus? ¿Un profesor ilustrado que grita «lupanar»? ¡Será descendiente mío! Los grandes hombres tenemos muchos descendientes.', 'risa');
   if (v === 'amor') {
     await say('fantasma', 'Tú, el calvo de la barba… tienes cara de haber amado a una tal Maje.');
     await say('angel', '¿Cómo sabe usted lo de Maje?', 'sorpresa');
-    await say('fantasma', 'Los muertos lo sabemos todo. Y los profesores también. ' + (f.beso ? '¡Y esta noche, además, has besado! ¡Lupanar!' : 'Y esta noche hay alguien esperándote en un pub oscuro. Hazme caso.'), 'risa');
+    await say('fantasma', 'Los muertos lo sabemos todo. Y los profesores también. ' + (f.beso ? '¡Y esta noche, además, has besado! ¡Albricias, bribón!' : 'Y esta noche hay alguien esperándote en un pub oscuro. Hazme caso.'), 'risa');
   }
-  if (v === 'n') await say('fantasma', 'Buenas noches, caballeros. O lo que seáis.');
+  if (v === 'neon') {
+    await say('fantasma', '¿Esos antros de luces moradas y neones, con la música que retumba hasta aquí abajo? ¡Eso es un lupanar, un serrallo… vamos, una casa de putes!', 'sorpresa');
+    await say('marc', 'Dicho por un muerto de 1714, tiene su mérito.');
+    await say('ramis', '¡Me encanta este hombre!', 'risa');
+  }
+  if (v === 'n') await say('fantasma', 'Buenas noches, caaaballeros. O lo que seáis, bribones.');
 }
 async function darVino() {
   if (flag('fantasmaVino')) return say('fantasma', 'Ya bebí, ya bebí. Y no me deis más, que luego me vuelvo transparente del todo.');
   takeItem('jarra'); flag('fantasmaVino', 1); sfx('trago');
-  await say('fantasma', '¡La barrica secreta de la Estrella! ¡Trescientos años sin probarla!', 'risa');
+  await say('fantasma', '¡La barrica secreta de la Estrella! ¡Trescientos años sin probaaarla! ¡Albricias!', 'risa');
   await narr('Don Xesús bebe directamente de la jarra. El vino le baja por dentro y se ve. Se pone de un rosa transparente precioso.');
   await say('fantasma', 'Brindad conmigo, caballeros. ¡Todos!');
   ['ramis', 'marc', 'angel'].forEach((p) => drink(p, 1, true)); sfx('brindis');
@@ -799,15 +810,18 @@ async function darVino() {
 }
 async function fantasmaListo() {
   await say('fantasma', 'Vino y arte. Sois caballeros dignos. Mi cripta está tras la puertecita de la derecha.');
-  await say('fantasma', 'Pero un tabernero de la Estrella me robó la llave en 1714. ¡Ladrón! ¡Lupanar!');
+  await say('fantasma', 'Pero un tabernero de la Estrella me robó la llave en 1714. ¡Laaadrón! ¡Bribón! ¡Mangurrián!');
   if (has('llave_antigua')) await say('marcos', 'Una llave antigua… con un escudo de caballero. ¡La tenemos! La encontramos en la bodega del Estrella.', 'sorpresa');
   updObj();
 }
 async function abrirCripta() {
   if (flag('criptaAbierta')) return goScene('cripta', { from: 'left' });
   if (!flag('fantasmaVino') || !flag('retrato')) return say('fantasma', '¡Quieto! Primero vino y un retrato. Luego, mi cripta.');
-  sfx('door'); shake(0.4); flag('criptaAbierta', 1); takeItem('llave_antigua');
-  await say('fantasma', '¡MI LLAVE! Trescientos años esperando. Pasad, pasad. Bajo yo delante, que conozco el camino.', 'risa');
+  sfx('reja'); shake(0.25); flag('criptaAbierta', 1); takeItem('llave_antigua');
+  // se va encendiendo una luz al fondo
+  if (G.scene && G.scene.fx) G.scene.fx.filter((f) => f.id === 'puertaLuz').forEach((f) => tween(f, { a: f.aMax }, 2.4));
+  await narr('La puertecita de hierro se abre con un chirrido que pone los pelos de punta. Al fondo, muy lejos, se enciende una luz.');
+  await say('fantasma', '¡MI LLAVE! Trescientos años esperaaando. Pasad, pasad. Bajo yo delante, que conozco el camino.', 'risa');
   await goScene('cripta', { from: 'left' });
 }
 
@@ -868,7 +882,7 @@ async function leerInscripcion() {
     sfx('magia'); flash('#ffe9a0', 0.5); flag('acertijo', 1);
     await say('fantasma', '¡CORRECTO! ¡El dado de los dioses! Sabía que había un sabio entre vosotros.', 'risa');
     await say('marcos', 'Nike Apóstol nunca falla una tirada.');
-  } else if (v === 2) { await say('fantasma', '¡Ja! Esa cara tiene más de veinte. ¡Lupanar! Prueba otra vez.', 'risa'); }
+  } else if (v === 2) { await say('fantasma', '¡Ja! Esa cara tiene más de veinte. ¡Mangurrián! Prueba otra vez.', 'risa'); }
   else { sfx('error'); await say('fantasma', '¡Serrallo! ¿Eso es lo que os enseñan en el siglo veintiuno? Otra vez.'); }
 }
 async function abrirSarcofago() {
@@ -991,8 +1005,8 @@ async function meigallo() {
 /* ---------------- PARKING ---------------- */
 SCENES.parking = {
   title: 'EL PARKING', sub: 'Ahí espera el Peugeot', bg: 'parking', music: 'parking', ambient: 'parking',
-  tint: { c: '#ffd27a', a: 0.05, d: 0.05 }, k: 0.6,
-  pos: { ramis: [165, 990], marc: [375, 995], marcos: [580, 990], angel: [785, 995] },
+  tint: { c: '#ffd27a', a: 0.05, d: 0.05 }, k: 0.74,
+  pos: { ramis: [150, 995], marc: [375, 1000], marcos: [600, 995], angel: [825, 1000] },
   fx: [
     { type: 'tube', x: 1015, y: 155, w: 440, bad: false },
     { type: 'tube', x: 395, y: 318, w: 160, bad: true },
@@ -1212,7 +1226,7 @@ async function resultados() {
   S.over = true; clearSave();
   const r = rango(), P = puntuacion();
   if (TEST) { (G.log = G.log || []).push('RANGO: ' + r + ' · ' + P.total + ' puntos · logros ' + S.logros.join(',')); return; }
-  music('creditos');
+  music('cancion');
   const filas = P.parts.map((p) => `<tr><td>${p[0]}</td><td>${p[1]}</td><td class="${p[2] < 0 ? 'neg' : ''}">${p[2] > 0 ? '+' : ''}${p[2]}</td></tr>`).join('');
   cardBox(`<h2 style="font-size:52px">${r}</h2>
     <div class="scnum"><span id="scN">0</span> puntos</div>
@@ -1241,7 +1255,7 @@ async function creditos() {
     ['h', 'Guion'], ['', 'JRAR y la memoria selectiva del Club'], ['', ''],
     ['h', 'Reparto, por orden de borrachera'], ['', 'Ramis · Marc · Ángel'], ['', 'y Marcos (al volante, casi sereno)'], ['', ''],
     ['h', 'Con la participación especial de'], ['', 'Doña Maruxa y su táper infinito'], ['', 'La chica del pub (1 minuto en pantalla)'], ['', 'Don Xesús de Santo Domingo, fantasma ilustrado'],
-    ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Las de Vigo: Uxía, Noa y Sabela'], ['', 'Rubén, el portero que pide el DNI'], ['', 'DJ Raxo y su gaita house'],
+    ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Las profes de Vigo: Uxía, Noa y Sabela'], ['', 'Rubén, el portero que pide el DNI'], ['', 'DJ Raxo y su tema especial para los Lords'],
     ['', 'Antía, la camarera que no oye nada'], ['', 'Lúa, de Bellas Artes'], ['', 'Gary, de Mánchester, en chanclas'], ['', 'Tino y Vera, de O Furado'], ['', 'Xurxo y Nando, los de la peña'],
     ['', 'Iago, fan número uno de Nike Apóstol'], ['', 'Toño, el peregrino perdido'], ['', 'Carla (@carlaviral), que lo grabó todo'], ['', 'La Guardia Civil de la N-550'], ['', 'La Santa Compaña'], ['', 'La vaca de Ramiro'], ['', ''],
     ['h', 'Dirección de fotografía'], ['', 'Marc («la luz está fatal»)'], ['', ''],
@@ -1254,6 +1268,7 @@ async function creditos() {
     ['h', 'Vestuario'], ['', 'La camisa de cuadros de Ángel, que va sola'], ['', ''],
     ['h', 'Maquillaje y peluquería'], ['', 'El orballo'], ['', ''],
     ['h', 'Departamento legal'], ['', 'Sargento Seoane'], ['', ''],
+    ['h', 'Canción de la Lume y de los créditos'], ['', '«Cuatro amigos fueron de viaje…»'], ['', 'machineplastic'], ['', ''],
     ['h', 'Banda sonora original'], ['', 'DJ Raxo · Ángel y los de O Furado'], ['', 'Gaita, bombo y licor café'], ['', ''],
     ['h', 'Idea, historia e ilustraciones'], ['', 'JRAR'], ['', ''],
     ['h', 'Programación, música y sonido'], ['', 'Claude'], ['', ''],

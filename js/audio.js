@@ -2015,6 +2015,9 @@
   // --- Concierto: punk a 160 para el minijuego de ritmo ---
   // OJO: el pulso 1 del compás 1 cae justo en t=0 del bucle (sin anacrusa):
   // el minijuego coloca las notas sobre esta rejilla. 16 compases = 24 s.
+  // la canción de JRAR (audio/music/cancion.mp3); si no se puede cargar, suena la de la discoteca
+  T.cancion = T.disco;
+
   T.concierto = {
     bpm: 160, gain: 1, bars: 16,
     ch: {
@@ -2573,6 +2576,14 @@
     creak(d, t + 0.05, { f: 32, bp: 850, d: 0.75, lvl: 0.12, pan: 0, wet: 0.3 });
     shit(d, 'stepw', t + 0.85, 0.5, 0.35, 0, 0.35);
     thump(d, t + 0.85, 75, 0.25, 0.08, 0, 0.3);
+  };
+  // puerta de hierro vieja: cerrojo, chirrido largo y golpe contra la piedra
+  FX.reja = function (d, t) {
+    shit(d, 'plate', t, 0.55, 0.22, 0.1, 0.45, 6000);
+    creak(d, t + 0.12, { f: 48, bp: 1700, d: 1.3, lvl: 0.13, pan: 0.15, wet: 0.45 });
+    creak(d, t + 0.5, { f: 30, bp: 900, d: 0.9, lvl: 0.1, pan: 0.1, wet: 0.45 });
+    shit(d, 'plate', t + 1.45, 0.4, 0.3, 0.1, 0.55, 4000);
+    thump(d, t + 1.45, 60, 0.3, 0.1, 0, 0.5);
   };
   FX.trampilla = function (d, t) {
     creak(d, t, { f: 22, bp: 450, d: 1.0, lvl: 0.14, pan: 0, wet: 0.4 });
@@ -3137,11 +3148,13 @@
       bareto: 60, pub: 65.08474576271186, beso: 53.333333333333336, ruinas: 87.27272727272727, cripta: 64, alameda: 91.42857142857143,
       meiga: 43.63636363636363, parking: 76.8, carretera: 54.857142857142854, control: 85.33333333333333, compana: 76.8,
       balneario: 109.71428571428571, creditos: 71.11111111111111, minijuego: 54.857142857142854, derrota: 27.428571428571427,
-      disco: 61.935483870967744, antro: 56.470588235294116, concierto: 24, intro: 72 },
+      disco: 61.935483870967744, antro: 56.470588235294116, concierto: 24, intro: 72,
+      cancion: -1 },  // -1: la canción de JRAR entera (la duración la da el propio archivo)
     amb: { estrella: 40, bodega: 40, plaza: 40, calle: 40, bareto: 40, pub: 40, ruinas: 40, cripta: 40, alameda: 40, parking: 40, carretera: 40, control: 40, compana: 40, balneario: 40,
       disco: 40, antro: 40 }
   };
   var REC_XF = 1.2;  // fundido entre vueltas (s); cada archivo trae 3 s de cola
+  var REC_GAIN = { cancion: 1 };  // volumen por grabación (la canción de JRAR ya viene a nivel)
   var REC_ON = !!(W.fetch && /^https?:$/.test(W.location.protocol)) && !W.__AUDIO_TEST__;
   var recRaw = {}, recBuf = {}, recOrder = [], recs = [];
   var recMusic = null, recAmb = null;
@@ -3176,7 +3189,7 @@
     if (!REC_ON) return;
     var list = [];
     ['estrella', 'bodega', 'tension', 'minijuego', 'plaza', 'calle', 'bareto', 'pub', 'beso', 'ruinas', 'cripta', 'alameda', 'meiga', 'parking', 'carretera', 'control', 'compana', 'balneario', 'creditos', 'derrota', 'titulo',
-      'disco', 'antro', 'concierto', 'intro']
+      'disco', 'antro', 'concierto', 'intro', 'cancion']
       .forEach(function (n) { list.push('music/' + n); if (REC_LOOP.amb[n]) list.push('amb/' + n); });
     var i = 0;
     (function next() { if (i >= list.length) return; recFetch(list[i++]).then(next, next); })();
@@ -3192,7 +3205,9 @@
   }
   RecLoop.prototype.begin = function () {
     var t = now() + 0.05;
-    this.out.gain.setValueAtTime(0, t); this.out.gain.linearRampToValueAtTime(1, t + this.fade);
+    // canción entera: vuelve a empezar justo cuando se apaga el final
+    if (this.len < 0) this.len = Math.max(10, this.buf.duration - REC_XF - 0.3);
+    this.out.gain.setValueAtTime(0, t); this.out.gain.linearRampToValueAtTime(REC_GAIN[this.name] || 1, t + this.fade);
     this.seg(t, true); this.next = t + this.len;
   };
   RecLoop.prototype.seg = function (t, first) {
