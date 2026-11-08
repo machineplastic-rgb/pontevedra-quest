@@ -20,7 +20,7 @@ const DUELO_POSES = {
   // v19: cayéndose de espaldas (hoja de poses de JRAR, a escala 2.3 para igualarlo a los otros)
   xesus_retrocede: { x: 2304.6, y: 246.1, w: 936.1, h: 899.3, ax: 2866.2, fy: 1138.5 },   // ax corrido: cae hacia la derecha
 };
-EXTRA_ASSETS.push(...Object.keys(DUELO_POSES).map((k) => 'duelo/' + k));
+EXTRA_ASSETS.push(...Object.keys(DUELO_POSES).map((k) => 'duelo/' + k), 'items/espada');
 const INSULTOS = [
   { x: '¡Tienes letra de escribano, pero ningún contenido!', ok: 'Y usted mucho contenido… pero ni cuerpo.', mal: ['¡Pues anda que usted!', 'Escribo en Comic Sans, ¿algún problema?'] },
   { x: '¡Luchas como un mangurrián de feria!', ok: 'Y usted como una sábana tendida en un día de viento.', mal: ['¡Las ferias molan, eh!', '¿Mangurrián es bueno o malo?'] },
@@ -119,7 +119,7 @@ MG.duelo = function () {
       setM('para'); setX('retrocede'); clash(); sfx('swish');
       const xx = xxOf();
       // al caerse suelta la espada, que sale volando y se clava en el suelo
-      fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: DIB() ? 905 : 1500, y1: FLOOR - 25, spin: 3.2 };
+      fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: DIB() ? 1045 : 1500, y1: FLOOR - 25, spin: 3.2 };
       xBub = { t: '¡Me rindo! ¡Touché, retouché y requetetouché!', t0: clock, face: 'risa' };
       await sleep(0.75); sfx('espada');
       big = { t: '¡TOUCHÉ!', c: '#ffd98a', t0: clock }; try { AUDIO.laugh('grupo'); } catch (e) {}
@@ -199,7 +199,17 @@ MG.duelo = function () {
   function drawFly(c) {
     const k = Math.min(1, fly.t / 0.75), x = fly.x0 + (fly.x1 - fly.x0) * k, y = fly.y0 + (fly.y1 - fly.y0) * k - Math.sin(k * Math.PI) * 330;
     const rot = k < 1 ? fly.spin * fly.t * 4 : (fly.src === 'rapier' ? -1.25 : -1.4);
-    if (fly.src === 'rapier') {
+    // v24: la espada del dibujo de JRAR (en la imagen apunta arriba a la derecha: −0,666 rad)
+    const esp = G.img['items/espada'];
+    if (fly.src === 'rapier' && esp) {
+      const L = 300, s = L / 405, w = esp.width * s, h = esp.height * s;
+      if (k < 1) { c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(150,215,255,.9)'; c.shadowBlur = 18; c.drawImage(esp, -w / 2, -h / 2, w, h); c.restore(); }
+      else {
+        const dir = Math.PI / 2 - 0.25 + Math.sin(fly.t * 30) * 0.05 * Math.max(0, 1.6 - fly.t), tx = x, ty = y + 18;
+        c.save(); c.translate(tx - Math.cos(dir) * L * 0.5, ty - Math.sin(dir) * L * 0.5); c.rotate(dir + 0.666);
+        c.shadowColor = 'rgba(150,215,255,.9)'; c.shadowBlur = 18; c.drawImage(esp, -w / 2, -h / 2, w, h); c.restore();
+      }
+    } else if (fly.src === 'rapier') {
       if (k < 1) rapier(c, x, y, rot, 300);
       else { c.save(); c.translate(x, y); c.rotate(Math.sin(fly.t * 30) * 0.06 * Math.max(0, 1.6 - fly.t)); rapier(c, 0, -230, -Math.PI / 2 + 0.25, 260); c.restore(); }
     } else drawImgH(c, 'items/candelabro', x, y, 150, { rot, center: true });

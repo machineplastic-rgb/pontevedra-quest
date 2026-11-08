@@ -91,8 +91,8 @@ const MG = (() => {
       // v20: el bar de JRAR, un poco más cerca y corrido para que el jarrón de flores quede a la izquierda
       { const im = G.img['bg/estrella']; c.fillStyle = '#000'; c.fillRect(0, 0, W, H); if (im) c.drawImage(im, W / 2 - W * 0.6 - 75, H / 2 - H * 0.6, W * 1.2, H * 1.2); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, 0, W, H); }
       // mesa
-      c.fillStyle = PROC.lin(c, 0, 640, 0, 1000, [[0, '#7a4a28'], [1, '#3e2412']]); c.fillRect(0, 650, W, 350);
-      c.fillStyle = '#9a6234'; c.fillRect(0, 640, W, 18);
+      // v24: en primer plano, la barra del dibujo del bar (madera y azulejos de JRAR)
+      { const im = G.img['bg/estrella']; if (im) { c.drawImage(im, 0, 560, 980, 300, 0, 625, 1600, 490); c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(0, 625, W, 375); } }
       // el jarrón de flores del dibujo (sin pintar nada): una luz encima, que crece con cada chupito
       { const jx = 125, jy = 505, r = 120 + tossed * 25 + Math.sin(t * 3) * 6;
         c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(jx, jy, 5, jx, jy, r);
@@ -348,6 +348,7 @@ const MG = (() => {
     };
     m.update = (dt) => {
       t0 += result ? 0 : dt; m.msgT = (m.msgT || 0) - dt;
+      if (result === 'ok') m.okT = (m.okT || 0) + dt;
       if (!result && t0 >= DUR) { result = 'fail'; sfx('fantasma'); setTimeout(() => m.end(false), 1800); }
       top.innerHTML = result === 'ok' ? '<b style="color:#9dffb0">¡La Compaña pasa de largo!</b>' : result === 'fail' ? '<b style="color:#ff8a8a">Os han visto…</b>' : `Dibuja el círculo con el dedo · ${Math.ceil(DUR - t0)} s`;
       if (Math.random() < 0.3) emit('fog', rnd(0, W), rnd(560, 980), 1, { color: '#a8b8e8' });
@@ -356,17 +357,20 @@ const MG = (() => {
       const im = PROC.get('camino'); c.drawImage(im, 0, 0, W, H);
       c.fillStyle = 'rgba(10,20,50,.25)'; c.fillRect(0, 0, W, H);
       if (!G.img['bg/camino']) drawImgH(c, 'items/cruceiro', 330, 760, 420);
-      // la procesión se acerca
-      const k = clamp(t0 / DUR, 0, 1) * (result === 'ok' ? 0.85 : 1);
-      for (let i = 0; i < 5; i++) {
-        const kk = clamp(k * 1.15 - i * 0.07, 0, 1), p = 0.12 + kk * 0.75;
-        const x = 1180 - kk * 170 + (i - 2) * 70 * p * 2.2 + (result === 'ok' ? kk * (i - 2) * 220 : 0), y = 560 + p * 330;   // v23: llegan por la derecha del camino
-        const cs = 'items/compana_' + [1, 5, 3, 2, 4][i]; drawImgH(c, G.img[cs] ? cs : 'items/compana', x, y, 520 * p, { alpha: 0.72 + 0.2 * Math.sin(t * 2 + i), glow: 'rgba(160,200,255,.8)' });
-        c.save(); c.globalCompositeOperation = 'lighter'; const gg = c.createRadialGradient(x + 60 * p, y - 260 * p, 0, x + 60 * p, y - 260 * p, 90 * p);
-        gg.addColorStop(0, 'rgba(140,200,255,.5)'); gg.addColorStop(1, 'rgba(140,200,255,0)'); c.fillStyle = gg; c.fillRect(x - 200, y - 500 * p, 400, 400 * p); c.restore();
-      }
+      // v24: las ánimas llegan por los dos lados del camino y los rodean
+      const k = clamp(t0 / DUR, 0, 1);
+      const AN = [[1, -1, 300, 850], [5, -1, 420, 780], [3, -1, 530, 720], [2, 1, 1070, 720], [4, 1, 1190, 780], [6, 1, 1300, 850], [7, 1, 800, 680]];
+      const animas = AN.map((a, i) => {
+        const kk = clamp(k * 1.25 - i * 0.05, 0, 1), e = kk * kk * (3 - 2 * kk), sx = a[1] < 0 ? -160 : W + 160, sy = 650;
+        let x = sx + (a[2] - sx) * e, y = sy + (a[3] - sy) * e, al = 0.2 + 0.7 * e;
+        if (result === 'ok') { x += a[1] * (m.okT || 0) * 320; al *= Math.max(0, 1 - (m.okT || 0) / 2.2); }   // pasan de largo
+        return { s: 'items/compana_' + a[0], x, y, h: 230 + (y - 650) * 1.45, al };
+      });
+      const pinta = (q) => { const src = G.img[q.s] ? q.s : 'items/compana'; drawImgH(c, src, q.x, q.y, q.h, { alpha: q.al * (0.85 + 0.15 * Math.sin(t * 2 + q.x)), glow: 'rgba(160,200,255,.8)' }); };
+      animas.filter((q) => q.y <= 800).sort((p, q) => p.y - q.y).forEach(pinta);
       // los cuatro, acojonados
       PROTA.forEach((id, i) => { const sp = bodySprite(id); drawImgH(c, sp, G4[i][0], G4[i][1], 300 * G.img[sp].height / G.img['chars/' + id].height, { rot: Math.sin(t * 12 + i) * 0.015 }); });
+      animas.filter((q) => q.y > 800).sort((p, q) => p.y - q.y).forEach(pinta);
       // rastro de sal
       if (path.length > 1) { c.save(); c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = result === 'ok' ? '#e8fbff' : 'rgba(255,255,255,.9)'; c.lineWidth = 12;
         if (result === 'ok') { c.shadowColor = '#bfe8ff'; c.shadowBlur = 30; }

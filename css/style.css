@@ -307,3 +307,7 @@ body.small #bagdesc{font-size:30px}
 @keyframes mpbote{0%,100%{margin-bottom:0}50%{margin-bottom:12px}}
 .mp-pie{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:2;padding:8px 22px;border-radius:12px;background:rgba(10,8,20,.85);color:#e9dfc4;font-size:22px;white-space:nowrap}
 .mp-x{position:absolute;right:24px;top:22px;z-index:4;width:70px;height:70px;border-radius:50%;background:var(--panel);border:3px solid var(--gold);color:var(--gold2);font-size:34px;cursor:pointer}
+
+/* v24 · cámara de fotos */
+.mgbtn.zoomb{width:84px;height:84px;padding:0;border-radius:50%;font-size:34px}
+.mgbtn.shutb{width:118px;height:118px;padding:0;border-radius:50%;font-size:64px;line-height:1;background:#f4f4f4;color:#d33;border:8px solid #bbb}

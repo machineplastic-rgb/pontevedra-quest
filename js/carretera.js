@@ -528,8 +528,9 @@
     m.down = (p, e) => {
       const id = pid(e);
       if (cowSt === 2 && inR(p, PROMPT, 20)) { brakeTap = 0.6; return; }
-      if (p.x < 620 && p.y > 470) { ptr[id] = 'wheel'; wheel = { id, x0: p.x, s0: wheelSteer }; usedWheel = true; return; }
       if (p.x > 1130 && p.y > 600) { ptr[id] = p.x < (BRK.x + BRK.w + GAS.x) / 2 ? 'brake' : 'gas'; if (ptr[id] === 'gas') usedGas = true; return; }
+      // v24: sin volante: se desliza el dedo (o el ratón) por cualquier sitio de la carretera
+      ptr[id] = 'wheel'; wheel = { id, x0: p.x, s0: wheelSteer }; usedWheel = true;
     };
     m.move = (p, e) => {
       const id = pid(e), k = ptr[id];
@@ -1223,7 +1224,7 @@
       // Ramis y compañía
       drawBubble(c);
       // controles
-      drawWheel(c);
+      // v24: sin volante dibujado
       drawPedals(c);
       // carteles
       drawBanners(c, prog);
@@ -1361,7 +1362,7 @@
       // ayuda de controles
       const hintA = T < 9 && !(usedWheel && usedGas && T > 4) ? Math.min(1, T * 2) * Math.min(1, (9 - T) * 1.5) : 0;
       if (hintA > 0.01) {
-        pill(c, '◀ Arrastra el volante ▶', WX, WY - 190, hintA, '#9feaff');
+        pill(c, '◀ Desliza el dedo para girar ▶', 520, 720, hintA, '#9feaff');
         pill(c, 'Mantén GAS · FRENO', (BRK.x + GAS.x + GAS.w) / 2, GAS.y - 46, hintA, '#a8ffd2');
         pill(c, 'Teclado: ← → girar · ↑ gas · ↓ o espacio freno', W / 2, 414, hintA * 0.9, '#d8e2ff');
       }
