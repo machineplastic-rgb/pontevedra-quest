@@ -183,7 +183,7 @@ async function carlaTalk() {
   const f = S.flags;
   if (S.scene === 'antro') {
     if (f.concierto) return say('carla', '¡El vídeo de Ángel ya tiene cien mil visitas! «Papá cañero» es tendencia en toda Galicia.', 'risa');
-    return say('carla', 'Dicen que el de la barba canta. Tengo el móvil al cien por cien. Por si acaso.');
+    return say('carla', 'Dicen que el barbas canta. Tengo el móvil al cien por cien. Por si acaso.');
   }
   if (!f.carla1) {
     sfx('foto'); flash('#ffffff', 0.4);
@@ -485,7 +485,7 @@ SCENES.antro = {
     await say('angel', 'Este sitio tiene buena energía. Mirad ese escenario…');
     if (!flag('concierto')) {
       await say('vera', 'Tino, tu cantante sigue en el baño.');
-      await say('tino', 'Pues necesito uno. Ya. …Ese de la barba tiene manos de guitarrista.');
+      await say('tino', 'Pues necesito uno. Ya. …El barbas tiene manos de guitarrista.');
     }
     updObj();
   },
@@ -540,8 +540,8 @@ async function tinoTalk() {
   const f = S.flags;
   if (S.scene !== 'antro') return;
   if (S.active !== 'angel') {
-    if (f.concierto) return say('tino', 'Vuestro amigo el de la barba tiene escenario aquí cuando quiera. Vosotros, la barra.');
-    return say('tino', 'Aquí se habla con música. El de la barba tiene manos de guitarrista… que venga él.');
+    if (f.concierto) return say('tino', 'Vuestro amigo el barbas tiene escenario aquí cuando quiera. Vosotros, la barra.');
+    return say('tino', 'Aquí se habla con música. El barbas tiene manos de guitarrista… que venga él.');
   }
   if (f.concierto) {
     const v = await choose([{ t: '🎸 «Tino, ¿otra canción?»', v: 1 }, { t: '«Nada, Tino, gracias»', v: 0 }]);

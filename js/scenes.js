@@ -279,7 +279,7 @@ async function senoraTalk() {
     await say('senora', 'La bodega de mi abuelo. Dicen que hay un túnel que llega hasta Santo Domingo. Yo no bajo, que hay arañas.');
   } else if (v === 'vida') {
     await say('senora', 'Media vida detrás de esta barra. He visto de todo: bodas, bautizos, reconciliaciones… y a un fraile bailando la muiñeira.');
-    if (S.active === 'angel') { await say('senora', 'Y tú, el de la barba, tienes cara de músico. ¿A que sí?'); await say('angel', 'Canto en un par de grupos… y toco algo la guitarra.', 'sorpresa'); await say('senora', '¡Lo sabía! Manos de guitarrista y ojos de bolero. ¡Ay, si yo tuviera treinta años menos!', 'risa'); }
+    if (S.active === 'angel') { await say('senora', 'Y tú, barbas, tienes cara de músico. ¿A que sí?'); await say('angel', 'Canto en un par de grupos… y toco algo la guitarra.', 'sorpresa'); await say('senora', '¡Lo sabía! Manos de guitarrista y ojos de bolero. ¡Ay, si yo tuviera treinta años menos!', 'risa'); }
   } else if (v === 'nada') {
     await say('senora', 'Si necesitáis algo, me silbáis. ¡Silbar sabéis, ¿no?!', 'risa');
   }
@@ -315,7 +315,7 @@ async function senoraVuelve(pillados) {
   }
   await narr('Trae una bandeja: flan de huevo, tarta de Santiago, filloas con miel… y una copa de helado con barquillo «para el más flaquiño».');
   await say('ramis', 'Señora… ¿se ha ido a su casa a por postres? ¿Por nosotros?', 'sorpresa');
-  await say('senora', 'Es que me habéis caído en gracia. Y ese de la barba está en los huesos de tanto cantar. ¡Come, hombre!');
+  await say('senora', 'Es que me habéis caído en gracia. Y el barbas está en los huesos de tanto cantar. ¡Come, hombre!');
   sfx('trago');
   await say('angel', '…Está buenísimo. Señora, creo que la quiero.', 'risa');
   await say('senora', '¡Ay, calla, que me pongo colorada!', 'risa');
@@ -662,19 +662,19 @@ async function chicaTalk() {
   const id = S.active;
   if (id === 'marc') {
     await say('marc', 'Hola. Soy dibujante. Te dibujaría como Manara: en blanco y negro… y con muy poquita ropa.');
-    await say('chica', '¿Perdona? Tú dibuja, guapo, que yo estoy mirando a tu amigo el de la barba.');
+    await say('chica', '¿Perdona? Tú dibuja, guapo, que yo estoy mirando a tu amigo, el barbas.');
     await say('marc', 'Veinte años de técnica tirados a la basura.', 'sorpresa');
     return;
   }
   if (id === 'ramis') {
     await say('ramis', 'Perdona… ¿te gustan los Porsche? Y otra cosa: esas gafas son de mi amigo.');
-    await say('chica', 'Me gustan los hombres que no hablan de coches. Y las gafas me las quedo hasta que venga a por ellas el de la barba.', 'risa');
+    await say('chica', 'Me gustan los hombres que no hablan de coches. Y las gafas me las quedo hasta que venga a por ellas el barbas.', 'risa');
     await say('ramis', 'Habiendo haber podido… no quise poder.');
     return;
   }
   if (id === 'marcos') {
     await say('marcos', 'Ho… hola. ¿Tú juegas a rol? Es que… nada. ¿Me devuelves las gafas de mi amigo?');
-    await say('chica', '¿Tú eres el que conduce, verdad? Qué mono. Pero yo estoy esperando a que se acerque el de la barba.', 'risa');
+    await say('chica', '¿Tú eres el que conduce, verdad? Qué mono. Pero yo estoy esperando a que se acerque el barbas.', 'risa');
     return;
   }
   // Ángel
@@ -787,7 +787,7 @@ async function fantasmaTalk() {
   if (v === 'q') await say('fantasma', 'Vino y un retraaato. ¡Vino y un retraaato! ¿Tan difícil es, bribones del siglo veintiuno?');
   if (v === 'chus') await say('fantasma', '¿Chus? ¿Un profesor ilustrado que grita «lupanar»? ¡Será descendiente mío! Los grandes hombres tenemos muchos descendientes.', 'risa');
   if (v === 'amor') {
-    await say('fantasma', 'Tú, el calvo de la barba… tienes cara de haber amado a una tal Maje.');
+    await say('fantasma', 'Tú, el barbas… tienes cara de haber amado a una tal Maje.');
     await say('angel', '¿Cómo sabe usted lo de Maje?', 'sorpresa');
     await say('fantasma', 'Los muertos lo sabemos todo. Y los profesores también. ' + (f.beso ? '¡Y esta noche, además, has besado! ¡Albricias, bribón!' : 'Y esta noche hay alguien esperándote en un pub oscuro. Hazme caso.'), 'risa');
   }
@@ -940,7 +940,7 @@ SCENES.alameda = {
 async function meigaTalk() {
   const f = S.flags;
   if (S.active !== 'angel' && !f.meigaPide) {
-    await say('meiga', 'Ti non, rapaz. Que veña o da barba, o calvo. Ese ten o don.');
+    await say('meiga', 'Ti non, rapaz. Que veña o barbas. Ese ten o don.');
     await say(S.active, 'Dice que hable Ángel. Que tiene «el don».');
     return;
   }
