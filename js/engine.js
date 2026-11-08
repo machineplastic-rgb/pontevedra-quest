@@ -577,7 +577,7 @@ function openVerbs(p, title, opts) {
 async function run(fn) {
   if (!fn) return;
   G.busy++;
-  try { await fn(); } catch (e) { console.error(e); }
+  try { await fn(); if (typeof CAPI !== 'undefined') await CAPI.despues(); } catch (e) { console.error(e); }
   G.busy--;
   updParty(); save();
 }
@@ -795,7 +795,7 @@ async function say(who, text, mood, o) {
   let shown = 0, done = false;
   tx.innerHTML = '';
   const total = plain.length;
-  const speed = who === 'narrador' ? 0.024 : 0.019;
+  const speed = (who === 'narrador' ? 0.024 : 0.019) * (G.textoK || 1);   // v14: velocidad del texto (Ajustes)
   await new Promise((res) => {
     let acc = 0, lastBlip = 0;
     const tick = () => {
@@ -876,6 +876,8 @@ async function goScene(id, o) {
   music(sc.music || null); ambient(sc.ambient || null);
   $('hud').classList.toggle('hidden', !!sc.noHud);
   updParty(); save();
+  // v14: la primera vez en ciertos sitios, antes, un «Mientras tanto…»
+  if (!S.seen[id] && typeof CAPI !== 'undefined') await CAPI.antes(id);
   // cambio de sitio: fundido a negro (sin andar, que no hay animación de caminar)
   await wait(200);
   await fadeTo(0, 0.6);

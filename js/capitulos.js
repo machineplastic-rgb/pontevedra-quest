@@ -43,7 +43,8 @@ const CAPI = (() => {
     if (TEST || !S || !G.started || !S.flags) return;
     let nuevo = null;
     for (const c of CAPS) { try { if (!st.u[c.id] && c.abre(S)) { st.u[c.id] = 1; nuevo = c; } } catch (e) {} }
-    if (nuevo) { guarda(); if (!G.mode) toast('📖', 'Capítulo desbloqueado', nuevo.n + '. ' + nuevo.t); }
+    // (el capítulo nuevo ya lo anuncia su escena de «Mientras tanto…»)
+    if (nuevo) guarda();
     const c = S.cap && capDe(S.cap);
     if (c && !S.capOk && c.fin(S)) {
       S.capOk = 1;
@@ -109,12 +110,99 @@ const CAPI = (() => {
     clearSave();
     S = JSON.parse(JSON.stringify(base));
     S.startT = Date.now(); S.cap = c.id; S.capOk = 0; S.over = false;
+    // las escenas de los capítulos anteriores ya «pasaron»; la de este sale ahora
+    S.inter = {}; CAPS.forEach((x) => { try { if (x.abre(S)) S.inter[x.id] = 1; } catch (e) {} });
     G.mode = null; G.started = true;
     buildParty();
     $('hud').classList.remove('hidden');
+    await interludio(c);
     await goScene(S.scene, { fast: true });
-    card('CAPÍTULO ' + c.n, c.t);
     updObj();
+  }
+
+  /* ---------------- «Mientras tanto…»: escenas cortas entre capítulos ----------------
+     antes: al entrar por primera vez en esa escena (con la pantalla aún en negro)
+     despues: cuando se cumple la condición, al acabar una acción */
+  const INTER = {
+    ruta: { antes: ['plaza'], bg: 'bareto', music: 'bareto', figs: [['gente', 470, 1.0], ['camarero', 1080, 1.0]], lineas: [
+      ['narrador', 'Mientras tanto, en un bareto de los soportales…'],
+      ['camarero', 'Sábado, luna llena y Estrella Galicia bien fría. Hoy alguien me deja las llaves del coche en la barra. Lo noto en el codo.'],
+      ['gente', 'Tú y tu codo, Brais. La semana pasada dijo que iba a nevar.', 'risa'],
+      ['camarero', 'Y nevó. En Lugo, pero nevó.'],
+    ] },
+    tesoro: { despues: () => !!S.flags.llavesConfiscadas, bg: 'cripta', music: 'cripta', dark: 0.35, figs: [['fantasma', 820, 1.05, { ghost: true }]], lineas: [
+      ['narrador', 'Mientras tanto, bajo las ruinas de Santo Domingo…'],
+      ['fantasma', 'Trescientos años sin una visita decente. Ni un vino, ni un retrato, ni un duelo como Dios manda…'],
+      ['fantasma', '¡Albricias! Huele a vino de barrica… y a caballeros sin blanca. Esta noche, por fin, tengo plan.', 'risa'],
+    ] },
+    meiga: { antes: ['alameda'], bg: 'estrella', music: 'estrella', figs: [['senora', 800, 1.0]], lineas: [
+      ['narrador', 'Mientras tanto, en el Bar Estrella…'],
+      ['senora', '¿Pura? Soy yo. Van para la Alameda cuatro rapaces: uno con gafas, uno con barba, uno del Porsche y otro que dibuja.'],
+      ['senora', 'Trátamelos bien, que se comieron todos mis postres. Y si te piden algo… pídeles tú primero.', 'risa'],
+    ] },
+    movida: { antes: ['disco', 'antro'], bg: 'disco', music: 'disco', dark: 0.25, figs: [['dj', 800, 1.0]], lineas: [
+      ['narrador', 'Mientras tanto, en la cabina de la discoteca Lume…'],
+      ['dj', 'Esta noche tengo algo especial: una canción de cuatro amigos que fueron de viaje…'],
+      ['dj', 'Solo la pincho si entran unos Lords de verdad. Y algo me dice que ya vienen.'],
+    ] },
+    caldofran: { despues: () => !!S.flags.llavesDevueltas, bg: 'balneario', music: 'balneario', figs: [['recep', 800, 1.0]], lineas: [
+      ['narrador', 'Mientras tanto, en el Balneario Acuña de Caldas de Reis…'],
+      ['recep', 'Reserva a nombre de «Club de Caballeros». Cuatro personas. Llegada prevista: a las once de la noche.'],
+      ['recep', 'Son las cinco de la mañana. Bueno… los que vienen de Pontevedra siempre llegan. Tarde, pero llegan.', 'risa'],
+    ] },
+  };
+  function modoViñeta(it) {
+    return {
+      drunk: 0,
+      draw(c, t) {
+        const im = G.img['bg/' + it.bg] || (typeof PROC !== 'undefined' && PROC.get && PROC.get(it.bg));
+        c.fillStyle = '#05060f'; c.fillRect(0, 0, W, H);
+        if (im) { const z = 1.06 + Math.sin(t * 0.2) * 0.02; c.drawImage(im, W / 2 - W * z / 2, H / 2 - H * z / 2, W * z, H * z); }
+        c.fillStyle = `rgba(0,0,0,${it.dark || 0.15})`; c.fillRect(0, 0, W, H);
+        for (const [id, x, k, o] of it.figs) {
+          const s = G.img['chars/' + id]; if (!s) continue;
+          const h = 760 * k, w = s.width * h / s.height, y = 1000 + (o && o.ghost ? Math.sin(t * 1.8) * 10 - 40 : 0);
+          c.save(); if (o && o.ghost) { c.globalAlpha = 0.85; c.shadowColor = 'rgba(150,215,255,.9)'; c.shadowBlur = 40; }
+          c.drawImage(s, x - w / 2, y - h, w, h); c.restore();
+        }
+        if (vignette) c.drawImage(vignette, 0, 0);
+        // el rótulo de cómic
+        c.save(); c.font = "800 34px 'Cinzel', serif"; const txt = 'MIENTRAS TANTO…', tw = c.measureText(txt).width;
+        c.translate(60, 54); c.rotate(-0.02); c.fillStyle = '#ffe48a'; c.strokeStyle = '#2a1a06'; c.lineWidth = 5;
+        c.fillRect(0, 0, tw + 48, 64); c.strokeRect(0, 0, tw + 48, 64);
+        c.fillStyle = '#2a1a06'; c.textBaseline = 'middle'; c.fillText(txt, 24, 34); c.restore();
+      },
+    };
+  }
+  // la escena entera; empieza y acaba en negro
+  async function interludio(c) {
+    const it = INTER[c.id]; if (!S) return;
+    S.inter = S.inter || {}; S.inter[c.id] = 1;
+    if (!it) { await card('CAPÍTULO ' + c.n, c.t, 2200); return; }
+    const prev = G.mode, hud = !$('hud').classList.contains('hidden');
+    await fadeTo(1, 0.5);
+    G.mode = modoViñeta(it); $('hud').classList.add('hidden'); closeMenus();
+    music(it.music); ambient(null);
+    await fadeTo(0, 0.6);
+    for (const [who, txt, mood] of it.lineas) await say(who, txt, mood);
+    await fadeTo(1, 0.6);
+    G.mode = prev;
+    await card('CAPÍTULO ' + c.n, c.t, 2200);
+    if (G.scene) { music(G.scene.music || null); ambient(G.scene.ambient || null); }
+    if (hud && G.scene && !G.scene.noHud) $('hud').classList.remove('hidden');
+  }
+  async function antes(sceneId) {
+    if (!S) return;
+    S.inter = S.inter || {};
+    for (const c of CAPS) { const it = INTER[c.id]; if (it && it.antes && it.antes.includes(sceneId) && !S.inter[c.id]) { await interludio(c); return; } }
+  }
+  async function despues() {
+    if (!S || !G.started || G.mode || S.over) return;
+    S.inter = S.inter || {};
+    for (const c of CAPS) {
+      const it = INTER[c.id];
+      if (it && it.despues && !S.inter[c.id] && it.despues()) { await interludio(c); await fadeTo(0, 0.6); return; }
+    }
   }
 
   /* ---------------- salir del juego ---------------- */
@@ -134,7 +222,7 @@ const CAPI = (() => {
   }
 
   return {
-    alArrancar, abrir, salir,
+    alArrancar, abrir, salir, antes, despues,
     adultoOn: () => !!(st.adulto && st.on && st.edad),
     estado: () => st,
     cambiaAdulto() { if (!st.adulto) return; if (!st.edad) { abrir(); return; } st.on = st.on ? 0 : 1; guarda(); },

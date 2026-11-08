@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v13';
+const VERSION = 'v14';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -62,6 +62,8 @@ function bindMenus() {
   $('tCont').onclick = (e) => { e.stopPropagation(); const s = loadSave(); startGame(s); };
   $('tCap').onclick = (e) => { e.stopPropagation(); CAPI.abrir(); };
   $('tExit').onclick = (e) => { e.stopPropagation(); CAPI.salir(); };
+  $('mAjustes').onclick = (e) => { e.stopPropagation(); sfx('open'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); }); };
+  $('tAjustes').onclick = (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('open'); $('menu').classList.remove('hidden'); AJUSTES.vista($('menu').querySelector('.mbox'), () => { bindMenus(); updSoundBtn(); $('menu').classList.add('hidden'); }); };
   $('mExit').onclick = (e) => { e.stopPropagation(); $('menu').classList.add('hidden'); CAPI.salir(); };
   $('mAdult').onclick = (e) => { e.stopPropagation(); sfx('click'); CAPI.cambiaAdulto(); updSoundBtn(); };
   $('tScore').onclick = async (e) => { e.stopPropagation(); try { AUDIO.init(); } catch (er) {} sfx('click'); $('title').classList.add('hidden'); await verMarcador(-1, 'Cerrar'); $('title').classList.remove('hidden'); };
