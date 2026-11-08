@@ -6,20 +6,34 @@
    al otro. Si existen los dibujos img/duelo/xesus_<pose> (guardia,
    ataque, retrocede) y img/duelo/marcos_<pose> (guardia, para, tocado)
    se usan; si no, se apaña con los muñecos de siempre.
+   v12: dibujos de JRAR. Cada pose guarda dónde estaba en su dibujo
+   original (x, y, w, h) y el punto entre los pies (ax, fy), para que
+   al cambiar de pose el muñeco no salte.
    ===================================================================== */
+const DUELO_POSES = {
+  marcos_guardia: { x: 38, y: 179, w: 754, h: 762, ax: 415, fy: 934 },
+  marcos_para: { x: 32, y: 161, w: 780, h: 796, ax: 422, fy: 950 },
+  marcos_tocado: { x: 42, y: 203, w: 845, h: 749, ax: 464, fy: 945 },
+  xesus_guardia: { x: 625, y: 80, w: 911, h: 862, ax: 1185, fy: 935 },
+  xesus_ataque: { x: 506, y: 110, w: 1022, h: 835, ax: 1224, fy: 938 },
+  xesus_estocada: { x: 579, y: 89, w: 952, h: 855, ax: 1248, fy: 937 },
+  // este sale de la hoja pequeña (pendiente del dibujo grande)
+  xesus_retrocede: { x: 2036, y: 1073, w: 743, h: 832, ax: 2383, fy: 1886 },
+};
+EXTRA_ASSETS.push(...Object.keys(DUELO_POSES).map((k) => 'duelo/' + k));
 const INSULTOS = [
   { x: '¡Tienes letra de escribano, pero ningún contenido!', ok: 'Y usted mucho contenido… pero ni cuerpo.', mal: ['¡Pues anda que usted!', 'Escribo en Comic Sans, ¿algún problema?'] },
   { x: '¡Luchas como un mangurrián de feria!', ok: 'Y usted como una sábana tendida en un día de viento.', mal: ['¡Las ferias molan, eh!', '¿Mangurrián es bueno o malo?'] },
-  { x: '¡Laaadrón! ¡Bribón! ¡Rufián de taberna!', ok: 'Mucho alarga las palabras para lo poco que dice.', mal: ['¿Me lo repite más despacio?', 'Rufián de taberna, sí. A mucha honra.'] },
+  { x: 'Sólo había visto un cobarde como tú una vez.', ok: 'Ya, y supongo que él te enseñó todo lo que sabes.', mal: ['¿Y era guapo?', '¡Pues ya van dos!'] },
   { x: '¡He atravesado a hombres más fieros que tú!', ok: 'Normal: es transparente. Atraviesa hasta las puertas.', mal: ['¡Mamá!', '¿Fieros? Yo vivo en Coruña, oiga.'] },
   { x: '¡Vistes como un bufón del siglo veintiuno!', ok: 'Soy diseñador de moda. Esa capa es de la temporada 1714 y ya no se lleva.', mal: ['Me lo compré en rebajas.', 'Es que la ropa buena está en la lavadora.'] },
   { x: '¡Mi espada ha probado sangre de corsarios ingleses!', ok: 'Y su copa, todo el Ribeiro de Galicia. Por eso le tiembla.', mal: ['¿Y no le dio asco?', 'Yo he probado las ensaimadas de Palma. Tiemble.'] },
   { x: '¡Cuando acabe contigo, rondarás esta cripta para siempre!', ok: 'Como usted, que lleva trescientos años sin salir de casa.', mal: ['Bueno, si hay wifi…', '¿Para siempre siempre?'] },
-  { x: '¡Eres más lento que un carro de bueyes subiendo a Santiago!', ok: 'Y usted más pesado que un sermón en latín.', mal: ['Es que voy en Peugeot.', 'A Santiago se va andando, que es el Camino.'] },
+  { x: '¡Eres más lento que un carro de bueyes subiendo a Santiago!', ok: 'Y usted más pesado que un gorrino en brazos.', mal: ['Es que voy en Peugeot.', 'A Santiago se va andando, que es el Camino.'] },
   { x: '¡Pelear contigo es como pelear con un niño de teta!', ok: 'Aparento diecisiete, pero tengo dos hijos. Eso es nivel cincuenta de aguante.', mal: ['¡Si hasta me piden el DNI!', '¿Teta? ¿Dónde?'] },
-  { x: '¡Esgrimes un candelabro, bribón! ¡Un candelabro!', ok: 'Al menos el mío da luz. Sus argumentos, ninguna.', mal: ['Es lo que había en la bodega.', 'Es un sable láser de bajo consumo.'] },
+  { x: '¡Esgrimes un candelabro, bribón! ¡Un candelabro!', ok: 'Has begut oli!', mal: ['Es lo que había en la bodega.', 'Es un sable láser de bajo consumo.'] },
   { x: '¡Tus amigos apestan a orujo desde aquí!', ok: 'Y usted a naftalina de 1714.', mal: ['Es colonia. De orujo.', '¡Ramis, te dije que no!'] },
-  { x: '¡En mis tiempos, los caballeros sabían latín!', ok: 'Alea iacta est, Don Xesús: he sacado un veinte natural.', mal: ['Lorem ipsum dolor sit amet.', '¿Latín? Yo sé reguetón.'] },
+  { x: 'Te voy a poner el brazo en cabestrillo.', ok: '¿Por qué, estudias para enfermera?', mal: ['¡El brazo no, que tengo que conducir!', 'Mejor escayola, que se puede firmar.'] },
 ];
 const XS_TOCADO = ['¡Aaargh! ¡Touché!', '¡Bribón… qué lengua tienes!', '¡Me has dado, mangurrián!', '¡Albricias… digo, ¡maldición!', '¡Esa dolió más que el orujo de 1714!', '¡Ay! ¡Eso no se le dice a un muerto!'];
 const XS_GANA = ['¡Ja! ¿Eso es una réplica o un estornudo?', '¡Serrallo de excusas!', '¡Flojo, flojo, flojííísimo!', '¡Maaagnífico… para mí!', '¡Ja! Hasta la Santa Compaña contesta mejor.', '¡Toma estocada, bribón!'];
@@ -39,7 +53,8 @@ MG.duelo = function () {
   const setM = (p) => { mPose = p; mT = 0; }, setX = (p) => { xPose = p; xT = 0; };
   const mix = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const top = MG.bar('');
-  const mxOf = () => 600 + vp * 95, xxOf = () => 1010 + vp * 95;
+  const DIB = () => !!G.img['duelo/marcos_guardia'] && !!G.img['duelo/xesus_guardia'];
+  const mxOf = () => DIB() ? 530 + vp * 70 : 600 + vp * 95, xxOf = () => DIB() ? 1070 + vp * 70 : 1010 + vp * 95;
 
   function updTop() {
     let s = '';
@@ -48,7 +63,7 @@ MG.duelo = function () {
   }
   function clash() {
     sfx('espada'); shake(0.25); flashT = 0.18;
-    const cx = (mxOf() + xxOf()) / 2, cy = FLOOR - 300;
+    const cx = DIB() ? mxOf() + 50 : (mxOf() + xxOf()) / 2, cy = DIB() ? FLOOR - 400 : FLOOR - 300;
     for (let i = 0; i < 28; i++) { const a = rnd(0, Math.PI * 2), v = rnd(250, 900); sparks.push({ x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 200, life: rnd(0.25, 0.6) }); }
   }
   function ask(cur) {
@@ -86,7 +101,7 @@ MG.duelo = function () {
         const a = pick(DUELO_ANIMO); cheer = { id: a[0], t: a[1], t0: clock + 0.5 };
         try { AUDIO.laugh(a[0]); } catch (e) {}
       } else {
-        pos--; fallos++; setX('ataque'); setM('tocado'); clash();
+        pos--; fallos++; setX('estocada'); setM('tocado'); clash();
         mBub.face = 'sorpresa'; xBub = { t: o.k === 'tiempo' ? '¡Te has quedado en blanco, mangurrián!' : pick(XS_GANA), t0: clock, face: 'risa' };
         const a = pick(DUELO_PENA); cheer = { id: a[0], t: a[1], t0: clock + 0.5 };
         try { AUDIO.laugh('fantasma'); } catch (e) {}
@@ -103,14 +118,15 @@ MG.duelo = function () {
     if (win) {
       setM('para'); setX('retrocede'); clash(); sfx('swish');
       const xx = xxOf();
-      fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: 1500, y1: FLOOR - 25, spin: 3.2 };
+      // con los dibujos la espada sigue en la mano: no sale volando
+      if (!DIB()) fly = { src: 'rapier', t: 0, x0: xx - 80, y0: FLOOR - HX * 0.46, x1: 1500, y1: FLOOR - 25, spin: 3.2 };
       xBub = { t: '¡Me rindo! ¡Touché, retouché y requetetouché!', t0: clock, face: 'risa' };
       await sleep(0.75); sfx('espada');
       big = { t: '¡TOUCHÉ!', c: '#ffd98a', t0: clock }; try { AUDIO.laugh('grupo'); } catch (e) {}
     } else {
-      setM('tocado'); setX('ataque'); clash();
+      setM('tocado'); setX('estocada'); clash();
       const mx = mxOf();
-      fly = { src: 'candelabro', t: 0, x0: mx + 45, y0: FLOOR - 270, x1: 130, y1: FLOOR - 10, spin: -2.6 };
+      if (!DIB()) fly = { src: 'candelabro', t: 0, x0: mx + 45, y0: FLOOR - 270, x1: 130, y1: FLOOR - 10, spin: -2.6 };
       xBub = { t: '¡Arrinconado, bribón! ¡Ja, ja, jaaa!', t0: clock, face: 'risa' };
       big = { t: '¡ARRINCONADO!', c: '#ff8a7a', t0: clock }; try { AUDIO.laugh('fantasma'); } catch (e) {}
     }
@@ -142,9 +158,24 @@ MG.duelo = function () {
     c.fillStyle = '#9cc9f0'; c.fillRect(-42, -5, 36, 10); c.beginPath(); c.arc(-44, 0, 8, 0, Math.PI * 2); c.fill();
     c.restore();
   }
+  // pose dibujada: se coloca por el punto entre los pies (gx, gy)
+  const SC = 0.7;
+  function pose(c, name, gx, gy, o) {
+    const im = G.img['duelo/' + name], d = DUELO_POSES[name]; if (!im || !d) return false;
+    o = o || {};
+    c.save(); if (o.alpha !== undefined) c.globalAlpha = o.alpha;
+    if (o.rot) { c.translate(gx, gy); c.rotate(o.rot); c.translate(-gx, -gy); }
+    c.drawImage(im, gx + (d.x - d.ax) * SC, gy + (d.y - d.fy) * SC, d.w * SC, d.h * SC);
+    c.restore(); return true;
+  }
   function drawMarcos(c, x, t) {
-    const e = env(mT), src = 'duelo/marcos_' + mPose;
-    if (G.img[src]) { drawImgH(c, src, x + (mPose === 'tocado' ? -30 * e : 0), FLOOR, HM + 40); return; }
+    const e = env(mT);
+    if (DIB()) {
+      const p = G.img['duelo/marcos_' + mPose] ? mPose : 'guardia';
+      const dx = p === 'tocado' ? -35 * e : p === 'para' ? 18 * e : 0, bob = Math.sin(t * 2.6) * 3;
+      pose(c, 'marcos_' + p, x + dx, FLOOR + bob, { rot: p === 'tocado' ? -0.035 * e : 0 });
+      return;
+    }
     let dx = 0, rot = 0, cr = 0.75 + Math.sin(t * 2.4) * 0.08;
     if (mPose === 'para') { dx = 45 * e; rot = 0.05 * e; cr = 0.75 + 0.65 * e; }
     if (mPose === 'tocado') { dx = -40 * e; rot = -0.1 * e; cr = 0.75 - 0.6 * e; }
@@ -152,10 +183,15 @@ MG.duelo = function () {
     if (!(fly && fly.src === 'candelabro')) drawImgH(c, 'items/candelabro', x + dx + 45, FLOOR - HM * 0.47, 150, { rot: cr });
   }
   function drawXesus(c, x, t) {
-    const e = env(xT), fl = Math.sin(t * 1.8) * 10, src = 'duelo/xesus_' + xPose;
-    if (G.img[src]) { drawImgH(c, src, x + (xPose === 'retrocede' ? 40 * e : xPose === 'ataque' ? -50 * e : 0), FLOOR - 15 + fl, HX + 30, { alpha: 0.9, glow: 'rgba(150,215,255,.8)' }); return; }
+    const e = env(xT), fl = Math.sin(t * 1.8) * 10;
+    if (DIB()) {
+      const p = G.img['duelo/xesus_' + xPose] ? xPose : 'guardia';
+      const dx = p === 'retrocede' ? 45 * e : p === 'ataque' || p === 'estocada' ? -40 * e : 0;
+      pose(c, 'xesus_' + p, x + dx, FLOOR - 14 + fl, { alpha: 0.9 + Math.sin(t * 3.1) * 0.05, rot: p === 'retrocede' ? 0.04 * e : 0 });
+      return;
+    }
     let dx = 0, rot = 0, ang = 0.2 + Math.sin(t * 2.2) * 0.06, ext = 0;
-    if (xPose === 'ataque') { dx = -60 * e; rot = -0.05 * e; ang = 0.2 - 0.18 * e; ext = 90 * e; }
+    if (xPose === 'ataque' || xPose === 'estocada') { dx = -60 * e; rot = -0.05 * e; ang = 0.2 - 0.18 * e; ext = 90 * e; }
     if (xPose === 'retrocede') { dx = 50 * e; rot = 0.09 * e; ang = 0.2 + 0.7 * e; }
     drawImgH(c, 'chars/fantasma', x + dx, FLOOR - 15 + fl, HX, { flip: true, rot, alpha: 0.88, glow: 'rgba(150,215,255,.85)' });
     if (!(fly && fly.src === 'rapier')) rapier(c, x + dx - 80, FLOOR - 15 + fl - HX * 0.46, ang, 300 + ext);
@@ -203,7 +239,7 @@ MG.duelo = function () {
     // chispas del choque
     c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = '#ffe9a8'; c.lineWidth = 3;
     for (const s of sparks) { c.globalAlpha = Math.min(1, s.life * 3); c.beginPath(); c.moveTo(s.x, s.y); c.lineTo(s.x - s.vx * 0.025, s.y - s.vy * 0.025); c.stroke(); }
-    if (flashT > 0) { const cx = (mx + xx) / 2, cy = FLOOR - 300; g = c.createRadialGradient(cx, cy, 5, cx, cy, 260); g.addColorStop(0, `rgba(255,250,220,${flashT * 4})`); g.addColorStop(1, 'rgba(255,250,220,0)'); c.globalAlpha = 1; c.fillStyle = g; c.fillRect(0, 0, W, H); }
+    if (flashT > 0) { const cx = DIB() ? mx + 50 : (mx + xx) / 2, cy = DIB() ? FLOOR - 400 : FLOOR - 300; g = c.createRadialGradient(cx, cy, 5, cx, cy, 260); g.addColorStop(0, `rgba(255,250,220,${flashT * 4})`); g.addColorStop(1, 'rgba(255,250,220,0)'); c.globalAlpha = 1; c.fillStyle = g; c.fillRect(0, 0, W, H); }
     c.restore();
     // bocadillos
     const xr = xBub ? bubble(c, xBub, 'r', 92, 'rgba(14,30,52,.93)', '#9fd4ff', 'faces/fantasma_' + xBub.face) : null;
