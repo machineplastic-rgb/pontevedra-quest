@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v14';
+const VERSION = 'v15';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -106,6 +106,8 @@ async function boot() {
   CAPI.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
+  // v15: la intro de aventura de los 90 (se salta con un toque)
+  if (!TEST && typeof INTRO !== 'undefined') { try { await INTRO.run(); } catch (e) { console.warn('intro', e); G.mode = null; } }
   showTitle();
 }
 // el audio necesita un toque para arrancar
