@@ -168,6 +168,28 @@ MG.banos = function () {
     if (G.img[cara]) drawImgH(c, cara, lado === 'r' ? 1490 : 130, y + h / 2 + 80, 160);
     c.restore();
   }
+  // v19: cada uno, con la luz del sitio donde está: al fondo (junto a la puerta) oscuro y rosado
+  // por el neón; delante, más claro; el que te está hablando, un poco más iluminado
+  const tmp = document.createElement('canvas'), tx = tmp.getContext('2d');
+  function luz(c, src, x, y, h, foco) {
+    const im = G.img[src]; if (!im) return;
+    const w = Math.round(im.width * h / im.height), hh = Math.round(h);
+    if (tmp.width < w || tmp.height < hh) { tmp.width = Math.max(tmp.width, w); tmp.height = Math.max(tmp.height, hh); }
+    tx.clearRect(0, 0, tmp.width, tmp.height); tx.globalCompositeOperation = 'source-over'; tx.drawImage(im, 0, 0, w, hh);
+    const f = clamp((h - 300) / 320, 0, 1);                 // 0 = junto a la puerta, 1 = delante del todo
+    const osc = (0.62 * (1 - f) + 0.08) * (foco ? 0.55 : 1);
+    tx.globalCompositeOperation = 'source-atop';
+    tx.fillStyle = 'rgba(14,4,22,' + osc.toFixed(3) + ')'; tx.fillRect(0, 0, w, hh);
+    // el neón rosa del fondo y la luz morada de los focos, de arriba abajo
+    const g = tx.createLinearGradient(0, 0, 0, hh);
+    g.addColorStop(0, 'rgba(255,40,120,' + (0.22 * (1 - f) + 0.06).toFixed(3) + ')'); g.addColorStop(1, 'rgba(120,50,255,' + (0.16 + 0.08 * f).toFixed(3) + ')');
+    tx.fillStyle = g; tx.fillRect(0, 0, w, hh);
+    // reflejo de la lámpara roja (a la izquierda) en el lado que da a ella
+    const r = tx.createLinearGradient(0, 0, w, 0); r.addColorStop(0, 'rgba(255,60,60,' + (0.18 * f).toFixed(3) + ')'); r.addColorStop(0.5, 'rgba(255,60,60,0)');
+    tx.fillStyle = r; tx.fillRect(0, 0, w, hh);
+    tx.globalCompositeOperation = 'source-over';
+    c.drawImage(tmp, 0, 0, w, hh, x - w / 2, y - hh, w, hh);
+  }
   m.draw = (c, t) => {
     if (G.img['bg/banos']) c.drawImage(G.img['bg/banos'], 0, 0, W, H);
     else { const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#12081e'); g.addColorStop(1, '#2a1238'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
@@ -183,7 +205,7 @@ MG.banos = function () {
       c.save(); c.globalAlpha = 0.45 * p.a; c.fillStyle = '#000'; c.beginPath(); c.ellipse(x, y - 3, p.h * 0.17, p.h * 0.03, 0, 0, 7); c.fill(); c.restore();
       c.save(); c.globalAlpha = p.a * (detras.includes(p) ? 0.6 : 1);
       if (p === actual) { c.shadowColor = 'rgba(255,217,138,.85)'; c.shadowBlur = 24; }
-      drawImgH(c, src, x, y, p.h);
+      luz(c, src, x, y, p.h, p === actual);
       c.restore();
     }
     // la luz morada y roja del pasillo por encima, para que todos «estén» dentro
