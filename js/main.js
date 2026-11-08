@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v20';
+const VERSION = 'v21';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -106,7 +106,7 @@ async function boot() {
   requestAnimationFrame(frame);
   const prog = $('lprog');
   await loadImages(assetList(), (k) => { prog.style.width = Math.round(k * 100) + '%'; });
-  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina', 'mapa', 'banos']);
+  await loadOptionalBg(['control', 'camino', 'balneario', 'piscina', 'mapa', 'banos', 'banos_lume']);
   CAPI.alArrancar(); GALERIA.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
