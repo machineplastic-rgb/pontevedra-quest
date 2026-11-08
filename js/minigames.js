@@ -62,7 +62,7 @@ const MG = (() => {
       if (look) {
         state.marcos = 1; caught++; sfx('error'); msg = '¡¿ME TIRAS MI LICOR CAFÉ?! ¡Para dentro, guapo!'; msgT = 2.2;
         setTimeout(() => { drink('marcos', 1); res.marcos++; }, 500);
-      } else { state.marcos = 2; tossed++; res.tossed++; sfx('servir'); flyT = 0; msg = 'Marcos lo tira a la maceta. La planta lo agradece.'; msgT = 1.8; }
+      } else { state.marcos = 2; tossed++; res.tossed++; sfx('servir'); flyT = 0; msg = 'Marcos lo tira al jarrón. Las flores lo agradecen.'; msgT = 1.8; }
       btns.marcos.forEach((b) => b.classList.add('hidden')); check();
     }
     function check() {
@@ -70,7 +70,7 @@ const MG = (() => {
     }
     const top = bar('');
     for (const id of PROTA) {
-      if (id === 'marcos') btns[id] = [btn('🥃 Beber', X[id], 790, '', () => drinkIt('marcos')), btn('🌿 ¡A la maceta!', X[id], 872, 'grn', toss)];
+      if (id === 'marcos') btns[id] = [btn('🥃 Beber', X[id], 790, '', () => drinkIt('marcos')), btn('💐 ¡Al jarrón!', X[id], 872, 'grn', toss)];
       else btns[id] = [btn('🥃 ¡Para dentro!', X[id], 790, '', () => drinkIt(id))];
     }
     newRound();
@@ -88,17 +88,16 @@ const MG = (() => {
       }
     };
     m.draw = (c, t) => {
-      bg(c, 'estrella', 0.35, 1.06);
+      // v20: el bar de JRAR, un poco más cerca y corrido para que el jarrón de flores quede a la izquierda
+      { const im = G.img['bg/estrella']; c.fillStyle = '#000'; c.fillRect(0, 0, W, H); if (im) c.drawImage(im, W / 2 - W * 0.6 - 75, H / 2 - H * 0.6, W * 1.2, H * 1.2); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, 0, W, H); }
       // mesa
       c.fillStyle = PROC.lin(c, 0, 640, 0, 1000, [[0, '#7a4a28'], [1, '#3e2412']]); c.fillRect(0, 650, W, 350);
       c.fillStyle = '#9a6234'; c.fillRect(0, 640, W, 18);
-      // maceta
-      const ps = 1 + tossed * 0.18 + Math.sin(t * 3) * 0.02;
-      c.save(); c.translate(130, 650); c.scale(ps, ps);
-      c.fillStyle = '#b5562a'; c.beginPath(); c.moveTo(-50, 0); c.lineTo(50, 0); c.lineTo(38, -80); c.lineTo(-38, -80); c.closePath(); c.fill(); PROC.ink(c, 4);
-      for (let i = 0; i < 9; i++) { c.save(); c.rotate(-0.9 + i * 0.22 + Math.sin(t * 2 + i) * 0.05); c.beginPath(); c.ellipse(0, -150, 18, 70, 0, 0, 7); c.fillStyle = i % 2 ? '#3f8f3a' : '#2f7a2e'; c.fill(); PROC.ink(c, 3); c.restore(); }
-      c.restore();
-      if (tossed) { c.font = "28px 'Patrick Hand'"; c.fillStyle = '#c8ffb0'; c.textAlign = 'center'; c.fillText('Planta feliz ×' + tossed, 130, 700); }
+      // el jarrón de flores del dibujo (sin pintar nada): una luz encima, que crece con cada chupito
+      { const jx = 125, jy = 505, r = 120 + tossed * 25 + Math.sin(t * 3) * 6;
+        c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(jx, jy, 5, jx, jy, r);
+        g.addColorStop(0, 'rgba(255,225,160,' + (0.28 + tossed * 0.06) + ')'); g.addColorStop(1, 'rgba(255,225,160,0)'); c.fillStyle = g; c.fillRect(jx - r, jy - r, r * 2, r * 2); c.restore();
+        if (tossed) { c.font = "28px 'Patrick Hand'"; c.fillStyle = '#c8ffb0'; c.textAlign = 'center'; c.fillText('Flores felices ×' + tossed, jx + 20, 625); } }
       // caras y chupitos
       for (const id of PROTA) {
         const lv = S.drunk[id], mood = state[id] === 1 ? (lv >= 3 ? 'borracho' : 'risa') : (lv >= 3 ? 'borracho' : 'normal');
@@ -106,7 +105,7 @@ const MG = (() => {
         c.font = "800 30px 'Nunito'"; c.fillStyle = '#fff6e0'; c.textAlign = 'center'; c.fillText(NAMES[id], X[id], 640);
         if (!state[id]) drawImgH(c, 'items/chupitos', X[id], 760, 100);
       }
-      if (flyT >= 0 && flyT < 0.7) { const k = flyT / 0.7; drawImgH(c, 'items/chupitos', X.marcos + (130 - X.marcos) * k, 760 - Math.sin(k * Math.PI) * 300, 90, { rot: k * 6 }); }
+      if (flyT >= 0 && flyT < 0.7) { const k = flyT / 0.7; drawImgH(c, 'items/chupitos', X.marcos + (125 - X.marcos) * k, 760 - (760 - 500) * k - Math.sin(k * Math.PI) * 300, 90, { rot: k * 6 }); }
       // la señora
       const sx = 1370, alert = !look && nextTurn < 0.45;
       drawImgH(c, look ? 'chars/senora' : 'chars/senora_risa', sx, 800, 520, { flip: look });

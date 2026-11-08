@@ -181,13 +181,13 @@ const CRED = (() => {
         flashLuz(c, 380, 260, 520);
       } },
     { id: 'maceta', h: '22:16', tipo: 'logro', pri: 9, ok: () => L('maceta'), kb: [0.25, 0.45], tilt: -0.03,
-      cap: () => { const n = ST().chupitosTirados || 0; return n >= 3 ? `Marcos riega la maceta: ${n} chupitos. La maceta, mamada.` : 'Marcos riega la maceta con orujo. La maceta, mamada.'; },
+      cap: () => { const n = ST().chupitosTirados || 0; return n >= 3 ? `Marcos riega las flores: ${n} chupitos. Las flores, mamadas.` : 'Marcos riega las flores con orujo. Las flores, mamadas.'; },
       draw(c) {
+        // el jarrón de flores es el del dibujo del bar (x 239 en la foto)
         fondo(c, 'bg/estrella', 1.4, 0.25, 0.5, 0.2);
-        maceta(c, 110, 660, 1.75);
         fig(c, 'chars/ramis_piripi', 625, 712, 600);
         fig(c, 'chars/marcos_alegre', 365, 712, 610, { flip: true });
-        chorro(c, 236, 352, 128, 338, 60); chupito(c, 262, 372, 96, -2.0);
+        chorro(c, 300, 360, 245, 300, 50); chupito(c, 322, 378, 96, -2.0);
         flashLuz(c, 330, 280, 520);
       } },
     { id: 'postre', h: '22:58', tipo: 'logro', pri: 10, ok: () => L('postre'), kb: [0.45, 0.3], doodle: 'heart',
@@ -654,7 +654,7 @@ const CRED = (() => {
     reparto.push(['', 'y Marcos (al volante, ' + (dr.marcos ? lv('marcos') : 'sereno como un juez') + ')']);
     const cifras = [
       ['h', 'La noche en cifras'],
-      ['', pl(st.chupitosTirados || 0, 'chupito a la maceta', 'chupitos a la maceta')],
+      ['', pl(st.chupitosTirados || 0, 'chupito al jarrón', 'chupitos al jarrón')],
       st.besoSeg ? ['', st.besoSeg + ' segundos de beso (oficialmente, «un minuto»)'] : null,
       ['', pl(st.sustos || 0, 'susto en la N-550', 'sustos en la N-550')],
       ['', pl(st.derrotas || 0, 'noche en el cuartelillo', 'noches en el cuartelillo')],
@@ -695,7 +695,7 @@ const CRED = (() => {
       ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['sp'],
       ...cifras,
       ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'Noémia, Breogán y Rosalía, por prestarnos a Marcos un fin de semana'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['sp'], ['sp'],
-      ['p', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['p', 'La maceta del Estrella se recupera favorablemente.'],
+      ['p', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['p', 'Las flores del Estrella se recuperan favorablemente.'],
       ['p', 'Ningún Porsche participó en esta producción.'], ['p', 'Ningún caballero fue multado. Por los pelos.'],
       ['p', 'Las fotos son reales. Las excusas, también.'],
       ['p', st.marcosCopas ? 'Si bebes, no conduzcas. Marcos no bebió… casi.' : 'Si bebes, no conduzcas. Marcos no bebió. Ni una.'],

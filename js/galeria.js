@@ -15,7 +15,7 @@ const GALERIA = (() => {
 
   // cada logro: foto(s) de los créditos, texto y comentarios [quién, texto]
   const POST = {
-    maceta: { f: ['maceta'], c: [['senora', '¿Y por qué huele mi maceta a orujo? 🌿'], ['marcos', 'Sereno como un juez 😇']] },
+    maceta: { f: ['maceta'], c: [['senora', '¿Y por qué huelen mis flores a orujo? 💐'], ['marcos', 'Sereno como un juez 😇']] },
     postre: { f: ['postre'], c: [['senora', '¡Comed, rapaces, que estáis en los huesos! 🍮'], ['angel', 'Te quiero, Maruxa ❤️']] },
     fisgon: { f: ['fisgon'], c: [['senora', 'FISGONES 👀'], ['ramis', 'Estábamos inventariando, señora']] },
     minuto: { f: ['beso'], c: [['chica', 'Cincuenta y dos segundos. Lo cronometré ⏱'], ['marc', 'Envidia sana. Bueno… sana.']] },

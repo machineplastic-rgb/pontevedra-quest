@@ -26,7 +26,7 @@ const ITEMS = {
 };
 
 const LOGROS = {
-  maceta: { i: '🌿', t: 'El jardinero: Marcos regó la maceta con chupitos' },
+  maceta: { i: '💐', t: 'El jardinero: Marcos regó las flores con chupitos' },
   postre: { i: '🍮', t: 'Los postres de la señora' },
   fisgon: { i: '🕵', t: 'Fisgones: pillados en la bodega' },
   minuto: { i: '💋', t: 'Un minuto: lo que tardó Ángel' },
@@ -273,7 +273,7 @@ async function senoraTalk() {
     await say(S.active, 'Señora, ¿nos pone otra ronda?');
     await say('senora', '¡Chupitos de licor café, invita la casa! Y el conductor también, que una gotita no hace daño.', 'risa');
     await say('marcos', '…Ay.', 'sorpresa');
-    await narr('MINIJUEGO · Que los demás se lo beban. Y Marcos, a la maceta… cuando la señora no mire.');
+    await narr('MINIJUEGO · Que los demás se lo beban. Y Marcos, al jarrón de flores… cuando la señora no mire.');
     try { AUDIO.duck(true); } catch (e) {}
     music('minijuego');
     const r = await MG.chupitos();
@@ -282,7 +282,7 @@ async function senoraTalk() {
     if (r.tossed >= 3) logro('maceta');
     if (r.marcos === 0) await say('marc', 'Marcos no ha probado ni una gota. Ese hombre es un monje.', 'risa');
     else if (r.marcos >= 2) await say('marc', 'Marcos, ¿tú no conducías?', 'sorpresa');
-    else await say('marcos', 'Solo me han pillado una vez. La maceta y yo somos uña y carne.');
+    else await say('marcos', 'Solo me han pillado una vez. El jarrón y yo somos uña y carne.');
     await say('senora', '¡Así me gusta, que se os ve contentos!', 'risa');
     setObj('Pedirle el postre a la señora');
   } else if (v === 'postre') {
@@ -1224,7 +1224,7 @@ function puntuacion() {
   const seg = st.besoSeg || 0;
   const parts = [
     ['Logros', S.logros.length + ' de ' + Object.keys(LOGROS).length, S.logros.length * 100],
-    ['Chupitos a la maceta', String(st.chupitosTirados || 0), (st.chupitosTirados || 0) * 50],
+    ['Chupitos al jarrón', String(st.chupitosTirados || 0), (st.chupitosTirados || 0) * 50],
     ['El beso de Ángel', Math.floor(seg / 60) + ' min ' + (seg % 60) + ' s', Math.min(300, Math.round(seg / 2))],
     ['Concierto en O Furado', st.concierto ? Math.round(st.concierto * 100) + ' %' : 'no subió', Math.round((st.concierto || 0) * 300)],
     ['Marcos al volante', LV[mf], [300, 150, 50, 0, 0, 0][mf] || 0],
@@ -1302,7 +1302,7 @@ async function creditos() {
     ['h', 'Programación, música y sonido'], ['', 'Claude'], ['', ''],
     ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['', ''],
     ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'Noémia, Breogán y Rosalía, por prestarnos a Marcos un fin de semana'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
-    ['', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['', 'La maceta del Estrella se recupera favorablemente.'],
+    ['', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['', 'Las flores del Estrella se recuperan favorablemente.'],
     ['', 'Ningún Porsche participó en esta producción.'], ['', 'Ningún caballero fue multado. Por los pelos.'], ['', 'Si bebes, no conduzcas. Marcos no bebió… casi.'], ['', ''],
     ['s', 'Nunca más… ¡hasta el sábado!'], ['', ''], ['', '(no os vayáis, que hay escena post-créditos)'],
   ];
