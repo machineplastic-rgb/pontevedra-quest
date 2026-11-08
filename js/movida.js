@@ -56,7 +56,7 @@ function crowdIdle(id) {
 
 /* ---------------- dónde está cada uno ---------------- */
 function addCrowd(sceneId, list) { const sc = SCENES[sceneId]; sc.npcs = (sc.npcs || []).concat(list); }
-// la plaza: el peregrino y el friki a la izquierda, las de Vigo a la derecha
+// la plaza: el peregrino y el fan de Marcos a la izquierda, las de Vigo a la derecha
 addCrowd('plaza', [
   { id: 'peregrino', x: 320, y: 820, k: 0.3, cond: () => !flag('peregrinoOk') },
   { id: 'iago', x: 415, y: 835, k: 0.31 },
@@ -235,10 +235,11 @@ async function peregrinoTalk() {
    ===================================================================== */
 async function iagoTalk() {
   if (flag('apostol')) return say('iago', pick(['¿Me firmas la sudadera, Señor?', 'En el foro no se lo van a creer. Te he hecho una foto de espaldas, para que no te reconozcan.']));
-  if (S.active !== 'marcos') return say('iago', 'Perdona… ese de las gafas… ¿es Nike Apóstol? ¿El del foro de Warhammer? ¡Que hable él conmigo, porfa!');
-  await say('iago', '¿T-tú eres Nike Apóstol? ¿El del foro de Warhammer?', 'sorpresa');
+  if (S.active !== 'marcos') return say('iago', 'Perdona… ese de las gafas… ¿es Nike Apóstol? ¿El de la Play? ¡Que hable él conmigo, porfa!');
+  await say('iago', '¿T-tú eres Nike Apóstol? ¿El de la Play? ¡Me ganaste anoche online!', 'sorpresa');
   await say('marcos', '…Puede ser.');
-  await say('iago', '¡EL SEÑOR! ¡Tengo impresa tu guía para pintar marines! ¡La de los cuarenta pasos!');
+  await say('iago', '¡EL SEÑOR! ¡Y encima vas mejor vestido que en la foto de perfil! ¿Esa ropa la has diseñado tú?');
+  await say('marcos', 'Soy diseñador de moda. La Play es solo por las noches, cuando Breogán y Rosalía se duermen.');
   await say('marcos', 'Caballeros… tengo fans.', 'risa');
   await say('ramis', 'Un fan. Uno. No te vengas arriba.');
   await say('iago', 'Oye, ¿y tú cuántos años tienes? Escribes como un señor muy sabio, pero pareces de mi clase.');
@@ -530,8 +531,10 @@ async function veraTalk() {
   }
   if (a === 'marcos') {
     await say('vera', '¿Y tú? ¿Tienes edad para estar aquí?');
-    await say('marcos', 'Tengo edad para conducir un Peugeot de siete plazas.');
-    return say('vera', 'Eso no es tener edad. Eso es tener paciencia.', 'risa');
+    await say('marcos', 'Tengo edad para conducir un Peugeot de siete plazas. Y dos niños.');
+    await say('vera', 'Eso no es tener edad. Eso es tener paciencia.', 'risa');
+    await say('marcos', 'Por cierto: botas militares con rejilla y falda plisada. Muy buen estilismo. Soy diseñador de moda.');
+    return say('vera', 'Un diseñador con cara de bachiller. Vale, me caes bien.', 'risa');
   }
   if (f.concierto) return say('vera', '¡ÁNGEL, QUÉ PAPÁ MÁS CAÑERO! Fírmame la bota.', 'risa');
   return say('vera', 'Tino dice que cantas. Sube al escenario y demuéstralo, barbas.');
@@ -762,7 +765,7 @@ async function introSeq() {
   await go('avion', 'MALLORCA', 'Despegue');
   await n('Ramis, Marc y Ángel cogen un avión rumbo a Galicia. Ramis pregunta a la azafata si el avión es de Porsche.');
   await go('coche', 'CORUÑA', 'El cuarto caballero');
-  await n('Marcos, el cuarto caballero, vive en Coruña. Baja a buscarlos en su Peugeot 5008 blanco. Siete plazas. Cero Porsche.');
+  await n('Marcos, el cuarto caballero, es diseñador de moda y vive en Coruña con Noémia, Breogán y Rosalía. Baja a buscarlos en su Peugeot 5008 blanco. Siete plazas. Cero Porsche.');
   await go('ponte', 'PONTEVEDRA', 'Punto de encuentro');
   await n('Punto de encuentro: Pontevedra. Granito, soportales, pulpo y una zona vieja llena de bares. El plan: cenar, ruta de bares… y lo que surja.');
   await go('balneario', 'CALDAS DE REIS', 'Para dormir');

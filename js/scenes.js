@@ -54,7 +54,7 @@ const LOGROS = {
 const IDLE_LINES = {
   ramis: ['Habiendo haber podido, no quise poder.', 'Bajo el yugo opresor…', '¡Al menos yo podré decir que he vivido!', 'Nunca más… hasta el sábado.', '¿Eso es un 911? Ah, no, es una farola.', 'Esta noche es nuestra, Lords.'],
   marc: ['Esa luz está fatal.', 'Esto me lo apunto para un dibujo.', 'Para un Manara, esta noche.', 'Letra de escribano… ningún contenido.'],
-  marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', 'Para esto necesito un D20.', '¿Alguien tiene agua?', 'Que no, que no aparento menos. Bueno, un poco.'],
+  marcos: ['Yo conduzco, yo conduzco…', 'Esto en Coruña no pasa.', '¿Alguien tiene agua?', 'Que no, que no aparento menos. Bueno, un poco.', 'Con lo que me gusta a mí la cerveza…', 'Daría mi reino por una ensaimada.', 'Esa chaqueta tiene un patronaje horrible.', 'Esto me lo apunto para la próxima colección.', 'Breogán y Rosalía ya estarán dormidos.', 'Noémia me ha escrito: «¿vas sereno?».', 'Mañana echo una partida a la Play.'],
   angel: ['Lo noto… aquí hay algo.', 'Qué bonita está la noche.', 'Maje… no, no pienso en Maje.', 'La luna dice cosas.', '(Ángel tararea un riff de guitarra)', 'Esta noche tiene ritmo. Lo noto en las cuerdas.'],
 };
 
@@ -228,6 +228,8 @@ SCENES.estrella = {
     await say('marc', 'Ángel lleva toda la cena tamborileando en la mesa con el tenedor.');
     await say('angel', 'Es que esta noche tiene ritmo. Lo noto. Pontevedra suena a punk.');
     await say('marcos', 'Ángel, eso es la cafetera.', 'risa');
+    await say('marcos', 'Y esta cena está de diez, señora… pero ¿no tendrá una ensaimada?');
+    await say('senora', '¿Ensaimada? ¡Esto es Galicia, meu neno! Aquí hay filloas.', 'risa');
     await say('angel', 'Ya… Ojalá estuviera Chus para decir: «¡Esto es Maaaaagniiifico!».');
     await say('ramis', '¡Esta noche es nuestra, Lords!');
     await say('marcos', 'Y yo no bebo, que luego conduzco hasta Caldofran. Palabra de caballero también.');
@@ -673,7 +675,7 @@ async function chicaTalk() {
     return;
   }
   if (id === 'marcos') {
-    await say('marcos', 'Ho… hola. ¿Tú juegas a rol? Es que… nada. ¿Me devuelves las gafas de mi amigo?');
+    await say('marcos', 'Ho… hola. Bonito vestido: buen corte, buena caída. Soy diseñador de moda. ¿Me devuelves las gafas de mi amigo?');
     await say('chica', '¿Tú eres el que conduce, verdad? Qué mono. Pero yo estoy esperando a que se acerque el barbas.', 'risa');
     return;
   }
@@ -1090,6 +1092,9 @@ async function finale() {
   sfx('motor'); const faro = G.scene.fx.find((f) => f.id === 'faro'); if (faro) faro.a = 0.5;
   await say('marc', 'GPS: Balneario Acuña, Caldas de Reis. Veinticinco minutos.');
   await say('marcos', 'Cinturones, caballeros. Esta noche conduce el Señor.');
+  sfx('pop'); await narr('Al móvil de Marcos le llega un mensaje. Es Noémia: «¿Vas sereno? Los niños preguntan por papá».');
+  await say('marcos', 'Sereno, cariño. Dales un beso a Breogán y a Rosalía. Mañana les llevo… algo. Un imán de Caldas.');
+  await say('ramis', '¡NOÉMIA, TU MARIDO ES UN SANTO!', 'risa');
   await say('ramis', '¡YO AL MENOS PODRÉ DECIR QUE HE VIVIDO!', 'risa');
   await fadeTo(1, 0.8);
   await card('RUMBO A CALDOFRAN', 'N-550 · Pontevedra → Caldas de Reis', 2200);
@@ -1173,7 +1178,7 @@ async function finale() {
   await say('ramis', 'Caballeros… yo al menos podré decir que he vivido.', 'risa');
   await say('angel', 'Y yo, que he besado en un minuto' + (flag('concierto') ? ' y he cantado punk en un antro.' : '. Por unas gafas.'), 'risa');
   await say('marc', 'Esto lo dibujo. Estilo Manara. Sin medias de liga. O con.', 'risa');
-  await say('marcos', S.stats.marcosCopas ? 'He bebido poco y he conducido mucho. Brais, Don Xesús, la meiga… Ahora sí: ¡que alguien me traiga un Albariño!' : 'Toda la noche sin beber una gota. Ahora sí: ¡que alguien me traiga un Albariño!', 'risa');
+  await say('marcos', S.stats.marcosCopas ? 'He bebido poco y he conducido mucho. Brais, Don Xesús, la meiga… Ahora sí: ¡una cerveza bien fría! Y una ensaimada.' : 'Toda la noche sin beber una gota. Ahora sí: ¡una cerveza bien fría! Y una ensaimada, si alguien la encuentra en Galicia.', 'risa');
   await say('ramis', 'Nunca más… ¡hasta el sábado!', 'risa');
   groupLaugh();
   await resultados();
@@ -1265,7 +1270,7 @@ async function creditos() {
     ['h', 'Conductor designado'], ['', 'Marcos, el Señor de los Volantes'], ['', ''],
     ['h', 'Catering'], ['', 'Doña Maruxa · Postres caseros desde siempre'], ['', ''],
     ['h', 'Efectos especiales'], ['', 'Las meigas (haberlas, haylas)'], ['', ''],
-    ['h', 'Vestuario'], ['', 'La camisa de cuadros de Ángel, que va sola'], ['', ''],
+    ['h', 'Vestuario'], ['', 'Marcos, diseñador de moda'], ['', '(la camisa de cuadros de Ángel no es culpa suya)'], ['', ''],
     ['h', 'Maquillaje y peluquería'], ['', 'El orballo'], ['', ''],
     ['h', 'Departamento legal'], ['', 'Sargento Seoane'], ['', ''],
     ['h', 'Canción de la Lume y de los créditos'], ['', '«Cuatro amigos fueron de viaje…»'], ['', 'machineplastic'], ['', ''],
@@ -1273,7 +1278,7 @@ async function creditos() {
     ['h', 'Idea, historia e ilustraciones'], ['', 'JRAR'], ['', ''],
     ['h', 'Programación, música y sonido'], ['', 'Claude'], ['', ''],
     ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['', ''],
-    ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
+    ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'Noémia, Breogán y Rosalía, por prestarnos a Marcos un fin de semana'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
     ['', 'Ningún pulpo fue maltratado. Bueno, uno sí, y estaba buenísimo.'], ['', 'La maceta del Estrella se recupera favorablemente.'],
     ['', 'Ningún Porsche participó en esta producción.'], ['', 'Ningún caballero fue multado. Por los pelos.'], ['', 'Si bebes, no conduzcas. Marcos no bebió… casi.'], ['', ''],
     ['s', 'Nunca más… ¡hasta el sábado!'], ['', ''], ['', '(no os vayáis, que hay escena post-créditos)'],
