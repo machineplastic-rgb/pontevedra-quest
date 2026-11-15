@@ -18,6 +18,8 @@ const ITEMS = {
   sal: { name: 'Sal gorda', img: 'sal', desc: 'Sal gorda de la señora del Estrella. «Contra las meigas y la Santa Compaña, sal.»' },
   cafe: { name: 'Café solo', img: 'cafe', desc: 'Un café bien cargado. Dáselo a alguien y le baja un nivel de borrachera.' },
   postres: { name: 'Táper de postres', img: 'postres', desc: 'Postres caseros de la señora: flan, tarta de Santiago, filloas y una copa de helado. Huelen a abuela.' },
+  reales: { name: 'Reales de plata', img: 'reales', desc: 'Monedas de 1714 del tesoro de Don Xesús. Todavía huelen a cripta.' },
+  billete: { name: 'Billete de 50', img: 'billete', desc: 'Un billete de cincuenta euros del sarcófago. Don Xesús se lo ganó al mus a un inglés en chanclas.' },
   llave_antigua: { name: 'Llave antigua', img: 'llave_antigua', desc: 'Una llave de hierro enorme con un escudo de caballero grabado. De la bodega secreta.' },
   jarra: { name: 'Jarra de vino', img: 'jarra', desc: 'Vino de la barrica secreta del Estrella. Ramis la ha llenado con pulso de cirujano.' },
   candelabro: { name: 'Candelabro', img: 'candelabro', desc: 'Tres velas encendidas. Sirve para criptas oscuras o cenas románticas.' },
@@ -538,7 +540,7 @@ SCENES.bareto = {
     gente: { name: 'Parroquiano', 'Hablar': () => parroquianoTalk(), 'Mirar': () => say(S.active, 'Un parroquiano con camisa de cuadros y una caña eterna. Lleva aquí desde que abrieron el bar. O desde antes.') },
   },
   give: {
-    camarero: { cartera: () => pagarBrais(), '*': () => say('camarero', 'Eso no es dinero, rapaz.') },
+    camarero: { cartera: () => pagarBrais(), billete: () => pagarBrais(), reales: () => pagarBrais(), '*': () => say('camarero', 'Eso no es dinero, rapaz.') },
     gente: { '*': () => say('gente', 'Quita, quita, que yo ya tengo de todo. Menos un Porsche.') },
   },
   async enter() {
@@ -611,7 +613,7 @@ async function braisTalk() {
 async function pagarBrais() {
   if (flag('pagado')) return say('camarero', 'Ya estamos en paz, caballeros.');
   if (!flag('carteraLlena')) return say('camarero', '¿Una cartera vacía? Eso no es pagar, eso es enseñarme tus penas.');
-  flag('pagado', 1); sfx('moneda');
+  flag('pagado', 1); takeItem('reales'); takeItem('billete'); sfx('moneda');
   await say('ramis', 'Brais, aquí tienes: veintitrés euros… en reales de plata de 1714 y un billete de cincuenta.');
   await say('camarero', '¿Reales de plata? …Mi primo es anticuario. Trato hecho, caballeros.', 'risa');
   await say('camarero', 'Ahora que el conductor me demuestre que va sereno y os doy las llaves.');
@@ -906,7 +908,7 @@ async function abrirSarcofago() {
   await narr('La tapa se desliza con un rugido de piedra. Dentro, sobre un cojín de terciopelo: una bolsa de reales de plata… y un billete de cincuenta euros.');
   await say('ramis', '¿Un billete de cincuenta? ¿En 1714?', 'sorpresa');
   await say('fantasma', 'Se lo gané anoche al mus a un turista inglés en chanclas. Mal perdedor, por cierto.', 'risa');
-  flag('carteraLlena', 1); sfx('moneda');
+  flag('carteraLlena', 1); give('reales'); give('billete'); sfx('moneda');
   toast('💶', 'La cartera de Ramis', '¡vuelve a tener dinero!');
   await say('fantasma', 'Arrodillaos.');
   await narr('Los cuatro se arrodillan. Don Xesús les toca el hombro, uno a uno, con su copa de vino.');

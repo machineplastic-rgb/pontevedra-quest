@@ -14,7 +14,7 @@ const llaveGuardada = () => { try { return localStorage.getItem(LLAVE_KEY) === '
 const enVideoclub = () => typeof VC !== 'undefined' && VC && VC.on;
 function guardarLlave() { if (enVideoclub()) return; try { localStorage.setItem(LLAVE_KEY, '1'); } catch (e) {} }
 
-ITEMS.llave_camino = { name: 'Llave del Camino', img: 'llave_camino', desc: 'Una llave de hierro con una vieira atada con un cordón rojo. Toño dice que abre algo bajo el Bar Estrella.' };
+ITEMS.llave_camino = { name: 'Llave del Camino', img: 'llave_camino', desc: 'Una llave de hierro antigua, con el ojo en forma de trébol y los dientes en cruz. Toño dice que abre algo bajo el Bar Estrella.' };
 ITEMS.carta_1714 = { name: 'Carta de amor (1714)', img: 'carta_1714', desc: 'Una carta lacrada con un corazón. «Para Xoana, mesonera del Estrella». La letra es de caballero ilustrado.' };
 LOGROS.tunel = { i: '🗝️', t: 'El túnel secreto' };
 
@@ -143,7 +143,7 @@ async function llaveDeTono() {
   }
   await say('peregrino', 'Por cierto: esto me lo encontré en una cuneta del Camino, junto a una vieira. Pesa como un pecado.');
   sfx('pickup');
-  await narr('Toño os da una llave de hierro antigua con una concha de vieira atada con un cordón rojo.');
+  await narr('Toño os da una llave de hierro antigua, oxidada, con el ojo en forma de trébol.');
   await say('peregrino', 'Un señor muy mayor, muy pálido, me dijo en Pontevedra que abre una reja debajo del Bar Estrella. Yo no vuelvo, que me espera Santiago.');
   await say('marcos', '¿Una reja en el Estrella? ¡La de la bodega! Esto es… contenido para la próxima partida.', 'sorpresa');
   guardarLlave();

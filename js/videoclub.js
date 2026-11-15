@@ -57,7 +57,7 @@ const VC = {
     /^Pues ya tienes excusa para hablarle/, /^\(Ángel respira hondo/, /^Y quizá, solo quizá, os enseñe mi cripta/, /^¡MI LLAVE! Trescientos años/, /^En el sarcófago hay una inscripción/,
     /^Arrodillaos\.$/, /^¡Las llaves del Peugeot! Caballeros/, /^¡Os postres da miña prima Maruxa/, /^Agora si\. Poñédevos arredor/, /^Siete plazas, cero Porsche\. Pero lo quiero/,
     /^Cinturones, caballeros\. Esta noche conduce/, /^…Buenas noches, agente\.$/, /^Esto lo dibujo\. Estilo Manara/];
-  // tiempo de lectura: 0,9 s + 45 ms por letra (solo letras y números, sin espacios ni signos)
+  // tiempo de lectura: 1,2 s + 55 ms por letra (solo letras y números, sin espacios ni signos)
   const letras = (t) => String(t || '').replace(/[^0-9A-Za-zÀ-ÿ]/g, '').length;
 
   /* =====================================================================
@@ -663,10 +663,15 @@ body.vc-paused #stage *,body.vc-paused #stage *::before,body.vc-paused #stage *:
       op = Object.assign({}, op || {});
       if (!op.noWait) {
         // tiempo de lectura: 0,9 s + 45 ms por letra, contando desde que empieza a escribirse
-        const t0 = VT.now, need = 900 + 45 * letras(text);
+        const t0 = VT.now, need = 1200 + 55 * letras(text);
         Object.defineProperty(op, 'auto', { configurable: true, enumerable: true, get: () => Math.max(450, t0 + need - VT.now) });
       }
-      return orig.call(this, who, text, mood, op);
+      // v27: en los trozos de montaje (avance rápido) los textos se leen a velocidad normal
+      const ff = VC.montaje && VC.ffAuto === 'salto' && !op.noWait;
+      if (ff) autoFF(false);
+      const p = orig.call(this, who, text, mood, op);
+      if (ff && p && p.finally) p.finally(() => { if (VC.on && VC.montaje && !VC.ending) autoFF('salto'); });
+      return p;
     };
   }
   function chooseHook(orig) {

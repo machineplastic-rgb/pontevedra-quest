@@ -173,7 +173,7 @@ const GALERIA = (() => {
       <div class="pg-top"><b class="pg-logo">Instaclub</b><span class="pg-icons">♡ &nbsp;✉</span></div>
       <div class="pg-scroll">
         <div class="pg-head">
-          <div class="pg-av">${['ramis', 'marc', 'marcos', 'angel'].map((p) => `<img src="img/faces/${p}_risa.webp" alt="">`).join('')}</div>
+          <div class="pg-av club"><img src="img/items/logo_club.webp" alt="Club de Caballeros"></div>
           <div class="pg-stats"><div><b>${got.length + fot.length}</b><span>publicaciones</span></div><div><b>${fmt(segu)}</b><span>seguidores</span></div><div><b>4</b><span>seguidos</span></div></div>
         </div>
         <div class="pg-bio"><b>Club de Caballeros 🍺⚔</b><br>Mallorquines por el mundo · Bachillerato artístico<br>Habiendo haber podido, no quisimos poder 🍷<br>📍 Pontevedra ✈ Caldofran · <i>Nunca más… hasta el sábado</i></div>
@@ -203,7 +203,7 @@ const GALERIA = (() => {
     let idx = 0;
     box.innerHTML = `<div class="pg-ph"><span class="pg-back" id="pgBack">‹</span><b>Publicaciones</b></div>
       <div class="pg-pscroll">
-        <div class="pg-pu"><img src="img/faces/ramis_risa.webp" alt=""><div><b>clubdecaballeros</b><small>Pontevedra · ${horaDe(id)}</small></div></div>
+        <div class="pg-pu"><img class="club" src="img/items/logo_club.webp" alt=""><div><b>clubdecaballeros</b><small>Pontevedra · ${horaDe(id)}</small></div></div>
         <div class="pg-img" id="pgImg"><canvas width="760" height="570"></canvas>${ok ? '<i class="pg-heart" id="pgHeart">♥</i>' : `<div class="pg-lock"><b>🔒 Publicación privada</b><span>Se desbloquea con el logro<br>«${LOGROS[id].t}»</span></div>`}
           ${ok && ims.length > 1 ? `<div class="pg-dots">${ims.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div>
         ${ok ? `<div class="pg-acts"><span id="pgLike" class="${st.likes[id] ? 'on' : ''}">${st.likes[id] ? '♥' : '♡'}</span><span>💬</span><span>✈</span><span class="pg-save">🔖</span></div>
@@ -241,7 +241,7 @@ const GALERIA = (() => {
 
   function historia(bg, nombre) {
     const box = $('pgStory');
-    box.innerHTML = `<div class="pg-sbar"><i></i></div><div class="pg-su"><img src="img/faces/marcos_risa.webp" alt=""><b>clubdecaballeros</b><small>${nombre}</small></div>
+    box.innerHTML = `<div class="pg-sbar"><i></i></div><div class="pg-su"><img class="club" src="img/items/logo_club.webp" alt=""><b>clubdecaballeros</b><small>${nombre}</small></div>
       <img class="pg-simg" src="img/bg/${bg}.webp" alt=""><div class="pg-stxt">${nombre} 📍</div>`;
     box.classList.remove('hidden'); sfx('open');
     const fin = () => { box.classList.add('hidden'); clearTimeout(tm); };

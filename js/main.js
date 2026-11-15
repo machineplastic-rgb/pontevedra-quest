@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v26';
+const VERSION = 'v27';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -111,6 +111,12 @@ async function boot() {
   CAPI.alArrancar(); GALERIA.alArrancar();
   try { await Promise.race([document.fonts.ready, wait(2500)]); } catch (e) {}
   $('loading').classList.add('hidden');
+  // v27: demos sueltas de minijuegos (index.html?demo=selfie · ?demo=queimada), se repiten sin fin
+  const demo = (location.search.match(/[?&]demo=(\w+)/) || [])[1];
+  if (demo && typeof MG[demo] === 'function') {
+    S = newState(); G.started = true; G.fade = G.fadeTo = 0; G.scene = SCENES[demo === 'queimada' ? 'alameda' : 'plaza'];
+    for (;;) { await MG[demo](); await wait(400); }
+  }
   // v15: la intro de aventura de los 90 (se salta con un toque)
   if (!TEST && typeof INTRO !== 'undefined') { try { await INTRO.run(); } catch (e) { console.warn('intro', e); G.mode = null; } }
   showTitle();
