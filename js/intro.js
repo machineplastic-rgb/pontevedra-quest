@@ -206,7 +206,7 @@ const INTRO = (() => {
   /* ---------------- la secuencia ---------------- */
   const OPC = ['Altavoz del PC (pi-pi-pi)', 'AdLib', 'Sound Blaster', 'Gaita gallega'];
   const CRED = [
-    ['Una aventura gráfica de', 'JRAR'],
+    ['Una aventura gráfica de', 'Marcos Armengol Rodríguez', '(sí, el que conduce)'],
     ['Programación y música', 'Claude (que no bebe)'],
     ['Con la participación de', 'Don Xesús, por cortesía', 'del Más Allá'],
     ['Ningún Porsche resultó', 'herido durante el rodaje'],

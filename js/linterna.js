@@ -5,7 +5,7 @@
    ve donde hay luz: velas y faroles de la escena, un poco alrededor de
    los cuatro y la luz que lleváis vosotros, que sigue al ratón o al dedo:
    · el móvil: haz frío y estrecho que sale de la mano de quien juegas
-   · el candelabro (si está en la bolsa): luz cálida, ancha y temblona
+   · (v26: el candelabro ya no se lleva en la mano: daba problemas; sirve para la inscripción)
    Lo que está a oscuras no se puede tocar: con el dedo, el primer toque
    en la oscuridad lleva la luz hasta allí.
    ===================================================================== */
@@ -16,7 +16,7 @@ const LUZ = (() => {
 
   function cfg() { const sc = G.scene; return sc && sc.oscuro && (!sc.oscuro.cond || sc.oscuro.cond()) ? sc.oscuro : null; }
   function activa() { return !!(cfg() && G.started && !G.mode && S); }
-  const vela = () => has('candelabro');
+  const vela = () => false;
   const radio = () => (vela() ? 280 : 200);
 
   // de dónde sale el haz del móvil: la mano de quien juegas

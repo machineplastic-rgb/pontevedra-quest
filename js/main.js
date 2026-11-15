@@ -1,6 +1,6 @@
 'use strict';
 /* Arranque: carga, portada, menú y partida */
-const VERSION = 'v25';
+const VERSION = 'v26';
 const FINAL_SCENES = ['control', 'camino', 'balneario', 'piscina'];
 
 function titleMode() {
@@ -81,13 +81,13 @@ function bindMenus() {
     const b = $('menu').querySelector('.mbox');
     const old = b.innerHTML;
     b.innerHTML = `<h3>Cómo se juega</h3>
-      <p>• En la cripta no se ve nada: la luz del móvil (o del candelabro) sigue al ratón o al dedo. Lo que está a oscuras no se puede tocar.</p>
+      <p>• En la cripta no se ve nada: la luz del móvil sigue al ratón o al dedo (el candelabro, en la inscripción). Lo que está a oscuras no se puede tocar.</p>
       <p>• Toca personas y cosas para <b>mirar, hablar o usar</b>. Las flechas doradas son salidas.</p>
       <p>• Abajo eliges con quién juegas. Cada caballero tiene su don: <b>Ángel</b> siente lo místico, <b>Marcos</b>, diseñador de moda y algo friki, se bate en duelo con la lengua y conduce, <b>Marc</b> dibuja y liga, <b>Ramis</b> controla los grifos… y lo que haga falta.</p>
       <p>• 🎒 La bolsa del Club: elige un objeto, pulsa «Usar» y toca dónde. 🔍 La lupa enseña todo lo que se puede tocar.</p>
       <p>• ¿Atascado? Toca a uno de tus amigos y háblale: siempre tiene una idea.</p>
       <p>• La noche está llena de gente: habla con todos. En la discoteca Lume y en O Furado hay logros extra (y un concierto).</p>
-      <p>• 📸 Con Marc y su móvil podéis hacer sesiones de fotos para Intaclub (pregunta a Vera, a Gary… o a alguna profe en la Alameda).</p>
+      <p>• 📸 Con Marc y su móvil podéis hacer sesiones de fotos para Instaclub (pregunta a Vera, a Gary… o a alguna profe en la Alameda).</p>
       <p>• 🗺 El mapa (arriba) os lleva a cualquier sitio de la zona vieja en el que ya hayáis estado.</p>
       <p>• La barrita de colores es la borrachera. <b>Marcos conduce</b>: que no pase de «Achispado». El café ayuda.</p>
       <button class="gold" id="mBack">Entendido</button>`;

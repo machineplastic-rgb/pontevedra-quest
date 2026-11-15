@@ -11,6 +11,7 @@ const DIARIO = () => {
   out.push('🍮 Cena en el Bar Estrella y los postres de Doña Maruxa');
   if (L('fisgon')) out.push('🕵 Pillados fisgando en la bodega secreta'); else if (F('bodegaVista')) out.push('🍷 Una bodega secreta detrás del aparador');
   if (F('llavesConfiscadas')) out.push('🔑 Brais se quedó con las llaves del Peugeot');
+  if (F('tunelAbierto')) out.push(F('cartaLeida') ? '💌 El túnel secreto y la carta de amor de Don Xesús' : '🗝 La llave de Toño abrió el túnel secreto');
   if (L('minuto') || F('beso')) out.push('💋 Ángel besó en menos de un minuto');
   if (F('acertijo')) out.push(L('pollo') ? '🐔 Don Xesús se rindió ante un pollo de goma' : '🤺 Un duelo de insultos contra un fantasma');
   if (L('caballero')) out.push('⚔ Nombrados Caballeros de Santo Domingo');
@@ -18,10 +19,10 @@ const DIARIO = () => {
   if (F('concierto')) out.push('🎸 Ángel cantó punk en O Furado');
   if (L('pista')) out.push('🪩 Reyes de la pista en la Lume');
   if (L('cola')) out.push('🚽 Nos colamos en la cola del baño');
-  if (L('foto')) out.push('📸 Sesión de fotos para Intaclub');
+  if (L('foto')) out.push('📸 Sesión de fotos para Instaclub');
   if (L('compana')) out.push('🕯 Escapamos de la Santa Compaña');
   if (L('muuu')) out.push('🐄 Una vaca en mitad de la N-550');
-  if (L('camino')) out.push('🐚 Toño llegó andando casi a la vez');
+  if (L('camino')) out.push(F('tunelAbierto') ? '🐚 Toño llegó andando casi a la vez (otra vez)' : '🐚 Toño llegó andando casi a la vez… y nos dio una llave');
   const fin = S.drunk.marcos === 0 ? '⚖ Y Marcos condujo sereno como un juez' : '🚗 Y Marcos condujo… más o menos sereno';
   return out.slice(0, 11).concat([fin]);
 };

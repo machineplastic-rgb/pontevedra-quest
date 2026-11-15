@@ -667,8 +667,8 @@ async function veraTalk() {
     if (f.veraDibujo) return say('vera', 'Ese posavasos me lo llevo a casa. Y lo enmarco.');
     await say('vera', 'Me han dicho que dibujas. Dibújame con las botas, que son lo mejor que tengo.');
     sfx('pagina');
-    await narr('Marc la dibuja en un posavasos: botas, rejilla y mirada de «ni se te ocurra». Vera lo mira tres segundos sin decir nada.');
-    await say('vera', 'Me has sacado guapa y peligrosa. Las de Vigo tenían razón: eres un ligón.', 'risa');
+    await narr('Marc lo dibuja en un posavasos: botas, rejilla y mirada de «ni se te ocurra». Vera mira el dibujo tres segundos sin decir nada.');
+    await say('vera', 'Me has sacado guapo y peligroso. Las de Vigo tenían razón: eres un ligón.', 'risa');
     flag('veraDibujo', 1); logro('ligon');
     return;
   }
@@ -811,7 +811,9 @@ MG.concierto = function () {
     });
     c.restore();
     // Ángel con la guitarra (dibujo de JRAR); si no carga, su pose de borracho
-    const gtr = G.img['chars/angel_guitarra'] ? 'chars/angel_guitarra' : null;
+    // v26: dos poses con la guitarra, que se van turnando cada dos golpes
+    const g2 = Math.floor((st > -1 ? st / BEAT : t * 1.6) / 2) % 2 && G.img['chars/angel_guitarra2'];
+    const gtr = g2 ? 'chars/angel_guitarra2' : G.img['chars/angel_guitarra'] ? 'chars/angel_guitarra' : null;
     const sp = gtr || bodySprite('angel'), sh = gtr ? 790 : 760 * (G.img[sp] ? G.img[sp].height / G.img['chars/angel'].height : 1);
     MG.drawImgH(c, sp, gtr ? 330 : 300, 1010 - Math.sin(angelHop * Math.PI) * 30 - beatK * 6, sh, { rot: Math.sin(t * 5) * 0.03 + (angelHop > 0.5 ? -0.03 : 0) });
     // carriles
@@ -996,7 +998,7 @@ addCrowd('plaza', [
   { id: 'azul', x: 1440, y: 855, k: 0.33, flip: true, cond: () => nocheFase() >= 2 && flag('vigo1') },
 ]);
 // imágenes que no están en la lista de siempre
-EXTRA_ASSETS.push('chars/angel_guitarra', 'escenas/beso1', 'escenas/beso2', 'chars/meiga_baila1', 'chars/meiga_baila2', 'chars/meiga_baila3',
+EXTRA_ASSETS.push('chars/angel_guitarra', 'chars/angel_guitarra2', 'chars/angel_senala', 'chars/angel_bolsillos', 'escenas/beso1', 'escenas/beso2', 'chars/meiga_baila1', 'chars/meiga_baila2', 'chars/meiga_baila3',
   'road/stop', 'road/cartel_caldas', 'road/peugeot');
 LATE_IDS.forEach((k) => EXTRA_ASSETS.push('faces/' + k + '_normal', 'faces/' + k + '_risa'));
 CROWD_IDS.forEach((k) => EXTRA_ASSETS.push('faces/' + k + '_piripi', 'faces/' + k + '_mamado'));

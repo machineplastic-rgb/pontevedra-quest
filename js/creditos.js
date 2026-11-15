@@ -254,14 +254,14 @@ const CRED = (() => {
       draw(c) {
         fondo(c, 'bg/ruinas', 1.2, 0.45, 0.42, 0.28);
         fig(c, 'chars/marc', 100, 716, 610); fig(c, 'chars/ramis_piripi', 662, 716, 610, { flip: true });
-        fig(c, 'chars/fantasma_risa', 385, 600, 500, { alpha: 0.82, glow: 'rgba(150,220,255,0.95)', blur: 34 });
+        fig(c, 'chars/fantasma_risa', 385, 600, 500, { alpha: 0.7, glow: 'rgba(110,190,255,0.95)', blur: 34 });
         flashLuz(c, 385, 300, 520, 0.9);
       } },
     { id: 'caballero', h: '01:49', tipo: 'logro', pri: 2, ok: () => L('caballero') || F('carteraLlena'), kb: [0.62, 0.3], doodle: 'star',
       cap: () => 'Caballeros de Santo Domingo. Por el poder de estar muerto.',
       draw(c) {
         fondo(c, 'bg/cripta', 1.25, 0.55, 0.45, 0.2);
-        fig(c, 'chars/fantasma', 605, 612, 540, { flip: true, alpha: 0.82, glow: 'rgba(150,220,255,0.95)', blur: 34 });
+        fig(c, 'chars/fantasma', 605, 612, 540, { flip: true, alpha: 0.7, glow: 'rgba(110,190,255,0.95)', blur: 34 });
         // arrodillados: se les ve de cintura para arriba
         fig(c, 'chars/ramis', 75, 935, 650); fig(c, 'chars/marc', 200, 928, 640); fig(c, 'chars/marcos', 325, 940, 640); fig(c, 'chars/angel', 452, 932, 650);
         chispas(c, 14, 470, 250, 70, 50, '#cfefff', 7);
@@ -273,7 +273,7 @@ const CRED = (() => {
         fondo(c, 'bg/cripta', 1.2, 0.5, 0.45, 0.3);
         if (G.img['duelo/marcos_para']) fig(c, 'duelo/marcos_para', 215, 640, 560); else { fig(c, 'chars/marcos_lado', 215, 640, 540); fig(c, 'items/candelabro', 262, 390, 120, { rot: 1.2 }); }
         if (G.img['duelo/xesus_retrocede']) fig(c, 'duelo/xesus_retrocede', 530, 615, 560, { alpha: 0.85, glow: 'rgba(150,220,255,0.95)', blur: 34 });
-        else fig(c, 'chars/fantasma_risa', 530, 615, 540, { flip: true, rot: 0.08, alpha: 0.82, glow: 'rgba(150,220,255,0.95)', blur: 34 });
+        else fig(c, 'chars/fantasma_risa', 530, 615, 540, { flip: true, rot: 0.08, alpha: 0.7, glow: 'rgba(110,190,255,0.95)', blur: 34 });
         chispas(c, 16, 380, 330, 60, 50, '#fff2b0', 11);
         flashLuz(c, 380, 330, 520);
       } },
@@ -325,7 +325,7 @@ const CRED = (() => {
         flashLuz(c, 400, 300, 520);
       } },
     { id: 'ligon', h: '03:41', tipo: 'logro', pri: 12, ok: () => L('ligon'), kb: [0.5, 0.3], doodle: 'heart',
-      cap: () => (F('luaOk') ? 'Marc dibuja a Lúa. Vestida, para variar.' : 'Marc dibuja a Vera en un posavasos. Guapa y peligrosa.'),
+      cap: () => (F('luaOk') ? 'Marc dibuja a Lúa. Vestida, para variar.' : 'Marc dibuja a Vera en un posavasos. Guapo y peligroso.'),
       draw(c) {
         const lua = F('luaOk');
         fondo(c, lua ? 'bg/disco' : 'bg/antro', 1.3, 0.8, 0.45, 0.15);
@@ -665,8 +665,8 @@ const CRED = (() => {
     return [
       ['s', 'Club de Caballeros Films'], ['', 'en asociación con el Bar Estrella y la Diputación del Orujo'], ['s', 'presenta'], ['sp'],
       ['t', 'PONTEVEDRA QUEST'], ['', 'Basado en hechos reales. Más o menos.'], ['sp'],
-      ['h', 'Dirigida por'], ['', 'JRAR'], ['sp'],
-      ['h', 'Guion'], ['', 'JRAR y la memoria selectiva del Club'], ['sp'],
+      ['h', 'Dirigida por'], ['', 'Marcos Armengol Rodríguez'], ['p', '(sí, el que conduce)'], ['sp'],
+      ['h', 'Guion'], ['', 'Marcos Armengol Rodríguez'], ['', 'y la memoria selectiva del Club'], ['sp'],
       ['h', 'Reparto, por orden de borrachera'], ...reparto, ['sp'],
       ['h', 'Con la participación especial de'], ['', 'Doña Maruxa y su táper infinito'], ['', 'La chica del pub (1 minuto en pantalla)'], ['', 'Don Xesús de Santo Domingo, fantasma ilustrado'],
       ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Las profes de Vigo: Uxía, Noa y Sabela'], ['', 'Rubén, el portero que pide el DNI'], ['', 'DJ Raxo y su tema especial para los Lords'],
@@ -690,7 +690,7 @@ const CRED = (() => {
       ['h', 'Departamento legal'], ['', 'Sargento Seoane'], ['sp'],
       ['h', 'Canción de la Lume y de los créditos'], ['', '«Cuatro amigos fueron de viaje…»'], ['', 'machineplastic'], ['sp'],
       ['h', 'Banda sonora original'], ['', 'DJ Raxo · Ángel y los de O Furado'], ['', 'Gaita, bombo y licor café'], ['sp'],
-      ['h', 'Idea, historia e ilustraciones'], ['', 'JRAR'], ['sp'],
+      ['h', 'Idea, historia e ilustraciones'], ['', 'Marcos Armengol Rodríguez'], ['sp'],
       ['h', 'Programación, música y sonido'], ['', 'Claude'], ['sp'],
       ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['sp'],
       ...cifras,

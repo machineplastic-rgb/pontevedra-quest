@@ -165,7 +165,10 @@ MG.duelo = function () {
     o = o || {};
     c.save(); if (o.alpha !== undefined) c.globalAlpha = o.alpha;
     if (o.rot) { c.translate(gx, gy); c.rotate(o.rot); c.translate(-gx, -gy); }
+    // v26: Don Xesús con luz azul propia
+    if (o.glow) { c.shadowColor = 'rgba(110,190,255,0.95)'; c.shadowBlur = 40; }
     c.drawImage(im, gx + (d.x - d.ax) * SC, gy + (d.y - d.fy) * SC, d.w * SC, d.h * SC);
+    if (o.glow) { c.shadowBlur = 0; c.globalCompositeOperation = 'lighter'; c.globalAlpha *= 0.2; c.drawImage(im, gx + (d.x - d.ax) * SC, gy + (d.y - d.fy) * SC, d.w * SC, d.h * SC); }
     c.restore(); return true;
   }
   function drawMarcos(c, x, t) {
@@ -187,13 +190,13 @@ MG.duelo = function () {
     if (DIB()) {
       const p = G.img['duelo/xesus_' + xPose] ? xPose : 'guardia';
       const dx = p === 'retrocede' ? 45 * e : p === 'ataque' || p === 'estocada' ? -40 * e : 0;
-      pose(c, 'xesus_' + p, x + dx, FLOOR - 14 + fl, { alpha: 0.9 + Math.sin(t * 3.1) * 0.05, rot: p === 'retrocede' ? 0.04 * e : 0 });
+      pose(c, 'xesus_' + p, x + dx, FLOOR - 14 + fl, { alpha: 0.7 + Math.sin(t * 3.1) * 0.06, rot: p === 'retrocede' ? 0.04 * e : 0, glow: true });
       return;
     }
     let dx = 0, rot = 0, ang = 0.2 + Math.sin(t * 2.2) * 0.06, ext = 0;
     if (xPose === 'ataque' || xPose === 'estocada') { dx = -60 * e; rot = -0.05 * e; ang = 0.2 - 0.18 * e; ext = 90 * e; }
     if (xPose === 'retrocede') { dx = 50 * e; rot = 0.09 * e; ang = 0.2 + 0.7 * e; }
-    drawImgH(c, 'chars/fantasma', x + dx, FLOOR - 15 + fl, HX, { flip: true, rot, alpha: 0.88, glow: 'rgba(150,215,255,.85)' });
+    drawImgH(c, 'chars/fantasma', x + dx, FLOOR - 15 + fl, HX, { flip: true, rot, alpha: 0.7, glow: 'rgba(110,190,255,.95)' });
     if (!(fly && fly.src === 'rapier')) rapier(c, x + dx - 80, FLOOR - 15 + fl - HX * 0.46, ang, 300 + ext);
   }
   function drawFly(c) {

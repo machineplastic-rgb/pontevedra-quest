@@ -29,7 +29,7 @@ const COLA = {
     { x: 'Cuéntame un chiste y te dejo pasar. Pero que sea malo, ¿eh?', ok: '¿Qué hace un pulpo en O Furado? ¡Pogo con ocho brazos!', mal: ['No sé chistes.', 'El chiste es esta cola.'], si: '¡JAJAJA! ¡Malísimo! ¡Pasa, pasa!', no: 'Eso no tiene gracia. Bueno, un poco. Pero al fondo.' },
   ],
   vera: [
-    { x: 'Aquí mando yo. Y yo digo que esperas.', ok: 'Vera, mi amigo Marc te quiere dibujar otra vez. Dice que eres su musa.', mal: ['¿Y quién te ha nombrado la jefa?', '¿Me lo dices o me lo cuentas?'], si: '¿Su musa? Bueeeeno… pasa, que voy a buscarle, igual hasta le hago un favor....', no: 'Me nombré yo con estas dos. Hasta el fondo y de golpe.' },
+    { x: 'Aquí mando yo. Y yo digo que esperas.', ok: 'Vera, mi amigo Marc te quiere dibujar otra vez. Dice que eres su musa.', mal: ['¿Y quién te ha nombrado el jefe?', '¿Me lo dices o me lo cuentas?'], si: '¿Su musa? Bueeeeno… pasa, que voy a buscarle, igual hasta le hago un favor....', no: 'Me nombré yo con estas dos. Hasta el fondo y de golpe.' },
     { x: '¿Ves estas botas militares? Han pisado a gente más alta que tú y me han pagado por ello.', ok: 'Por eso me cuelo con cuidado, Vera: de puntillas y con respeto.', mal: ['¿Son de rebajas?', 'Yo calzo un cuarenta y cinco.'], si: '¡Ja! Me gusta la gente que sabe dónde la mete. Pasa.', no: 'Y yo te piso igual. Al fondo.' },
   ],
   carla: [

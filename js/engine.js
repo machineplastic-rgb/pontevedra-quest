@@ -90,7 +90,7 @@ function loadImages(list, onProg) {
 }
 function assetList() {
   const l = ['bg/estrella', 'bg/bodega', 'bg/plaza', 'bg/calle', 'bg/bareto', 'bg/pub', 'bg/ruinas', 'bg/cripta', 'bg/alameda', 'bg/parking', 'bg/titulo', 'bg/disco', 'bg/antro', 'bg/intro', 'bg/estrella_tunel'];
-  PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); BODY.forEach((v) => l.push('chars/' + p + v)); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
+  PROTA.forEach((p) => { l.push('chars/' + p, 'chars/' + p + '_lado'); BODY.concat(['_relax', '_juerga']).forEach((v) => l.push('chars/' + p + v)); ['normal', 'risa', 'borracho', 'sorpresa'].forEach((m) => l.push('faces/' + p + '_' + m)); });
   SECOND.forEach((s) => { l.push('chars/' + s, 'chars/' + s + '_risa', 'faces/' + s + '_normal', 'faces/' + s + '_risa'); });
   CROWD_IDS.forEach((s) => l.push('chars/' + s, 'chars/' + s + '_piripi', 'chars/' + s + '_mamado', 'faces/' + s + '_normal'));
   LATE_IDS.forEach((s) => l.push('chars/' + s + '_a', 'chars/' + s + '_b'));
@@ -168,14 +168,41 @@ function aScale(a) { return a.k * (isProta(a.id) ? 1 : (a.ks || (isCrowd(a.id) ?
 // v25: poses agachadas, sentadas o con la espada en alto: cuánto miden respecto a de pie
 const POSE_H = { 'chars/gc2_mira': 0.78, 'chars/gc1_agacha': 0.77, 'chars/chica_suena': 0.76, 'chars/gente_baila': 0.95, 'chars/fantasma_guardia': 1.08, 'chars/fantasma_ataca': 1.0, 'chars/meiga_reza': 0.97 };
 const BODY = ['_alegre', '_piripi', '_mamado'];
+// v26: poses nuevas que se van turnando cada pocos segundos: relajados de normal y de juerga cuando van
+// más bebidos. Ángel, además, con las manos en los bolsillos (sereno) o señalando (contento).
+const POSE_CADA = 7;
 function bodySprite(id) {
   const lv = S ? S.drunk[id] : 0, v = lv >= 4 ? '_mamado' : lv >= 2 ? '_piripi' : lv === 1 ? '_alegre' : '';
-  return v && G.img['chars/' + id + v] ? 'chars/' + id + v : 'chars/' + id;
+  const sp = v && G.img['chars/' + id + v] ? 'chars/' + id + v : 'chars/' + id;
+  if (TEST) return sp;
+  const extra = [lv >= 2 ? '_juerga' : '_relax'];
+  if (id === 'angel') extra.push(lv === 0 ? '_bolsillos' : lv <= 3 ? '_senala' : '');
+  const ops = [sp].concat(extra.filter((s) => s && G.img['chars/' + id + s]).map((s) => 'chars/' + id + s));
+  return ops[Math.floor((G.t + PROTA.indexOf(id) * 2.3) / POSE_CADA) % ops.length];
 }
 function actorBox(a) {
   const img = G.img[spriteOf(a)]; if (!img) return null;
   const k = aScale(a); const w = img.width * k, h = img.height * k;
   return { x: a.x - w / 2, y: a.y - h, w, h };
+}
+// v26: Don Xesús, más fantasma: translúcido, azulado y con luz propia. Al beber el vino se le ve bajar,
+// rosa, desde la boca hasta los pies, y se queda sonrosado.
+const GHOST_TINT = { c: '#4fb2ff', a: 0.26 };
+const BOCA = { 'chars/fantasma': 0.19, 'chars/fantasma_risa': 0.24, 'chars/fantasma_guardia': 0.33, 'chars/fantasma_ataca': 0.27 };
+let rosaCv = null;
+function vinoRosa(c, a, sprite, w, h) {
+  const vt = a.vinoT, p = vt ? clamp((G.t - vt) / 2.8, 0, 1) : 1;
+  const pk = tinted(sprite, { c: '#ff3d9a', a: 0.85 }); if (!pk) return;
+  if (!rosaCv) rosaCv = document.createElement('canvas');
+  if (rosaCv.width !== pk.width || rosaCv.height !== pk.height) { rosaCv.width = pk.width; rosaCv.height = pk.height; }
+  const x = rosaCv.getContext('2d'), H0 = pk.height;
+  x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, pk.width, H0); x.drawImage(pk, 0, 0);
+  const y0 = H0 * (BOCA[sprite] || 0.22), y1 = y0 + (H0 - y0) * p, fe = H0 * 0.07, L = y1 - y0 + 2 * fe;
+  const g = x.createLinearGradient(0, y0 - fe, 0, y1 + fe);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(fe / L, 'rgba(0,0,0,1)'); g.addColorStop((L - fe) / L, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.globalCompositeOperation = 'destination-in'; x.fillStyle = g; x.fillRect(0, 0, pk.width, H0);
+  c.globalAlpha = a.alpha * (p < 1 ? 0.8 : 0.4 + 0.05 * Math.sin(G.t * 2));
+  c.drawImage(rosaCv, -w / 2, -h, w, h);
 }
 function drawActor(c, a) {
   if (!a.visible || a.alpha <= 0) return;
@@ -186,7 +213,7 @@ function drawActor(c, a) {
   else if (!isProta(a.id) && a.talking && G.img['chars/' + a.id + '_habla']) sprite = 'chars/' + a.id + '_habla';
   const body = isProta(a.id) && a.sprite === 'chars/' + a.id && !a.noBody;
   if (body) sprite = bodySprite(a.id);
-  const img = tinted(sprite, G.scene && G.scene.tint && !a.ghost ? G.scene.tint : null);
+  const img = tinted(sprite, a.ghost ? GHOST_TINT : G.scene && G.scene.tint ? G.scene.tint : null);
   if (!img) return;
   const t = G.t, lvl = isProta(a.id) ? S.drunk[a.id] : (a.drunkLvl || (isCrowd(a.id) ? nocheFase() * 1.5 : 0));
   let k = aScale(a);
@@ -201,6 +228,13 @@ function drawActor(c, a) {
   const ghostF = a.ghost ? Math.sin(t * 1.6 + a.phase) * 12 - 18 : 0;
   const hop = a.hop > 0 ? Math.sin(a.hop * Math.PI) * 40 : 0;
   // sombra en el suelo
+  // el fantasma no hace sombra: alumbra el suelo de azul
+  if (a.ghost && !a.noShadow) {
+    c.save(); c.translate(a.x, a.y - 4); c.scale(1, 0.22);
+    const g = c.createRadialGradient(0, 0, 4, 0, 0, w * 0.9);
+    g.addColorStop(0, `rgba(120,200,255,${0.32 + 0.06 * Math.sin(t * 2.3)})`); g.addColorStop(1, 'rgba(120,200,255,0)');
+    c.globalCompositeOperation = 'lighter'; c.fillStyle = g; c.beginPath(); c.arc(0, 0, w * 0.9, 0, Math.PI * 2); c.fill(); c.restore();
+  }
   if (!a.ghost && !a.noShadow) {
     c.save(); c.translate(a.x + Math.sin(t * 0.9 + a.phase) * lvl * 3, a.y - 4); c.scale(1, 0.2);
     const g = c.createRadialGradient(0, 0, 4, 0, 0, w * 0.5);
@@ -211,10 +245,17 @@ function drawActor(c, a) {
   c.translate(a.x, a.y - talk - walk - hop + ghostF);
   c.rotate(sway + (a.walking ? Math.sin(t * 8.5 + a.phase) * 0.025 : 0) + (a.dance ? Math.sin(t * Math.PI * (G.scene && G.scene.bpm || 124) / 120 + a.phase) * 0.05 : 0));
   c.scale(a.flip ? -1 : 1, breathe);
-  c.globalAlpha = a.alpha * (a.ghost ? 0.78 + Math.sin(t * 2.3) * 0.08 : 1);
-  if (a.ghost) { c.shadowColor = 'rgba(150,220,255,0.9)'; c.shadowBlur = 40; }
+  c.globalAlpha = a.alpha * (a.ghost ? 0.64 + Math.sin(t * 2.3) * 0.08 : 1);
+  if (a.ghost) { c.shadowColor = 'rgba(110,190,255,0.95)'; c.shadowBlur = 46; }
   if (a.glow) { c.shadowColor = a.glow; c.shadowBlur = 30; }
   c.drawImage(img, -w / 2, -h, w, h);
+  if (a.ghost) {
+    c.shadowBlur = 0; c.shadowColor = 'transparent';
+    if (S && S.flags && S.flags.fantasmaVino) vinoRosa(c, a, sprite, w, h);
+    // brillo propio, como de pantalla de móvil a las tres de la mañana
+    c.globalCompositeOperation = 'lighter'; c.globalAlpha = a.alpha * (0.14 + 0.05 * Math.sin(t * 3.1));
+    c.drawImage(img, -w / 2, -h, w, h);
+  }
   c.restore();
 }
 function tween(obj, props, dur, ez) {
@@ -755,7 +796,7 @@ function toast(icon, title, text) {
 function logro(id) {
   if (!S || S.logros.includes(id) || !LOGROS[id]) return;
   S.logros.push(id); sfx('logro');
-  if (typeof GALERIA !== 'undefined') GALERIA.gana(id);   // v16: Pontegram
+  if (typeof GALERIA !== 'undefined') GALERIA.gana(id);   // v16: Instaclub (v26: con la captura del momento)
   setTimeout(() => toast(LOGROS[id].i, 'Logro', LOGROS[id].t), 400);
 }
 

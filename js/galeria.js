@@ -1,6 +1,6 @@
 'use strict';
 /* =====================================================================
-   v16 · «Intaclub» (antes Pontegram): la galería de logros y fotos, como el perfil de una
+   v16 · «Instaclub» (antes Pontegram): la galería de logros y fotos, como el perfil de una
    red social dentro de un móvil. Cada logro es una publicación (con su
    foto de la noche si la tiene), con likes, corazones y comentarios de
    la gente del juego. Los logros se guardan entre partidas.
@@ -10,20 +10,56 @@ const GALERIA = (() => {
   let st = { got: {}, likes: {}, fotos: {} };
   try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.got) st = Object.assign(st, v); } catch (e) {}
   st.fotos = st.fotos || {};
+  // v26: hasta la v25 había dos funciones «foto» y la segunda pisaba a la primera: cada vez que se abría la galería
+  // se colaban publicaciones vacías (las grises). Se limpian aquí.
+  Object.keys(st.fotos).forEach((k) => { const f = st.fotos[k]; if (!f || typeof f.img !== 'string' || !f.img.startsWith('data:')) delete st.fotos[k]; });
+  // v26: la captura del juego en el momento de cada logro (se guarda aparte, por si no cabe)
+  const KEY_SHOT = 'pq_pgram_shots_v1';
+  let shots = {}; try { shots = JSON.parse(localStorage.getItem(KEY_SHOT)) || {}; } catch (e) {}
+  const SIMG = {};
+  function refresca() { if (root && !root.classList.contains('hidden') && $('pgPost') && $('pgPost').classList.contains('hidden')) pinta(); }
+  function cargaShot(id) {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
+      const k = Math.max(760 / im.width, 570 / im.height), w = im.width * k, h = im.height * k; x.drawImage(im, (760 - w) / 2, (570 - h) / 2, w, h);
+      SIMG[id] = c; refresca(); };
+    im.src = shots[id];
+  }
+  Object.keys(shots).forEach(cargaShot);
+  // si la pantalla está a oscuras (un fundido a negro), se reintenta un poco después; si no, se queda la foto de siempre
+  const oscura = (c) => { const m = document.createElement('canvas'); m.width = 32; m.height = 20; const x = m.getContext('2d'); x.drawImage(c, 0, 0, 32, 20); const d = x.getImageData(0, 0, 32, 20).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] + d[i + 2]; return s / (d.length / 4) / 3 < 22; };
+  function captura(id, intento) {
+    if (typeof TEST !== 'undefined' && TEST) return;
+    intento = intento || 0;
+    try {
+      const src = $('cv'); if (!src || !src.width) return;
+      const c = document.createElement('canvas'); c.width = 640; c.height = 400; const x = c.getContext('2d');
+      x.drawImage(src, 0, 0, 640, 400);
+      if (oscura(c)) { if (intento < 8) setTimeout(() => captura(id, intento + 1), 350); return; }
+      shots[id] = c.toDataURL('image/jpeg', 0.74);
+      try { localStorage.setItem(KEY_SHOT, JSON.stringify(shots)); } catch (e) {
+        // no cabe: se borran las más antiguas hasta que quepa
+        const ks = Object.keys(shots).filter((k) => k !== id);
+        while (ks.length) { delete shots[ks.shift()]; try { localStorage.setItem(KEY_SHOT, JSON.stringify(shots)); break; } catch (e2) {} }
+      }
+      cargaShot(id);
+    } catch (e) {}
+  }
   // v23: las fotos de las sesiones (Vera, Sabela, Gary), apaisadas para la publicación
   const FIMG = {};
   function cargaFoto(id) {
     const im = new Image();
     im.onload = () => { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
       x.drawImage(im, 0, (570 - 760 * im.height / im.width) / 2, 760, 760 * im.height / im.width); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 760, 570);
-      const w = im.width * 570 / im.height; x.drawImage(im, (760 - w) / 2, 0, w, 570); FIMG[id] = c; };
+      const w = im.width * 570 / im.height; x.drawImage(im, (760 - w) / 2, 0, w, 570); FIMG[id] = c; refresca(); };
     im.src = st.fotos[id].img;
   }
   Object.keys(st.fotos).forEach(cargaFoto);
   const okDe = (id) => !!(st.got[id] || st.fotos[id]);
   const guarda = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
-  function gana(id) { if (!st.got[id]) { st.got[id] = Date.now(); guarda(); } }
-  function alArrancar() { const sv = typeof loadSave === 'function' ? loadSave() : null; if (sv && sv.logros) sv.logros.forEach(gana); }
+  // o = { shot: false } para no hacer captura (al cargar partida, Videoclub…)
+  function gana(id, o) { if (!st.got[id]) { st.got[id] = Date.now(); guarda(); } if (!(o && o.shot === false)) captura(id); }
+  function alArrancar() { const sv = typeof loadSave === 'function' ? loadSave() : null; if (sv && sv.logros) sv.logros.forEach((id) => gana(id, { shot: false })); }
 
   // cada logro: foto(s) de los créditos, texto y comentarios [quién, texto]
   const POST = {
@@ -54,6 +90,7 @@ const GALERIA = (() => {
     cola: { f: [], c: [['tino', 'En mi bar se hace cola. Bueno, casi siempre 🤘'], ['carla', 'Lo tengo grabado. Todo. 📲'], ['xurxo', '¡Por la vejiga! 🍺']] },
     reinas: { f: [], c: [['rosa', 'Las reinas de la noche 👑'], ['monos', 'Ramis, otra canción, rey']] },
     madrugada: { f: [], c: [['dj', '¿Quién sigue en pie? 🌙'], ['carla', 'Directo de madrugada 📲']] },
+    tunel: { f: [], c: [['fantasma', '¡Mi túnel! ¡Mi carta para Xoana! ¡Bribones! 💌'], ['peregrino', 'Os dije que abría algo 🗝️🐚'], ['senora', '¿Un túnel en MI bodega? ¡Y yo con arañas! 🕷']] },
   };
   const NICK = { ramis: 'ramis911', marc: 'marc_manara', marcos: 'nike_apostol', angel: 'angel_elbarbas', senora: 'dona_maruxa', fantasma: 'don_xesus_1714',
     meiga: 'meiga_pura', guiri: 'gary_in_galicia', peregrino: 'tono_ultreia', dj: 'dj_raxo', tino: 'tino_ofurado', vera: 'vera_retratos', lua: 'lua.baila',
@@ -66,7 +103,7 @@ const GALERIA = (() => {
 
   /* ---------- las fotos: se pintan con los dibujos de los créditos, a todo color ---------- */
   const cache = new Map();
-  function foto(fid) {
+  function fotoCred(fid) {
     if (cache.has(fid)) return cache.get(fid);
     const f = typeof CRED !== 'undefined' && CRED.FOTOS.find((x) => x.id === fid); if (!f) return null;
     const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
@@ -90,8 +127,15 @@ const GALERIA = (() => {
     ls.slice(0, 2).forEach((s, i) => x.fillText(s, 380, 440 + i * 50));
     cache.set(key, c); return c;
   }
-  function imagenes(id) { if (st.fotos[id]) return [FIMG[id] || tarjetaFoto()]; const p = POST[id]; const fs = p && p.f.length ? p.f.map(foto).filter(Boolean) : []; return fs.length ? fs : [tarjetaEmoji(id)]; }
-  function tarjetaFoto() { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d'); x.fillStyle = '#222'; x.fillRect(0, 0, 760, 570); return c; }
+  // v26: primero la captura del momento (si la hay) y luego las fotos de siempre
+  function imagenes(id) {
+    if (st.fotos[id]) return [FIMG[id] || tarjetaFoto(id)];
+    const p = POST[id]; const fs = p && p.f.length ? p.f.map((f) => fotoCred(f)).filter(Boolean) : [];
+    if (SIMG[id]) fs.unshift(SIMG[id]);
+    return fs.length ? fs : [tarjetaEmoji(id)];
+  }
+  // mientras carga la foto de una sesión: su tarjeta de colores, nunca un cuadro gris
+  function tarjetaFoto(id) { return tarjetaEmoji('foto'); }
   function captionDe(id) {
     if (st.fotos[id]) return st.fotos[id].cap;
     const p = POST[id], f = p && p.f[0] && typeof CRED !== 'undefined' && CRED.FOTOS.find((x) => x.id === p.f[0]);
@@ -126,7 +170,7 @@ const GALERIA = (() => {
     const segu = 1714 + got.length * 137 + Object.keys(st.likes).length;
     root.innerHTML = `<div class="pg-phone">
       <div class="pg-status"><span>03:14</span><span>📶 🔋 14%</span></div>
-      <div class="pg-top"><b class="pg-logo">Intaclub</b><span class="pg-icons">♡ &nbsp;✉</span></div>
+      <div class="pg-top"><b class="pg-logo">Instaclub</b><span class="pg-icons">♡ &nbsp;✉</span></div>
       <div class="pg-scroll">
         <div class="pg-head">
           <div class="pg-av">${['ramis', 'marc', 'marcos', 'angel'].map((p) => `<img src="img/faces/${p}_risa.webp" alt="">`).join('')}</div>
@@ -136,7 +180,7 @@ const GALERIA = (() => {
         <div class="pg-btns"><span class="pg-b on">Siguiendo ✓</span><span class="pg-b">Mensaje</span></div>
         <div class="pg-hl">${HIGHLIGHTS.map(([n, bg, cap]) => `<div class="pg-h${u[cap] ? '' : ' off'}" data-bg="${bg}" data-n="${n}"><span><img src="img/bg/${bg}.webp" alt=""></span><small>${n}</small></div>`).join('')}</div>
         <div class="pg-tabs"><span class="on">▦</span><span>🏆 ${got.length}/${all.length}</span></div>
-        <div class="pg-grid">${fot.concat(all).map((id) => `<div class="pg-cell${okDe(id) ? '' : ' lock'}" data-id="${id}">${okDe(id) ? (POST[id] && POST[id].f.length > 1 ? '<i class="pg-multi">❐</i>' : '') : `<em>🔒</em>`}</div>`).join('')}</div>
+        <div class="pg-grid">${fot.concat(all).map((id) => `<div class="pg-cell${okDe(id) ? '' : ' lock'}" data-id="${id}">${okDe(id) ? (imagenes(id).length > 1 ? '<i class="pg-multi">❐</i>' : '') : `<em>🔒</em>`}</div>`).join('')}</div>
         <p class="pg-pie">${got.length < all.length ? 'Seguid jugando: cada logro es una publicación nueva.' : '¡Perfil completo! Sois unos influencers.'}</p>
       </div>
       <div id="pgPost" class="hidden"></div><div id="pgStory" class="hidden"></div>

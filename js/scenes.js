@@ -821,6 +821,7 @@ async function darVino() {
   if (flag('fantasmaVino')) return say('fantasma', 'Ya bebí, ya bebí. Y no me deis más, que luego me vuelvo transparente del todo.');
   takeItem('jarra'); flag('fantasmaVino', 1); sfx('trago');
   await say('fantasma', '¡La barrica secreta de la Estrella! ¡Trescientos años sin probaaarla! ¡Albricias!', 'risa');
+  if (G.actors.fantasma) G.actors.fantasma.vinoT = G.t;   // v26: el rosa le baja desde la boca
   await narr('Don Xesús bebe directamente de la jarra. El vino le baja por dentro y se ve. Se pone de un rosa transparente precioso.');
   await say('fantasma', 'Brindad conmigo, caballeros. ¡Todos!');
   ['ramis', 'marc', 'angel'].forEach((p) => drink(p, 1, true)); sfx('brindis');
@@ -1208,6 +1209,8 @@ async function finale() {
     await say('ramis', '¿Has venido andando toda la noche?', 'sorpresa');
     await say('peregrino', 'Y vosotros en coche, y casi llegamos a la vez. Ese Peugeot va más lento que un peregrino con ampollas. ¡Buen Camino!');
     logro('camino');
+    // v26: la llave del Camino, para la próxima partida (abre la reja de la bodega)
+    if (typeof llaveDeTono === 'function') await llaveDeTono();
   }
   logro('caldofran'); if (S.drunk.marcos === 0) logro('sereno');
   await goScene('piscina');
@@ -1293,8 +1296,8 @@ async function creditos() {
   const lines = [
     ['s', 'Club de Caballeros Films'], ['', 'en asociación con el Bar Estrella y la Diputación del Orujo'], ['s', 'presenta'], ['', ''],
     ['t', 'PONTEVEDRA QUEST'], ['', 'Basado en hechos reales. Más o menos.'], ['', ''],
-    ['h', 'Dirigida por'], ['', 'JRAR'], ['', ''],
-    ['h', 'Guion'], ['', 'JRAR y la memoria selectiva del Club'], ['', ''],
+    ['h', 'Dirigida por'], ['', 'Marcos Armengol Rodríguez'], ['', '(sí, el que conduce)'], ['', ''],
+    ['h', 'Guion'], ['', 'Marcos Armengol Rodríguez'], ['', 'y la memoria selectiva del Club'], ['', ''],
     ['h', 'Reparto, por orden de borrachera'], ['', 'Ramis · Marc · Ángel'], ['', 'y Marcos (al volante, casi sereno)'], ['', ''],
     ['h', 'Con la participación especial de'], ['', 'Doña Maruxa y su táper infinito'], ['', 'La chica del pub (1 minuto en pantalla)'], ['', 'Don Xesús de Santo Domingo, fantasma ilustrado'],
     ['', 'A meiga Pura'], ['', 'Brais, el camarero que guarda llaves'], ['', 'Las profes de Vigo: Uxía, Noa y Sabela'], ['', 'Rubén, el portero que pide el DNI'], ['', 'DJ Raxo y su tema especial para los Lords'],
@@ -1312,7 +1315,7 @@ async function creditos() {
     ['h', 'Departamento legal'], ['', 'Sargento Seoane'], ['', ''],
     ['h', 'Canción de la Lume y de los créditos'], ['', '«Cuatro amigos fueron de viaje…»'], ['', 'machineplastic'], ['', ''],
     ['h', 'Banda sonora original'], ['', 'DJ Raxo · Ángel y los de O Furado'], ['', 'Gaita, bombo y licor café'], ['', ''],
-    ['h', 'Idea, historia e ilustraciones'], ['', 'JRAR'], ['', ''],
+    ['h', 'Idea, historia e ilustraciones'], ['', 'Marcos Armengol Rodríguez'], ['', ''],
     ['h', 'Programación, música y sonido'], ['', 'Claude'], ['', ''],
     ['h', 'Rodada íntegramente en'], ['', 'Pontevedra, Caldas de Reis y un poco en Coruña'], ['', ''],
     ['h', 'Dedicada a'], ['', 'Chus, que lo llamaba todo «¡lupanar!»'], ['', 'Maje, que nunca lo supo'], ['', 'Noémia, Breogán y Rosalía, por prestarnos a Marcos un fin de semana'], ['', 'El instituto Josep Maria Llompart, Mallorca'], ['', ''],
