@@ -47,12 +47,16 @@ const GALERIA = (() => {
   }
   // v23: las fotos de las sesiones (Vera, Sabela, Gary), apaisadas para la publicación
   const FIMG = {};
+  const FIMGS = {};   // v28: las tres fotos de cada sesión (la mejor primero), como carrusel
   function cargaFoto(id) {
-    const im = new Image();
-    im.onload = () => { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
-      x.drawImage(im, 0, (570 - 760 * im.height / im.width) / 2, 760, 760 * im.height / im.width); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 760, 570);
-      const w = im.width * 570 / im.height; x.drawImage(im, (760 - w) / 2, 0, w, 570); FIMG[id] = c; refresca(); };
-    im.src = st.fotos[id].img;
+    const lst = [st.fotos[id].img].concat(st.fotos[id].mas || []), out = [];
+    lst.forEach((src, i) => {
+      const im = new Image();
+      im.onload = () => { const c = document.createElement('canvas'); c.width = 760; c.height = 570; const x = c.getContext('2d');
+        x.drawImage(im, 0, (570 - 760 * im.height / im.width) / 2, 760, 760 * im.height / im.width); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 760, 570);
+        const w = im.width * 570 / im.height; x.drawImage(im, (760 - w) / 2, 0, w, 570); out[i] = c; FIMGS[id] = out.filter(Boolean); FIMG[id] = FIMGS[id][0]; refresca(); };
+      im.src = src;
+    });
   }
   Object.keys(st.fotos).forEach(cargaFoto);
   const okDe = (id) => !!(st.got[id] || st.fotos[id]);
@@ -129,7 +133,7 @@ const GALERIA = (() => {
   }
   // v26: primero la captura del momento (si la hay) y luego las fotos de siempre
   function imagenes(id) {
-    if (st.fotos[id]) return [FIMG[id] || tarjetaFoto(id)];
+    if (st.fotos[id]) return FIMGS[id] && FIMGS[id].length ? FIMGS[id] : [FIMG[id] || tarjetaFoto(id)];
     const p = POST[id]; const fs = p && p.f.length ? p.f.map((f) => fotoCred(f)).filter(Boolean) : [];
     if (SIMG[id]) fs.unshift(SIMG[id]);
     return fs.length ? fs : [tarjetaEmoji(id)];
@@ -161,9 +165,36 @@ const GALERIA = (() => {
       root.addEventListener('pointerdown', (e) => e.stopPropagation());
       $('stage').appendChild(root);
     }
-    pinta(); root.classList.remove('hidden');
+    pinta(); root.classList.remove('hidden'); ajusta();
   }
-  function cerrar() { if (root) root.classList.add('hidden'); sfx('close'); }
+  function cerrar() {
+    if (root) root.classList.add('hidden'); sfx('close');
+    try { screen.orientation.unlock(); } catch (e) {}
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {}
+    ajusta();
+  }
+  /* Modo vertical: con el móvil en vertical, el perfil ocupa toda la pantalla (fuera del escenario 1600x1000) */
+  function ajusta() {
+    if (!root) return;
+    const abierto = !root.classList.contains('hidden'), vert = abierto && innerHeight > innerWidth && innerWidth < 900;
+    const ph = root.querySelector('.pg-phone');
+    if (vert) {
+      if (root.parentNode !== document.body) document.body.appendChild(root);
+      root.classList.add('vert');
+      const s = innerWidth / 600;
+      if (ph) { ph.style.width = '600px'; ph.style.height = (innerHeight / s) + 'px'; ph.style.transform = 'scale(' + s + ')'; }
+    } else {
+      if (root.parentNode !== $('stage')) $('stage').appendChild(root);
+      root.classList.remove('vert');
+      if (ph) { ph.style.width = ph.style.height = ph.style.transform = ''; }
+    }
+    const b = $('pgRot'); if (b) b.classList.toggle('hidden', vert || Math.min(innerWidth, innerHeight) > 700);
+  }
+  function girar() {
+    const b = $('pgRot');
+    try { const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (p && p.then) p.then(() => screen.orientation.lock('portrait')).catch(() => {}); } catch (e) {}
+    if (b) { b.textContent = '↻ Gira el móvil'; setTimeout(() => { const c = $('pgRot'); if (c) c.textContent = '📱 Ver en vertical'; }, 3500); }
+  }
   function pinta() {
     const fot = Object.keys(st.fotos).sort((a, b) => st.fotos[b].t - st.fotos[a].t);
     const all = ids(), got = all.filter((id) => st.got[id]), u = (typeof CAPI !== 'undefined' && CAPI.estado().u) || {};
@@ -184,7 +215,7 @@ const GALERIA = (() => {
         <p class="pg-pie">${got.length < all.length ? 'Seguid jugando: cada logro es una publicación nueva.' : '¡Perfil completo! Sois unos influencers.'}</p>
       </div>
       <div id="pgPost" class="hidden"></div><div id="pgStory" class="hidden"></div>
-    </div><button class="pg-x" id="pgX">✕</button>`;
+    </div><button class="pg-rot" id="pgRot">📱 Ver en vertical</button><button class="pg-x" id="pgX">✕</button>`;
     // miniaturas
     root.querySelectorAll('.pg-cell').forEach((cell) => {
       const id = cell.dataset.id, im = st.got[id] ? imagenes(id)[0] : imagenes(id)[0];
@@ -196,6 +227,8 @@ const GALERIA = (() => {
     });
     root.querySelectorAll('.pg-h').forEach((h) => (h.onclick = (e) => { e.stopPropagation(); if (h.classList.contains('off')) { sfx('error'); return; } historia(h.dataset.bg, h.dataset.n); }));
     $('pgX').onclick = (e) => { e.stopPropagation(); cerrar(); };
+    $('pgRot').onclick = (e) => { e.stopPropagation(); girar(); };
+    ajusta();
   }
 
   function post(id) {
@@ -249,10 +282,11 @@ const GALERIA = (() => {
     box.onclick = (e) => { e.stopPropagation(); fin(); };
   }
 
+  addEventListener('resize', ajusta); addEventListener('orientationchange', () => setTimeout(ajusta, 250));
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && root && !root.classList.contains('hidden')) cerrar(); });
-  function foto(quien, img, likes, cap, com) {
-    const id = 'foto_' + quien; st.fotos[id] = { img, likes, cap, com, t: Date.now() };
-    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { delete st.fotos[id].img; }
+  function foto(quien, img, likes, cap, com, mas) {
+    const id = 'foto_' + quien; st.fotos[id] = { img, likes, cap, com, mas: mas || [], t: Date.now() };
+    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { st.fotos[id].mas = []; try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e2) { delete st.fotos[id].img; } }
     if (st.fotos[id].img) cargaFoto(id);
   }
   return { gana, alArrancar, abrir, cerrar, foto, estado: () => st };

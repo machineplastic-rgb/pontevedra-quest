@@ -15,12 +15,12 @@
 LOGROS.foto = { i: '📸', t: 'Fotógrafo de Instaclub' };
 const FOTO = {
   // [pose, nota (0 mala … 3 de portada), altura respecto a de pie, cara x, cara y]; x: las del modo 18+
-  vera: { poses: [[1, 2], [2, 0], [3, 3], [4, 2], [5, 3], [6, 1], [7, 3, 0.67], [8, 2], [9, 3, 0.79]], x: [['x1', 3]], bg: 'callejon', y: 775, h: 330, bomba: 'pose/guiri_2', sitio: 'el callejón',
+  vera: { poses: [[1, 2], [2, 0], [3, 3], [4, 2], [5, 3], [6, 1], [7, 3, 0.67], [8, 2], [9, 3, 0.79]], x: [['x1', 3]], culo: ['x1'], bg: 'callejon', y: 775, h: 395, bomba: 'pose/guiri_2', sitio: 'el callejón',
     cap: 'Sesión en el callejón con @vera_retratos. Luz de farol y botas militares 🖤 #Musa #ZonaVieja',
     dice: { 3: ['¡Esa! ¡Esa es la buena!', 'Ahora sí: guapo y peligroso.'], 2: ['Bien. Pero puedes más.', 'Pasable.'], 1: ['¿Me pillaste parpadeando?', 'Repite, anda.'], 0: ['¡¿De espaldas?! Borra eso ahora mismo.', '¿Eso es mi nuca?'] },
     com: [['vera', 'Me has sacado guapo y peligroso. Otra vez 🖤'], ['tino', 'En O Furado la colgamos en la barra 🤘']] },
   sabela: { poses: [[1, 3], [2, 2], [3, 3], [4, 2], [5, 3], [6, 1], [7, 2], [8, 2], [9, 3, 0.51, -0.31, 0.67], [10, 2, 0.71]],
-    x: [['x1', 3], ['x2', 3, 0.96], ['x3', 3, 0.78], ['x4', 3, 0.78, 0.1], ['x5', 3, 0.73], ['x6', 3, 0.7]], bg: 'alameda', y: 800, h: 345, bomba: 'pose/guiri_4', sitio: 'la Alameda',
+    x: [['x1', 3], ['x2', 3, 1.02], ['x7', 3, 0.945], ['x3', 3, 0.78], ['x4', 3, 0.78, 0.1], ['x5', 3, 0.73], ['x6', 3, 0.7]], bg: 'alameda', y: 800, h: 415, culo: ['x2', 'x5', 'x7'], bomba: 'pose/guiri_4', sitio: 'la Alameda',
     cap: 'La profe más artista de Vigo, en la Alameda 🌳 @sabela_plastica #Arte #NocheDeMeigas',
     dice: { 3: ['¡Para la portada del cole!', '¡Esa sí! ¡Arte contemporáneo!'], 2: ['Mona, mona.', 'Bien, pero sin gracia.'], 1: ['¡Jajaja! Salgo con los ojos cerrados.', 'Esa para el cajón.'], 0: ['¿Eso es arte o un accidente?'] },
     com: [['sabela', '¡Me encanta! La pongo de perfil 💕'], ['noa', 'Pues anda que a mí no me hacéis fotos 😒']] },
@@ -29,11 +29,11 @@ const FOTO = {
     dice: { 3: ['Perfect, mate! For my mum!', 'Lovely! Lovely!'], 2: ['Not bad, mate.', 'Okay-ish.'], 1: ['Mmm… thinking face. No.', 'Again, again!'], 0: ['Oops. Too many pints, mate.', 'Delete it! Mum can\'t see that!'] },
     com: [['guiri', 'Mum says thank you lads! 🇬🇧'], ['carla', 'Me he colado, sí. Contenido de calidad 📲']] },
   // v26: las reinas de la Lume
-  monos: { poses: [[1, 3], [2, 3], [3, 2, 0.74], [4, 1]], bg: 'disco', y: 790, h: 340, bomba: 'chars/colores_a', sitio: 'la pista de la Lume',
+  monos: { poses: [[1, 3], [2, 3], [3, 2, 0.74], [4, 1]], bg: 'disco', y: 790, h: 410, bomba: 'chars/colores_a', sitio: 'la pista de la Lume',
     cap: 'Valeria, reina de la Lume 👑 @valeria_reina #Lume #ReinasDeLaNoche',
     dice: { 3: ['¡Esa! ¡Reina!', '¡Divina! Mándamela ya.'], 2: ['Mona, pero puedo más.', 'Bueno… pasable, rey.'], 1: ['¿Esa? ¡Que salgo con los ojos cerrados!', 'Bórrala, rey.'], 0: ['¿Y mi cara dónde está?'] },
     com: [['monos', '¡Reina de la noche! 👑'], ['rosa', 'Yo salgo mejor, pero vale 💅']] },
-  rosa: { poses: [[1, 3], [2, 3, 0.77], [3, 1]], x: [['x1', 3, 0.98]], bg: 'disco', y: 790, h: 340, bomba: 'chars/colores_a', sitio: 'la pista de la Lume',
+  rosa: { poses: [[1, 3], [2, 3, 0.77], [3, 1]], x: [['x1', 3, 0.98]], culo: ['x1'], bg: 'disco', y: 790, h: 410, bomba: 'chars/colores_a', sitio: 'la pista de la Lume',
     cap: 'Dalia y su top tornasolado en la Lume 💖 @dalia_reina #Lume #ReinasDeLaNoche',
     dice: { 3: ['¡Esa! Ni filtro me hace falta.', '¡Perfecta! Como yo.'], 2: ['Bien, pero sin brillo.', 'Pasable, cariño.'], 1: ['¡Que estaba parpadeando!', 'Esa al cajón, rey.'], 0: ['¿Eso es mi codo?'] },
     com: [['rosa', 'Ni filtro me ha hecho falta 💖'], ['monos', 'Esa la subo yo también 👑']] },
@@ -41,6 +41,12 @@ const FOTO = {
 // en el modo 18+ provocan en vez de regañar
 const FOTO_PROVOCA = ['¿Te gusta lo que ves, Marc? Pues acércate.', 'Uy, ¿dónde apuntas? Sigue, sigue…', 'Esa va directa a tu carpeta secreta, ¿eh?', 'Haz zoom, que para algo tienes el móvil nuevo.', '¡Manara estaría orgulloso!'];
 const FOTO_PROVOCA_FIN = ['Esa no la subas, que me echan de Instaclub.', '¡Esa para el calendario!', 'Para tu colección privada, pillín.'];
+// 18+: cuando enfocas la zona de atrás, ella y Marc se dicen algo
+const FOTO_CULO = {
+  sabela: { ella: ['¿Esa es la perspectiva que buscas, o no te llega el zoom?', 'Eso es una obra de arte, Marc. Se mira con los ojos, no con el objetivo.', 'Ese plano es de museo… y los museos no se tocan.'], marc: ['Es por la composición, profesora. Regla de los tercios.', 'Enfoco la textura. Puramente artístico.', 'Está desenfocado el fondo. Lo de en medio, no.'] },
+  vera: { ella: ['Esas redes no son para pescar, rey.', '¿Tanto zoom para ver una malla?', 'Ojo, que esa cámara tiene demasiados aumentos.'], marc: ['Solo compruebo la costura de la malla.', 'Es la luz del farol, que se me va el enfoque.', 'Voy a por el plano detalle. Por el arte.'] },
+  rosa: { ella: ['Cariño, el tanga es de edición limitada. La vista, gratis.', '¿Ya has encontrado lo que buscabas, rey?', 'Dispara, que esa postura no la aguanto toda la noche.'], marc: ['Estoy comprobando la… costura. De la liga.', 'El autoenfoque se ha ido solo. Lo juro.', 'Es por la luz morada de la Lume.'] },
+};
 const adultoOn = () => typeof ADULTO !== 'undefined' && ADULTO.on();
 EXTRA_ASSETS.push('chars/recep_piensa', 'chars/gente_baila', 'chars/camarero_serio', 'chars/meiga_reza', 'chars/gc2_mira', 'chars/gc1_ok', 'chars/fantasma_guardia', 'chars/fantasma_ataca', 'chars/chica_timida', 'chars/chica_suena');
 EXTRA_ASSETS.push(...Object.keys(FOTO).flatMap((k) => FOTO[k].poses.concat(FOTO[k].x || []).map(([n]) => 'pose/' + k + '_' + n)));
@@ -53,7 +59,7 @@ MG.foto = function (quien) {
   const drawImgH = MG.drawImgH;
   const VW = 470, VH = 610, SHOTS = 3, ZMAX = 3;
   const POSES = adultoOn() && F.x ? F.poses.concat(F.x, F.x) : F.poses;   // en 18+ las picantes salen a menudo
-  let clock = 0, vx = W / 2, vy = 470, zoom = 1, zoomT = 1, pose = F.poses[0], poseT = 0, tiro = 0, fotos = [], flashT = 0, msg = null, fin = false, pendiente = false;
+  let clock = 0, vx = W / 2, vy = F.y - F.h * 0.5, zoom = 1, zoomT = 1, pose = F.poses[0], poseT = 0, tiro = 0, fotos = [], flashT = 0, msg = null, fin = false, pendiente = false;
   let downP = null, pillinT = -9, afT = 0, afOn = false;
   let bomba = { on: false, x: -300, dir: 1, t: 0 };
   const top = MG.bar('');
@@ -94,9 +100,15 @@ MG.foto = function (quien) {
     if (cerca && !afOn) { afOn = true; afT = clock; sfx('tic'); } else if (!cerca) afOn = false;
     // ¿dónde estás apuntando?
     const torso = Math.abs(v.cx - z.mo.x) < z.mw * 0.35 && v.cy > z.mo.y - z.mh * 0.66 && v.cy < z.mo.y - z.mh * 0.22;
-    if (torso && zoom > 1.6 && clock - pillinT > 3.5) {
+    if (torso && zoom > 1.6 && clock - pillinT > 3.5 && !(adultoOn() && F.culo && F.culo.includes(String(pose[0])))) {
       pillinT = clock;
       msg = { t: quien === 'guiri' ? (adultoOn() ? pick(['Cheeky! I like it, mate!', 'Go on then, lad!']) : pick(['Oi! My face is up here, mate!', 'Eyes up, mate! Cheeky!'])) : adultoOn() ? pick(FOTO_PROVOCA) : pick(['¡Oye, qué pillín! ¿Dónde estás apuntando? ¡Eso para luego!', '¡Eh! La cara la tengo más arriba, ¿eh?', '¡Marc! ¡Que se lo digo a Manara!']), hasta: clock + 2.4, quien };
+    }
+    // 18+: enfocas la zona de atrás de una pose de espaldas
+    const atras = adultoOn() && F.culo && F.culo.includes(String(pose[0])) && FOTO_CULO[quien] && Math.abs(v.cx - z.mo.x) < z.mw * 0.42 && v.cy > z.mo.y - z.mh * 0.6 && v.cy < z.mo.y - z.mh * 0.26;
+    if (atras && zoom > 1.5 && clock - pillinT > 4) {
+      pillinT = clock; const fc = FOTO_CULO[quien];
+      msg = { t: pick(fc.ella), t2: 'Marc: «' + pick(fc.marc) + '»', hasta: clock + 3.6, quien }; sfx('tic');
     }
     if (msg && clock > msg.hasta) msg = null;
   };
@@ -126,7 +138,9 @@ MG.foto = function (quien) {
     const likes = Math.round(150 + nota * 520 + Math.random() * 120 + (colado ? 90 : 0) + (torso ? 300 : 0));
     fotos.push({ cv, nota, likes, colado });
     let t;
-    if (torso && adultoOn()) t = quien === 'guiri' ? 'Cheeky! Mum can not see that one!' : pick(FOTO_PROVOCA_FIN);
+    const atrasF = adultoOn() && F.culo && F.culo.includes(String(pose[0])) && Math.abs(v.cx - z.mo.x) < z.mw * 0.42 && v.cy > z.mo.y - z.mh * 0.6 && v.cy < z.mo.y - z.mh * 0.26 && zoom > 1.5;
+    if (atrasF) t = pick(FOTO_PROVOCA_FIN);
+    else if (torso && adultoOn()) t = quien === 'guiri' ? 'Cheeky! Mum can not see that one!' : pick(FOTO_PROVOCA_FIN);
     else if (torso) t = quien === 'guiri' ? 'Delete that one, you cheeky lad!' : '¡Esa foto la borras ahora mismo, pillín!';
     else if (!cabeza) t = quien === 'guiri' ? 'Where is my head, mate?' : '¡Que me cortas la cabeza!';
     else if (enc < 0.6) t = quien === 'guiri' ? 'I\'m not in the picture, mate!' : '¡Que me cortas! Encuádrame bien.';
@@ -140,9 +154,9 @@ MG.foto = function (quien) {
   }
   function terminar() {
     removeEventListener('wheel', onWheel);
-    const best = fotos.slice().sort((a, b) => b.nota - a.nota)[0];
-    let img = null; try { img = best.cv.toDataURL('image/jpeg', 0.82); } catch (e) {}
-    m.end({ nota: best.nota, likes: best.likes, img, colado: best.colado });
+    const orden = fotos.slice().sort((a, b) => b.nota - a.nota), best = orden[0];
+    let img = null, mas = []; try { img = best.cv.toDataURL('image/jpeg', 0.8); mas = orden.slice(1).map((f) => f.cv.toDataURL('image/jpeg', 0.7)); } catch (e) {}
+    m.end({ nota: best.nota, likes: best.likes, img, mas, colado: best.colado });
   }
   m.draw = (c, t) => {
     const v = visor();
@@ -197,7 +211,9 @@ MG.foto = function (quien) {
     c.restore();
     // las fotos hechas, en miniatura abajo a la izquierda
     fotos.forEach((f, i) => { const w = 110, h = 143, x = 30 + i * 128, y = H - h - 40; c.save(); c.translate(x + w / 2, y + h / 2); c.rotate((i - 1) * 0.06); c.fillStyle = '#f4efe2'; c.fillRect(-w / 2 - 6, -h / 2 - 6, w + 12, h + 24); c.drawImage(f.cv, -w / 2, -h / 2, w, h); c.restore(); });
-    if (msg) { c.save(); c.font = "800 38px 'Nunito'"; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 8; c.strokeStyle = '#000'; c.strokeText(msg.t, W / 2, 112); c.fillStyle = msg.quien ? '#ffb3d9' : '#fff'; c.fillText(msg.t, W / 2, 112); c.restore(); }
+    if (msg) { c.save(); c.font = "800 38px 'Nunito'"; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 8; c.strokeStyle = '#000'; c.strokeText(msg.t, W / 2, 112); c.fillStyle = msg.quien ? '#ffb3d9' : '#fff'; c.fillText(msg.t, W / 2, 112);
+      if (msg.t2) { c.font = "800 32px 'Nunito'"; c.strokeText(msg.t2, W / 2, 162); c.fillStyle = '#ffe9a8'; c.fillText(msg.t2, W / 2, 162); }
+      c.restore(); }
     if (flashT > 0) { c.fillStyle = `rgba(255,255,255,${flashT * 3})`; c.fillRect(0, 0, W, H); }
   };
   return MG.begin(m);
@@ -208,7 +224,7 @@ async function sesionFotos(quien) {
   const F = FOTO[quien];
   const r = await MG.foto(quien);
   const nota = r && r.nota !== undefined ? r.nota : 2.5, likes = r && r.likes || 900;
-  if (r && r.img && typeof GALERIA !== 'undefined' && GALERIA.foto) GALERIA.foto(quien, r.img, likes, F.cap, F.com);
+  if (r && r.img && typeof GALERIA !== 'undefined' && GALERIA.foto) GALERIA.foto(quien, r.img, likes, F.cap, F.com, r.mas);
   flag('foto_' + quien, 1);
   await narr(`Marc sube la mejor a Instaclub. En dos minutos: ${likes.toLocaleString('es-ES')} likes.`);
   if (nota >= 2) await say(quien, quien === 'guiri' ? 'My mum is going to love it! Cheers, mate!' : quien === 'vera' ? 'Me la descargo y te mando un audio. Bueno… igual no.' : '¡Me la pongo de perfil! ¡Eres un artista, Marc!', 'risa');

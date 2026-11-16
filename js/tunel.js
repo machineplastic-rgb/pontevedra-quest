@@ -34,10 +34,36 @@ LOGROS.tunel = { i: '🗝️', t: 'El túnel secreto' };
   const setup0 = SCENES.bodega.setup;
   SCENES.bodega.setup = function () { if (S && llaveGuardada() && !has('llave_camino') && !flag('tunelAbierto')) S.inv.push('llave_camino'); return setup0.apply(this, arguments); };
 }
+// v28 · la reja abierta: dibujo nuevo de la bodega, luces que se apagan, susurro fantasmal y niebla en el pasillo
+EXTRA_ASSETS.push('bg/bodega_abierta');
+const LUCES = { a: 0 };
+Object.defineProperty(SCENES.bodega, 'bg', { configurable: true, enumerable: true, get() { return (typeof S !== 'undefined' && S && S.flags && S.flags.tunelAbierto) ? 'bodega_abierta' : 'bodega'; } });
+SCENES.bodega.emit.push({ kind: 'fog', rate: 0, x0: 1040, x1: 1340, y0: 470, y1: 700, pre: 0, color: '#9fb4ff' });
+{
+  const niebla = () => { const e = SCENES.bodega.emit[SCENES.bodega.emit.length - 1]; e.rate = S && S.flags.tunelAbierto ? 2.2 : 0; };
+  const setup1 = SCENES.bodega.setup;
+  SCENES.bodega.setup = function () { niebla(); return setup1.apply(this, arguments); };
+  SCENES.bodega.nieblaOn = niebla;
+  const top0 = SCENES.bodega.drawTop;
+  SCENES.bodega.drawTop = function (c, t) {
+    if (top0) top0.apply(this, arguments);
+    const base = S && S.flags.tunelAbierto ? 0.12 : 0, a = Math.max(LUCES.a, base);
+    if (a > 0.005) { c.save(); c.fillStyle = 'rgba(2,3,10,' + a + ')'; c.fillRect(0, 0, W, H); c.restore(); }
+  };
+}
 async function abrirTunel() {
   if (flag('tunelAbierto')) return goScene('tunel', { from: 'left' });
-  sfx('reja'); shake(0.3); flag('tunelAbierto', 1); takeItem('llave_camino');
+  sfx('reja'); shake(0.3); takeItem('llave_camino');
   await narr('La llave del Camino entra a la primera. Clac. La reja se abre con un quejido de trescientos años.');
+  // las luces parpadean… y se apagan
+  sfx('fantasma');
+  for (const a of [0.7, 0.1, 0.85, 0.3, 0.95]) { LUCES.a = a; await wait(140); }
+  LUCES.a = 0.97; flag('tunelAbierto', 1); SCENES.bodega.nieblaOn(); shake(0.15);
+  await narr('Las luces se apagan de golpe. Un soplo helado sube del túnel y, muy bajito, alguien susurra: «…Xoana…».');
+  sfx('fantasma');
+  await say('ramis', 'Yo no he sido. Lo juro por mi Porsche imaginario.', 'sorpresa');
+  await tween(LUCES, { a: 0 }, 1.8);
+  await narr('Las luces vuelven, más tenues. Del pasillo sale una niebla fría que se arrastra por el suelo.');
   await say('marcos', '¡La llave de Toño! ¡Contenido desbloqueado en la segunda partida! Esto lo hacen los juegos buenos.', 'sorpresa');
   await say('ramis', 'Caballeros… después de vosotros. Bueno, después de Ángel, que es el que nota cosas.');
   await goScene('tunel', { from: 'left' });
@@ -54,7 +80,7 @@ SCENES.tunel = {
     { type: 'glow', x: 1050, y: 330, r: 260, color: '#9fc4ff', a: 0.16 },
     { type: 'beam', x0: 1000, y0: 250, x1: 1050, y1: 620, w0: 40, w1: 190, color: 'rgba(170,200,255,0.5)', a: 0.14 },
   ],
-  emit: [{ kind: 'dust', rate: 3, x0: 300, x1: 1300, y0: 200, y1: 700, pre: 20 }],
+  emit: [{ kind: 'dust', rate: 3, x0: 300, x1: 1300, y0: 200, y1: 700, pre: 20 }, { kind: 'fog', rate: 2.6, x0: -100, x1: 1600, y0: 640, y1: 980, pre: 14, color: '#a8b8e8' }],
   hs: [
     { name: 'Farol', r: [205, 125, 150, 270], verbs: { 'Mirar': () => say(S.active, 'Un farol encendido. ¿Quién viene a cambiarle el aceite a un túnel secreto? Mejor no preguntar.') } },
     { name: 'Farol', r: [1405, 190, 150, 230], verbs: { 'Mirar': () => say(S.active, S.active === 'angel' ? 'Esta luz no la ha encendido nadie vivo. Lo noto.' : 'Otro farol. Ángel dice que lo ha encendido alguien que no está vivo.') } },
@@ -76,6 +102,7 @@ SCENES.tunel = {
     { name: 'Volver a la bodega', r: [0, 0, 190, 440], arrow: 'left', fn: () => goScene('bodega', { from: 'right' }) },
   ],
   async enter() {
+    if (!flag('tunelVisto')) { flag('tunelVisto', 1); sfx('fantasma'); }
     await narr('Un túnel de piedra bajo la zona vieja. Barricas, cajas, faroles que alguien sigue encendiendo… y al fondo, una escalera por la que entra la luz de la luna.');
     await say('angel', 'Aquí abajo hay todavía más energía que en la bodega. Y más humedad.');
     await say('ramis', 'Caballeros… un túnel secreto. Esto se lo cuento a los de Mallorca y no se lo creen.', 'sorpresa');

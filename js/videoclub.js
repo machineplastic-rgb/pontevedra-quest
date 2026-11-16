@@ -834,6 +834,75 @@ body.vc-paused #stage *,body.vc-paused #stage *::before,body.vc-paused #stage *:
       VC.drv = null;
       return p;
     });
+    // v28 · SELFIE DE CARLA: los cuatro se quedan quietos en el encuadre
+    hook(MG, 'selfie', (orig) => function () {
+      if (!VC.on) return orig.apply(this, arguments);
+      const s = VC.sess, p = orig.apply(this, arguments), m = G.mode;
+      if (!m || !m.key) return p;
+      let next = 0;
+      mano.show(false);
+      piloto(m, s, 45, { n: 4, likes: 3500 }, (dt, t) => {
+        next -= dt;
+        if (t > 0.3 && next <= 0) { next = 0.5; ['1', '2', '3', '4'].forEach((k) => m.key(k, true)); }
+      });
+      return p.then((r) => { finMG(); return r; });
+    });
+    // v28 · QUEIMADA: la mano remueve el pote y le da a la meiga lo que pide
+    hook(MG, 'queimada', (orig) => function () {
+      if (!VC.on) return orig.apply(this, arguments);
+      const s = VC.sess, p = orig.apply(this, arguments), m = G.mode;
+      if (!m || !m.draw) return p;
+      const st = { txt: '', next: 0.4, per: 0.5, boost: 0, pausa: 0, pide: '', pideT: 0, ang: 0 };
+      const od = m.draw;
+      m.draw = function (c, t) {
+        let txt = ''; const ft = c.fillText;
+        c.fillText = function (x, ...r) { if (typeof x === 'string') txt += x + '|'; return ft.call(this, x, ...r); };
+        try { od.call(this, c, t); } finally { delete c.fillText; }
+        st.txt = txt;
+      };
+      mano.keep = true; mano.show(true);
+      piloto(m, s, 45, { nota: 2.4, aciertos: 4, fallos: 0, pct: 0.8 }, (dt) => {
+        const tx = st.txt;
+        if (/se apaga/.test(tx)) st.boost = 1.2;
+        if (/Que arde/.test(tx)) st.pausa = 2;
+        st.boost -= dt; st.pausa -= dt; st.next -= dt; st.ang += dt * 5;
+        mano.put(800 + Math.cos(st.ang) * 130, 740 + Math.sin(st.ang) * 55);
+        if (st.next <= 0 && st.pausa <= 0) { st.next = st.boost > 0 ? 0.22 : 0.5; m.key(' ', true); }
+        const q = /Meiga: ¡Azucre!/.test(tx) ? '1' : /Meiga: ¡Café!/.test(tx) ? '2' : /Meiga: ¡Casca/.test(tx) ? '3' : '';
+        st.pideT = q ? st.pideT + dt : 0;
+        if (q && st.pideT > 0.7) { m.key(q, true); st.pideT = -1.5; }
+      });
+      return p.then((r) => { finMG(); return r; });
+    });
+    // v28 · SERENATA: Ángel canta el verso bonito cuando la aguja está en verde
+    hook(MG, 'serenata', (orig) => function () {
+      if (!VC.on) return orig.apply(this, arguments);
+      const s = VC.sess, p = orig.apply(this, arguments), m = G.mode;
+      if (!m || !m.draw) return p;
+      const st = { ax: null, hechos: new Set(), busy: false };
+      const od = m.draw;
+      m.draw = function (c, t) {
+        const fr = c.fillRect;
+        c.fillRect = function (x, y, w, h) { if (w === 8 && h === 52) st.ax = (x + 4 - 540) / 520; return fr.apply(this, arguments); };
+        try { od.call(this, c, t); } finally { delete c.fillRect; }
+      };
+      const bonitos = (typeof SERENATA_VERSOS !== 'undefined' ? SERENATA_VERSOS : []).map((v) => v[0]);
+      mano.keep = true;
+      const canta = async (b) => {
+        st.busy = true; st.hechos.add(b);
+        try {
+          await mano.a(b); b.classList.add('vc-hi');
+          for (let i = 0; i < 300 && vivo(s) && st.ax !== null && Math.abs(st.ax - 0.5) > 0.07; i++) await vw(25);
+          await mano.tap(true); if (vivo(s) && b.isConnected) pulsa(b);
+        } finally { st.busy = false; }
+      };
+      piloto(m, s, 70, { nota: 2.4 }, () => {
+        if (st.busy) return;
+        const b = [...$('mg').querySelectorAll('.mgbtn')].find((x) => visible(x) && !st.hechos.has(x) && bonitos.some((v) => x.textContent.includes(v)));
+        if (b) canta(b);
+      });
+      return p.then((r) => { finMG(); return r; });
+    });
     // por si acaso: el concierto de O Furado (no está en el camino de la peli)
     hook(MG, 'concierto', (orig) => function () {
       if (!VC.on) return orig.apply(this, arguments);
@@ -962,11 +1031,14 @@ body.vc-paused #stage *,body.vc-paused #stage *::before,body.vc-paused #stage *:
     await paso('plaza', () => salida('plaza'));
     await paso('chiste ramis', () => aCamara('ramis', JOKE.ramis, 'risa'));
     await paso('calle', () => salida('calle'));
+    await paso('carla', async () => { await hablar('carla', () => carlaTalk()); });
+    await paso('selfie', async () => { await como('ramis'); await hablar('carla', () => selfieCarla()); });
     await paso('bareto', () => salida('bareto'));
     /* --- PUB: EL BESO --- */
     await paso('pub', () => salto('pub'));
     await paso('chica', async () => { await como('angel'); await hablar('chica', () => chicaTalk(), [1]); });
     await paso('chiste beso', () => aCamara('marc', JOKE.beso, 'risa'));
+    await paso('callejón', async () => { await salto('calle'); await serenataAngel(); });
     /* --- RUINAS Y CRIPTA --- */
     await paso('ruinas', () => salto('ruinas'));
     await paso('chiste xesus', () => aCamara('fantasma', JOKE.xesus, 'risa'));
@@ -996,6 +1068,7 @@ body.vc-paused #stage *,body.vc-paused #stage *::before,body.vc-paused #stage *:
     await paso('calzoncillos', async () => { await como('ramis'); await hablar('meiga', () => meigaTalk()); });
     await paso('postres meiga', () => usar('postres', actorPt('meiga'), 'A meiga Pura', () => darMeiga('postres')));
     await paso('calzón meiga', () => { if (has('calzoncillos')) return usar('calzoncillos', actorPt('meiga'), 'A meiga Pura', () => darMeiga('calzoncillos')); });
+    await paso('queimada', async () => { await como('angel'); await hablar('meiga', () => queimadaMeiga()); });
     /* --- PARKING Y RUMBO A CALDOFRAN (carretera, control, Compaña, balneario, créditos) --- */
     await paso('parking', () => salto('parking'));
     await paso('arrancar', async () => {

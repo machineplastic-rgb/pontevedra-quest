@@ -92,8 +92,37 @@ const INTRO = (() => {
     escena = { c, H2, stars: Array.from({ length: 70 }, (_, i) => ({ x: (i * 97 + 13) % LW, y: (i * 53 + 7) % (SKY - 30), s: (i % 7) / 7 })) };
   }
 
-  /* ---------------- el escudo del estudio ---------------- */
+  /* ---------------- el escudo del estudio: el logo del Club, pixelado ---------------- */
+  let logoPx = null;
+  function cargaLogo() {
+    if (logoPx) return;
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const w = 62, h = Math.round(62 * im.naturalHeight / im.naturalWidth), c = mk(w, h), x = c.getContext("2d");
+        x.imageSmoothingEnabled = true; try { x.imageSmoothingQuality = "high"; } catch (e) {}
+        x.drawImage(im, 0, 0, w, h);
+        const d = x.getImageData(0, 0, w, h), a = d.data, fuera = new Uint8Array(w * h), cola = [];
+        const blanco = (i) => a[i * 4 + 3] < 100 || (a[i * 4] > 225 && a[i * 4 + 1] > 225 && a[i * 4 + 2] > 225);
+        for (let i = 0; i < w; i++) { cola.push(i, (h - 1) * w + i); } for (let j = 0; j < h; j++) { cola.push(j * w, j * w + w - 1); }
+        while (cola.length) { const i = cola.pop(); if (fuera[i] || !blanco(i)) continue; fuera[i] = 1; const px = i % w; if (px > 0) cola.push(i - 1); if (px < w - 1) cola.push(i + 1); if (i >= w) cola.push(i - w); if (i < w * (h - 1)) cola.push(i + w); }
+        for (let i = 0; i < w * h; i++) a[i * 4 + 3] = fuera[i] ? 0 : 255;
+        x.putImageData(d, 0, 0);
+        const L = 9, st = 255 / (L - 1), e = x.getImageData(0, 0, w, h), b = e.data;   // paleta reducida con tramado, como en VGA
+        for (let y = 0; y < h; y++) for (let i = 0; i < w; i++) { const p = (y * w + i) * 4, t = (BAYER[(y & 3) * 4 + (i & 3)] / 16 - 0.5) * st; for (let k = 0; k < 3; k++) b[p + k] = Math.max(0, Math.min(255, Math.round(((b[p + k] - 100) * 1.45 + 150 + t) / st) * st)); }
+        x.putImageData(e, 0, 0);
+        // contorno oscuro de 1 píxel
+        const o = mk(w + 2, h + 2), ox = o.getContext("2d"); ox.fillStyle = "#2a1206";
+        const m2 = ox.getImageData(0, 0, w + 2, h + 2); const mm = m2.data;
+        for (let y = 0; y < h; y++) for (let i = 0; i < w; i++) if (a[(y * w + i) * 4 + 3]) for (const [dx, dy] of [[0, 1], [2, 1], [1, 0], [1, 2]]) { const q = ((y + dy) * (w + 2) + i + dx) * 4; mm[q] = 42; mm[q + 1] = 18; mm[q + 2] = 6; mm[q + 3] = 255; }
+        ox.putImageData(m2, 0, 0); ox.drawImage(c, 1, 1);
+        logoPx = o;
+      } catch (e) { logoPx = null; }
+    };
+    im.src = "img/items/logo_club.webp";
+  }
   function escudo(x, cx, cy) {
+    if (logoPx) { x.drawImage(logoPx, Math.round(cx - logoPx.width / 2), Math.round(cy - logoPx.height / 2)); return; }
     x.fillStyle = '#2a1206'; x.beginPath(); x.moveTo(cx - 14, cy - 16); x.lineTo(cx + 14, cy - 16); x.lineTo(cx + 14, cy + 2); x.lineTo(cx, cy + 16); x.lineTo(cx - 14, cy + 2); x.closePath(); x.fill();
     x.fillStyle = '#e8b85a'; x.beginPath(); x.moveTo(cx - 12, cy - 14); x.lineTo(cx + 12, cy - 14); x.lineTo(cx + 12, cy + 1); x.lineTo(cx, cy + 13); x.lineTo(cx - 12, cy + 1); x.closePath(); x.fill();
     // una jarra de cerveza con espuma
@@ -103,7 +132,7 @@ const INTRO = (() => {
   }
 
   /* ---------------- la música: muiñeira chiptune (original) ---------------- */
-  let ac = null, mg = null, preset = 3, musEnd = 0;
+  let ac = null, mg = null, preset = 3, musEnd = 0, musTimer = 0;
   const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
   function vol() {
     let v = 0.8; try { const a = JSON.parse(localStorage.getItem('pq_ajustes_v1')); if (a && typeof a.music === 'number') v = a.music; } catch (e) {}
@@ -112,7 +141,7 @@ const INTRO = (() => {
   }
   function audio() {
     if (ac) return;
-    try { ac = new (window.AudioContext || window.webkitAudioContext)(); mg = ac.createGain(); mg.gain.value = vol(); mg.connect(ac.destination); } catch (e) { ac = null; }
+    try { ac = new (window.AudioContext || window.webkitAudioContext)(); mg = ac.createGain(); mg.gain.value = vol() * 0.7; const cp = ac.createDynamicsCompressor(); cp.threshold.value = -16; cp.knee.value = 12; cp.ratio.value = 6; cp.attack.value = 0.004; cp.release.value = 0.2; mg.connect(cp); cp.connect(ac.destination); } catch (e) { ac = null; }
   }
   function tono(t, f, d, o) {
     if (!ac) return;
@@ -166,7 +195,8 @@ const INTRO = (() => {
     if (v.bajo) { [50, 54, 57].forEach((m) => tono(t0 + 0.39, hz(m), 1.0, { type: 'triangle', vol: 0.07, sus: 0.8 })); }
     if (v.bateria) { for (let i = 0; i < 6; i++) ruido(t0 + i * 0.065, 0.05, { f: 3000, vol: 0.03 + i * 0.012 }); ruido(t0 + 0.39, 0.9, { tipo: 'highpass', f: 5000, vol: 0.12 }); bombo(t0 + 0.39, 0.5); }
     const ini = t0 + 1.8, vueltas = 4, compas = 6 * CORCHEA, largo = 8 * compas;
-    for (let k = 0; k < vueltas; k++) {
+    // cada vuelta se programa poco antes de sonar (así no se crean miles de nodos de golpe y no petardea)
+    const vuelta = (k) => {
       const b = ini + k * largo;
       let s = 0;
       for (const [m, d] of MEL) {
@@ -187,7 +217,10 @@ const INTRO = (() => {
         }
       }
       if (v.dron) [50, 57].forEach((m) => tono(b, hz(m), largo + 0.05, { type: 'sawtooth', vol: 0.025, lp: 900, a: 0.05, sus: 0.97 }));
-    }
+    };
+    let sig = 0; vuelta(sig++);
+    clearInterval(musTimer);
+    musTimer = setInterval(() => { if (!ac || sig >= vueltas) { clearInterval(musTimer); return; } if (ac.currentTime > ini + sig * largo - 2.5) vuelta(sig++); }, 300);
     musEnd = ini + vueltas * largo;
   }
   function fx(nombre) {
@@ -198,6 +231,7 @@ const INTRO = (() => {
     if (nombre === 'pip') tono(t, 990, 0.07, { type: 'square', vol: 0.05, sus: 0.9 });
   }
   function apagar() {
+    clearInterval(musTimer);
     if (!ac) return; const t = ac.currentTime;
     try { mg.gain.cancelScheduledValues(t); mg.gain.setValueAtTime(mg.gain.value, t); mg.gain.linearRampToValueAtTime(0, t + 0.7); } catch (e) {}
     const a = ac; ac = null; setTimeout(() => { try { a.close(); } catch (e) {} }, 900);
@@ -220,6 +254,7 @@ const INTRO = (() => {
   function correr() {
     return new Promise((fin) => {
       if (!escena) construye();
+      cargaLogo();
       const scr = mk(LW, LH), x = scr.getContext('2d');
       const lineas = mk(W, H), lx = lineas.getContext('2d'); lx.fillStyle = 'rgba(0,0,0,0.16)'; for (let y = 4; y < H; y += 5) lx.fillRect(0, y, W, 1);
       let fase = 'setup', t0 = 0, sel = 3, acabando = -1, golpeT = -1, estrellaT = -1, letrasOk = 0;
@@ -287,7 +322,7 @@ const INTRO = (() => {
         // 1 · el estudio
         if (T < 4.4) {
           const a = T < 0.6 ? T / 0.6 : T > 3.8 ? (4.4 - T) / 0.6 : 1;
-          x.save(); x.globalAlpha = step4(a); escudo(x, 160, 70); x.restore();
+          x.save(); x.globalAlpha = step4(a); escudo(x, 160, 55); x.restore();
           centro(x, pix('CLUB DE CABALLEROS GAMES', 8, ORO, { outline: '#2a1206' }), 100, a);
           centro(x, pix('presenta', 8, '#a8a8fc'), 120, a);
           return;

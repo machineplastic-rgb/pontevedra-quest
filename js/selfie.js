@@ -22,12 +22,12 @@ MG.selfie = function () {
     angel: ['¿Eso de ahí es la Santa Compaña?', 'Esperad, que he oído una gaita.'],
   };
   const bgName = (G.scene && G.scene.bg) || 'plaza';
-  const P = {}; PROTA.forEach((id, i) => { const x = FR.x0 + 100 + i * 140; P[id] = { x, tx: x, v: 0, huye: 0, grab: false, bocadillo: null, bt: 0 }; });
+  const P = {}; PROTA.forEach((id, i) => { const x = FR.x0 + 90 + i * 110; P[id] = { x, tx: x, v: 0, huye: 0, grab: false, bocadillo: null, bt: 0 }; });
   let clock = 0, cuenta = CUENTA, tiro = 0, fotos = [], flashT = 0, msg = null, fin = false, pendiente = false, nextHuye = 1.2, drag = null;
   const top = MG.bar('');
   const updTop = () => (top.innerHTML = `🤳 Selfie ${Math.min(tiro + 1, SHOTS)} de ${SHOTS} · arrastra a los caballeros dentro del encuadre antes del «¡uno!»`);
   updTop();
-  const dentro = (id) => { const p = P[id]; return p.x > FR.x0 + 40 && p.x < FR.x0 + FR.w - 170; };   // detrás de Carla no se le ve
+  const dentro = (id) => { const p = P[id]; return p.x > FR.x0 + 40 && p.x < FR.x0 + FR.w - 280; };   // detrás de Carla no se le ve
   const enFoto = () => PROTA.filter(dentro);
   // agarrar al que esté más cerca del dedo
   const quien = (pt) => {
@@ -37,11 +37,11 @@ MG.selfie = function () {
   };
   m.down = (pt) => { const id = quien(pt); if (!id) return; drag = { id, dx: P[id].x - pt.x }; P[id].grab = true; P[id].huye = 0; P[id].v = 0; sfx('tic'); };
   m.move = (pt) => { if (!drag) return; const p = P[drag.id]; p.x = clamp(pt.x + drag.dx, 60, W - 60); p.tx = p.x; };
-  m.up = () => { if (!drag) return; const p = P[drag.id]; p.grab = false; p.calma = 1.6 + Math.random(); drag = null; };
+  m.up = () => { if (!drag) return; const p = P[drag.id]; p.grab = false; p.calma = 0.9 + Math.random() * 0.7; drag = null; };
   m.key = (k, d) => {
     if (!d) return;
     // con teclado: 1-4 devuelve a cada uno al centro
-    const i = '1234'.indexOf(k); if (i >= 0) { const p = P[PROTA[i]]; p.huye = 0; p.v = 0; p.x = p.tx = FR.x0 + 100 + i * 140; p.calma = 1.6; sfx('tic'); }
+    const i = '1234'.indexOf(k); if (i >= 0) { const p = P[PROTA[i]]; p.huye = 0; p.v = 0; p.x = p.tx = FR.x0 + 90 + i * 110; p.calma = 1.6; sfx('tic'); }
   };
   m.update = (dt) => {
     clock += dt; flashT = Math.max(0, flashT - dt);
@@ -49,11 +49,11 @@ MG.selfie = function () {
     // alguien se escapa de vez en cuando (más a menudo en cada selfie)
     nextHuye -= dt;
     if (nextHuye <= 0) {
-      nextHuye = Math.max(0.7, 1.9 - tiro * 0.45) + Math.random() * 0.8;
+      nextHuye = Math.max(0.4, 1.1 - tiro * 0.3) + Math.random() * 0.5;
       const libres = PROTA.filter((id) => !P[id].grab && !P[id].huye && !(P[id].calma > 0));
       if (libres.length) {
         const id = pick(libres), p = P[id];
-        p.huye = 1; p.v = (p.x < W / 2 ? -1 : 1) * (170 + Math.random() * 120 + (S ? S.drunk[id] : 0) * 25);
+        p.huye = 1; p.v = (p.x < W / 2 ? -1 : 1) * (260 + Math.random() * 160 + (S ? S.drunk[id] : 0) * 30);
         if (id === 'marc') p.v = -Math.abs(p.v);   // siempre por su lado bueno
         p.bocadillo = pick(ESCAPA[id]); p.bt = 1.8;
       }
@@ -80,9 +80,9 @@ MG.selfie = function () {
     if (tiro >= SHOTS) { fin = true; setTimeout(terminar, 2200); }
   }
   function terminar() {
-    const best = fotos.slice().sort((a, b) => b.n - a.n || b.likes - a.likes)[0];
-    let img = null; try { img = best.cv.toDataURL('image/jpeg', 0.82); } catch (e) {}
-    m.end({ n: best.n, likes: best.likes, img });
+    const orden = fotos.slice().sort((a, b) => b.n - a.n || b.likes - a.likes), best = orden[0];
+    let img = null, mas = []; try { img = best.cv.toDataURL('image/jpeg', 0.8); mas = orden.slice(1).map((f) => f.cv.toDataURL('image/jpeg', 0.7)); } catch (e) {}
+    m.end({ n: best.n, likes: best.likes, img, mas });
   }
   m.draw = (c, t) => {
     // el mundo, oscuro fuera del encuadre
@@ -97,7 +97,7 @@ MG.selfie = function () {
     };
     pintaGente();
     // Carla, en primer plano, con el brazo estirado (es su cámara)
-    drawImgH(c, 'chars/carla', FR.x0 + FR.w - 30, H + 330, 980);
+    drawImgH(c, 'chars/carla', FR.x0 + FR.w - 140, H + 330, 980);
     if (pendiente) { pendiente = false; hacerFoto(c); }
     // fuera del encuadre, oscuro
     c.save(); c.fillStyle = 'rgba(0,0,0,.62)';
@@ -142,7 +142,7 @@ async function selfieCarla() {
   await say('carla', flag('selfie') ? '¿Otro? ¡Mis viralitos lo piden! A ver si esta vez salís los cuatro.' : '¡Un selfie con el Club para mis viralitos! Juntaos, que a la de tres disparo.', 'risa');
   const r = await MG.selfie();
   const n = r && r.n !== undefined ? r.n : 4, likes = (r && r.likes) || 3500;
-  if (r && r.img && typeof GALERIA !== 'undefined' && GALERIA.foto) GALERIA.foto('carla', r.img, likes, 'Con el Club de Caballeros en Pontevedra 🤳✨ Los cuatro, por fin #ClubDeCaballeros #Viralitos', [['carla', '¡Mis viralitos los adoran! 🔥'], ['ramis', 'Salgo guapo. Eso es un filtro.']]);
+  if (r && r.img && typeof GALERIA !== 'undefined' && GALERIA.foto) GALERIA.foto('carla', r.img, likes, 'Con el Club de Caballeros en Pontevedra 🤳✨ Los cuatro, por fin #ClubDeCaballeros #Viralitos', [['carla', '¡Mis viralitos los adoran! 🔥'], ['ramis', 'Salgo guapo. Eso es un filtro.']], r.mas);
   flag('selfie', 1);
   await narr(`Carla lo sube a Instaclub. En un minuto: ${likes.toLocaleString('es-ES')} likes.`);
   if (n === 4) { await say('carla', '¡Los cuatro! Esto es contenido de calidad. ¡Sois virales, caballeros!', 'risa'); logro('selfie'); }
